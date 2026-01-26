@@ -1,4 +1,4 @@
-import { createThemeContract, createTheme, style } from "@vanilla-extract/css";
+import { createThemeContract, createTheme } from "@vanilla-extract/css";
 
 export const themeVars = createThemeContract({
   color: {
@@ -25,10 +25,4 @@ export const darkTheme = createTheme(themeVars, {
     primary: "#22D3EE",
     secondary: "#94A3B8",
   },
-});
-
-export const root = style({
-  backgroundColor: themeVars.color.background,
-  color: themeVars.color.text,
-  fontFamily: "'Inter', 'Noto Sans JP', sans-serif",
 });
