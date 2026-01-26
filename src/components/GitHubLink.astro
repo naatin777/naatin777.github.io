@@ -1,0 +1,27 @@
+---
+import {
+    githubLink,
+    githubIconLight,
+    githubIconDark,
+} from "../styles/github-link.css";
+import GitHubBlack from "../assets/GitHub_Invertocat_Black.svg";
+import GitHubWhite from "../assets/GitHub_Invertocat_White.svg";
+
+interface Props {
+    url: string;
+    label: string;
+}
+
+const { url, label } = Astro.props;
+---
+
+<a
+    href={url}
+    target="_blank"
+    rel="noopener noreferrer"
+    class={githubLink}
+    aria-label={label}
+>
+    <img src={GitHubBlack.src} alt="GitHub" class={githubIconLight} />
+    <img src={GitHubWhite.src} alt="GitHub" class={githubIconDark} />
+</a>
