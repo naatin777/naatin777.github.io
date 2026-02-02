@@ -1,0 +1,21 @@
+---
+import { socialLink, socialIcon } from "../../styles/social-link.css";
+import Qiita from "../../assets/sns/qiita.svg";
+
+interface Props {
+    url: string;
+    label: string;
+}
+
+const { url, label } = Astro.props;
+---
+
+<a
+    href={url}
+    target="_blank"
+    rel="noopener noreferrer"
+    class={socialLink}
+    aria-label={label}
+>
+    <img src={Qiita.src} alt="Qiita" class={socialIcon} />
+</a>

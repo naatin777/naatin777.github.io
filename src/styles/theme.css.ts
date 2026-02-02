@@ -6,23 +6,18 @@ export const themeVars = createThemeContract({
     text: "",
     primary: "",
     secondary: "",
+    accent: "",
+    glow: "",
   },
 });
 
-export const lightTheme = createTheme(themeVars, {
+export const theme = createTheme(themeVars, {
   color: {
-    background: "#F8FAFC",
-    text: "#1E293B",
-    primary: "#0891B2",
-    secondary: "#64748B",
-  },
-});
-
-export const darkTheme = createTheme(themeVars, {
-  color: {
-    background: "#0F172A",
-    text: "#F1F5F9",
-    primary: "#22D3EE",
-    secondary: "#94A3B8",
+    background: "#020617", // Slate 950
+    text: "#f8fafc",      // Slate 50
+    primary: "#38bdf8",   // Sky 400
+    secondary: "#94a3b8", // Slate 400
+    accent: "#0ea5e9",    // Sky 500
+    glow: "0 0 25px rgba(56, 189, 248, 0.2)",
   },
 });

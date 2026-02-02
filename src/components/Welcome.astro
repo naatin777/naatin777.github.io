@@ -1,25 +1,25 @@
 ---
-import { center } from "../styles/welcome.css";
+import { center, headerContainer, iconImage, socialContainer } from "../styles/welcome.css";
+import GitHubLink from "./sns/GitHubLink.astro";
+import XLink from "./sns/XLink.astro";
+import QiitaLink from "./sns/QiitaLink.astro";
+import ZennLink from "./sns/ZennLink.astro";
+import Icon from "../assets/icon.png";
 ---
 
 <div class={center}>
     <main>
         <section>
-            <h1>Hey, I'm Naatin 👋</h1>
+            <div class={headerContainer}>
+                <img src={Icon.src} alt="Naatin's Icon" class={iconImage} />
+                <h1>Hey, I'm Naatin 👋</h1>
+            </div>
         </section>
     </main>
-
-    <div>
-        <img
-            src="https://github-readme-stats-henna-iota-42.vercel.app/api?username=naatin777&show_icons=true"
-            alt="Naatin's GitHub stats"
-        />
-    </div>
-
-    <div>
-        <img
-            src="https://github-readme-stats-henna-iota-42.vercel.app/api/top-langs/?username=naatin777"
-            alt="Naatin's Top Languages"
-        />
+    <div class={socialContainer}>
+        <GitHubLink url="https://github.com/naatin777" label="naatin777" />
+        <XLink url="https://x.com/naatin777" label="naatin777" />
+        <QiitaLink url="https://qiita.com/naatin777" label="naatin777" />
+        <ZennLink url="https://zenn.dev/naatin777" label="naatin777" />
     </div>
 </div>
