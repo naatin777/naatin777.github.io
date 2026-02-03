@@ -1,0 +1,21 @@
+---
+import { socialLink, socialIcon } from "../../styles/social-link.css";
+import Bluesky from "../../assets/sns/bluesky.svg";
+
+interface Props {
+    url: string;
+    label: string;
+}
+
+const { url, label } = Astro.props;
+---
+
+<a
+    href={url}
+    target="_blank"
+    rel="noopener noreferrer"
+    class={socialLink}
+    aria-label={label}
+>
+    <img src={Bluesky.src} alt="Bluesky" class={socialIcon} />
+</a>

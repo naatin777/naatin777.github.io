@@ -33,3 +33,9 @@ export const socialContainer = style({
   marginTop: "1rem",
 });
 
+export const footer = style({
+  textAlign: "center",
+  padding: "2rem",
+  color: "#94a3b8",
+  fontSize: "0.875rem",
+});
