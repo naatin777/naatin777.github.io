@@ -24,7 +24,6 @@ export const iconImage = style({
   borderRadius: "50%",
   objectFit: "cover",
   border: `4px solid ${themeVars.color.background}`,
-  boxShadow: themeVars.color.glow,
 });
 
 export const socialContainer = style({

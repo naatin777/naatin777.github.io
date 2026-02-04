@@ -1,0 +1,23 @@
+---
+import type { ImageMetadata } from "astro";
+import { socialLink, socialIcon } from "@styles/social-link.css";
+
+export interface Props {
+  name: string;
+  url: string;
+  icon: ImageMetadata;
+  label: string;
+}
+
+const { name, url, icon, label } = Astro.props;
+---
+
+<a
+  href={url}
+  target="_blank"
+  rel="noopener noreferrer"
+  class={socialLink}
+  aria-label={label}
+>
+  <img src={icon.src} alt={name} class={socialIcon} />
+</a>

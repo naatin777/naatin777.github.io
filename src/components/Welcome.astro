@@ -1,30 +1,32 @@
 ---
-import { center, headerContainer, iconImage, socialContainer, footer } from "../styles/welcome.css";
-import GitHubLink from "./sns/GitHubLink.astro";
-import XLink from "./sns/XLink.astro";
-import QiitaLink from "./sns/QiitaLink.astro";
-import ZennLink from "./sns/ZennLink.astro";
-import BlueskyLink from "./sns/BlueskyLink.astro";
-import Icon from "../assets/icon.png";
+import {
+  center,
+  headerContainer,
+  iconImage,
+  socialContainer,
+  footer,
+} from "@styles/welcome.css";
+import SocialLink from "@components/SocialLink.astro";
+import { socialLinks } from "@config/social";
+import Icon from "@assets/icon.png";
 ---
 
 <div class={center}>
-    <main>
-        <section>
-            <div class={headerContainer}>
-                <img src={Icon.src} alt="Naatin's Icon" class={iconImage} />
-                <h1>Hey, I'm Naatin 👋</h1>
-            </div>
-        </section>
-    </main>
-    <div class={socialContainer}>
-        <GitHubLink url="https://github.com/naatin777" label="naatin777" />
-        <XLink url="https://x.com/naatin777" label="naatin777" />
-        <QiitaLink url="https://qiita.com/naatin777" label="naatin777" />
-        <ZennLink url="https://zenn.dev/naatin777" label="naatin777" />
-        <BlueskyLink url="https://bsky.app/profile/naatin777.bsky.social" label="naatin777" />
-    </div>
-    <footer class={footer}>
-        © 2026 Naatin. All Rights Reserved.
-    </footer>
+  <main>
+    <section>
+      <div class={headerContainer}>
+        <img
+          src={Icon.src}
+          alt="Naatin's Icon"
+          class={iconImage}
+          loading="eager"
+        />
+        <h1>Hey, I'm Naatin 👋</h1>
+      </div>
+    </section>
+  </main>
+  <div class={socialContainer}>
+    {socialLinks.map((link) => <SocialLink {...link} />)}
+  </div>
+  <footer class={footer}>© 2026 Naatin. All Rights Reserved.</footer>
 </div>
