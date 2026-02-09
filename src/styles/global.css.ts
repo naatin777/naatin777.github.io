@@ -7,6 +7,7 @@ globalStyle("*, *::before, *::after", {
 
 globalStyle('*', {
   margin: 0,
+  padding: 0,
 });
 
 globalStyle("body", {
