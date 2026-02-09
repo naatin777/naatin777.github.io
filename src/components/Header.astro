@@ -1,21 +1,28 @@
 ---
-import { header } from "./Header.css";
+import { header, navList, navLink, activeNavLink } from "./Header.css";
+
+const { pathname } = Astro.url;
 
 const navItems = [
   { href: "/", label: "Home" },
-  { href: "/projects", label: "Projects" },
-  { href: "/articles", label: "Articles" },
+  { href: "/changelog/", label: "Changelog" },
+  { href: "/projects/", label: "Projects" },
+  { href: "/articles/", label: "Articles" },
 ];
 ---
 
 <header class={header}>
   <nav>
-    <ul>
+    <ul class={navList}>
       {
         navItems.map((item) => {
+          const isActive = pathname === item.href;
           return (
             <li>
-              <a href={item.href}>{item.label}</a>
+              <a href={item.href} class={navLink}>
+                <span class={isActive ? activeNavLink : ""} />
+                {item.label}
+              </a>
             </li>
           );
         })
