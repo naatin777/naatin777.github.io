@@ -1,0 +1,13 @@
+---
+import { footer, socialLinkGroup } from "./Footer.css";
+import SocialLink from "./SocialLink.astro";
+import { socialLinks } from "@config/social";
+import { author } from "@config/author";
+---
+
+<footer class={footer}>
+  <div class={socialLinkGroup}>
+    {socialLinks.map((link) => <SocialLink {...link} />)}
+  </div>
+  <p>&copy; 2026 {author.displayName}. All Rights Reserved.</p>
+</footer>

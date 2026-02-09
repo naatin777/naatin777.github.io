@@ -1,0 +1,25 @@
+---
+import { header } from "./Header.css";
+
+const navItems = [
+  { href: "/", label: "Home" },
+  { href: "/projects", label: "Projects" },
+  { href: "/articles", label: "Articles" },
+];
+---
+
+<header class={header}>
+  <nav>
+    <ul>
+      {
+        navItems.map((item) => {
+          return (
+            <li>
+              <a href={item.href}>{item.label}</a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </nav>
+</header>
