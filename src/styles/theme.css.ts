@@ -4,18 +4,14 @@ export const themeVars = createThemeContract({
   color: {
     background: "",
     text: "",
-    primary: "",
-    secondary: "",
-    accent: "",
   },
+  fontFamily: ""
 });
 
 export const theme = createTheme(themeVars, {
   color: {
-    background: "#020617",
+    background: "#0e0e0eff",
     text: "#f8fafc",
-    primary: "#38bdf8",
-    secondary: "#94a3b8",
-    accent: "#0ea5e9",
   },
+  fontFamily: "'Inter', 'Noto Sans JP', sans-serif"
 });
