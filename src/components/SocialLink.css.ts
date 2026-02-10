@@ -1,5 +1,4 @@
 import { style } from "@vanilla-extract/css";
-import { themeVars } from "./theme.css";
 
 export const socialLink = style({
   display: "inline-flex",
@@ -9,7 +8,6 @@ export const socialLink = style({
   height: 40,
   borderRadius: "50%",
   backgroundColor: "rgba(255, 255, 255, 0.05)",
-  color: themeVars.color.secondary,
   margin: "0 0.5rem",
 });
 
