@@ -5,7 +5,7 @@ export default defineConfig({
   vite: {
     plugins: [vanillaExtractPlugin()],
   },
-  site: "https://naatin777.github.io",
+  site: "https://naatin777.dev",
   trailingSlash: "always",
   build: {
     inlineStylesheets: "always",
