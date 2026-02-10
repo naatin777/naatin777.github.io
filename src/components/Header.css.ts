@@ -47,7 +47,7 @@ export const activeNavLink = style({
 });
 
 globalStyle(`::view-transition-group(${transitionName})`, {
-  animationDuration: "0.2s",
+  animationDuration: "0.12s",
   animationTimingFunction: "cubic-bezier(0.5, 0, 0, 1)",
 });
 
