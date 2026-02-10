@@ -3,17 +3,21 @@ import Layout from "@layouts/Layout.astro";
 import { center, headerContainer, iconImage } from "@pages/index.css";
 import Icon from "@assets/icon.png";
 import { author } from "@config/author";
+import { Image } from "astro:assets";
 ---
 
 <Layout>
   <div class={center}>
     <section>
       <div class={headerContainer}>
-        <img
-          src={Icon.src}
+        <Image
+          src={Icon}
           alt={`${author.displayName}'s Icon`}
           class={iconImage}
+          width={120}
+          height={120}
           loading="eager"
+          fetchpriority="high"
         />
         <h1>Hey, I'm {author.displayName} 👋</h1>
       </div>
