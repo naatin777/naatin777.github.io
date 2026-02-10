@@ -10,6 +10,10 @@ globalStyle('*', {
   padding: 0,
 });
 
+globalStyle("html", {
+  backgroundColor: themeVars.color.background
+})
+
 globalStyle("body", {
   fontFamily: themeVars.fontFamily,
   color: themeVars.color.text,
