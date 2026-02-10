@@ -1,6 +1,7 @@
 ---
 import type { ImageMetadata } from "astro";
 import { socialLink, socialIcon } from "@components/SocialLink.css";
+import { Image } from "astro:assets";
 
 export interface Props {
   name: string;
@@ -19,5 +20,5 @@ const { name, url, icon, label } = Astro.props;
   class={socialLink}
   aria-label={label}
 >
-  <img src={icon.src} alt={name} class={socialIcon} />
+  <Image src={icon} alt={name} class={socialIcon} width={24} height={24} />
 </a>
