@@ -4,7 +4,7 @@ import XIcon from "@assets/sns/x.svg";
 import QiitaIcon from "@assets/sns/qiita.svg";
 import ZennIcon from "@assets/sns/zenn.svg";
 import BlueskyIcon from "@assets/sns/bluesky.svg";
-import { author } from "./author"
+import { author } from "./author";
 
 export interface SocialLink {
   name: string;

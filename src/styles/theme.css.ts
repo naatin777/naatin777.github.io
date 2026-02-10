@@ -5,7 +5,7 @@ export const themeVars = createThemeContract({
     background: "",
     text: "",
   },
-  fontFamily: ""
+  fontFamily: "",
 });
 
 export const theme = createTheme(themeVars, {
@@ -13,5 +13,5 @@ export const theme = createTheme(themeVars, {
     background: "#0e0e0eff",
     text: "#f8fafc",
   },
-  fontFamily: "'Inter', 'Noto Sans JP', sans-serif"
+  fontFamily: "'Inter', 'Noto Sans JP', sans-serif",
 });

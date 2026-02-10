@@ -1,9 +1,9 @@
 export interface Author {
-    name: string;
-    displayName: string;
+  name: string;
+  displayName: string;
 }
 
 export const author: Author = {
-    name: "naatin777",
-    displayName: "Naatin",
-}
+  name: "naatin777",
+  displayName: "Naatin",
+};

@@ -5,46 +5,45 @@ globalStyle("*, *::before, *::after", {
   boxSizing: "border-box",
 });
 
-globalStyle('*', {
+globalStyle("*", {
   margin: 0,
   padding: 0,
 });
 
 globalStyle("html", {
-  backgroundColor: themeVars.color.background
-})
+  backgroundColor: themeVars.color.background,
+});
 
 globalStyle("body", {
   fontFamily: themeVars.fontFamily,
   color: themeVars.color.text,
   backgroundColor: themeVars.color.background,
   lineHeight: 1.5,
-  WebkitFontSmoothing: 'antialiased',
-  MozOsxFontSmoothing: 'grayscale',
-  WebkitTapHighlightColor: 'transparent',
+  WebkitFontSmoothing: "antialiased",
+  MozOsxFontSmoothing: "grayscale",
+  WebkitTapHighlightColor: "transparent",
   overflowY: "scroll",
 });
 
-globalStyle('img, picture, video, canvas, svg', {
-  display: 'block',
-  maxWidth: '100%',
+globalStyle("img, picture, video, canvas, svg", {
+  display: "block",
+  maxWidth: "100%",
 });
 
-globalStyle('::-webkit-scrollbar', {
-  width: '8px',
+globalStyle("::-webkit-scrollbar", {
+  width: "8px",
 });
 
-globalStyle('::-webkit-scrollbar-track', {
+globalStyle("::-webkit-scrollbar-track", {
   background: themeVars.color.background,
-  borderRadius: '6px',
+  borderRadius: "6px",
 });
 
-globalStyle('::-webkit-scrollbar-thumb', {
-  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  borderRadius: '6px',
+globalStyle("::-webkit-scrollbar-thumb", {
+  backgroundColor: "rgba(255, 255, 255, 0.2)",
+  borderRadius: "6px",
 });
 
-globalStyle('::-webkit-scrollbar-thumb:hover', {
-  backgroundColor: 'rgba(255, 255, 255, 0.3)',
+globalStyle("::-webkit-scrollbar-thumb:hover", {
+  backgroundColor: "rgba(255, 255, 255, 0.3)",
 });
-
