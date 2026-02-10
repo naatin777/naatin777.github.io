@@ -17,5 +17,6 @@
   },
   "devDependencies": {
     "@vanilla-extract/vite-plugin": "5.1.2-vite-hmr-fix-20250826075423"
-  }
+  },
+  "packageManager": "pnpm@10.0.0"
 }
