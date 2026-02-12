@@ -6,7 +6,6 @@ export default defineConfig({
     plugins: [vanillaExtractPlugin()],
   },
   site: "https://naatin777.dev",
-  trailingSlash: "always",
   build: {
     inlineStylesheets: "always",
   },
