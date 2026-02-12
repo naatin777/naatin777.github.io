@@ -59,5 +59,5 @@ globalStyle("::-webkit-scrollbar-thumb:hover", {
 export const wrapper = style({
   display: 'flex',
   flexDirection: 'column',
-  minHeight: '100vh',
+  minHeight: '100dvh',
 });
