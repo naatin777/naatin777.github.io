@@ -1,4 +1,4 @@
-import { globalStyle } from "@vanilla-extract/css";
+import { globalStyle, style } from "@vanilla-extract/css";
 import { themeVars } from "./theme.css";
 
 globalStyle("*, *::before, *::after", {
@@ -9,6 +9,10 @@ globalStyle("*", {
   margin: 0,
   padding: 0,
 });
+
+globalStyle("html, body", {
+  height: "100%",
+})
 
 globalStyle("html", {
   backgroundColor: themeVars.color.background,
@@ -24,6 +28,10 @@ globalStyle("body", {
   WebkitTapHighlightColor: "transparent",
   overflowY: "scroll",
 });
+
+globalStyle("main", {
+  flex: 1,
+})
 
 globalStyle("img, picture, video, canvas, svg", {
   display: "block",
@@ -46,4 +54,10 @@ globalStyle("::-webkit-scrollbar-thumb", {
 
 globalStyle("::-webkit-scrollbar-thumb:hover", {
   backgroundColor: "rgba(255, 255, 255, 0.3)",
+});
+
+export const wrapper = style({
+  display: 'flex',
+  flexDirection: 'column',
+  minHeight: '100vh',
 });
