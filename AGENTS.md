@@ -43,6 +43,7 @@ Instructions for coding agents working in this repository.
 - Do not use TypeScript `any` by default.
 - `any` may be used only when the user explicitly allows it.
 - Prefer explicit types. If needed, use `unknown` and narrow it safely.
+- Do not use React unless the user explicitly requests React.
 
 ## Styling Rules
 
