@@ -3,7 +3,14 @@
   "formatter": {
     "external": {
       "command": "pnpm",
-      "arguments": ["exec", "prettier", "--write", "$ZED_FILE"]
+      "arguments": [
+        "exec",
+        "prettier",
+        "--plugin",
+        "prettier-plugin-astro",
+        "--stdin-filepath",
+        "{buffer_path}"
+      ]
     }
   }
 }

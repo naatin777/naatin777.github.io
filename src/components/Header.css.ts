@@ -1,4 +1,4 @@
-import { globalStyle, style } from "@vanilla-extract/css";
+import { createViewTransition, globalStyle, style } from "@vanilla-extract/css";
 
 export const header = style({
   position: "sticky",
@@ -36,23 +36,23 @@ export const navLink = style({
   },
 });
 
-const transitionName = "nav-active";
+const navActiveTransition = createViewTransition("nav-active");
 
 export const activeNavLink = style({
   background: "rgba(255, 255, 255, 0.2)",
   position: "absolute",
   inset: 0,
   borderRadius: "24px",
-  viewTransitionName: transitionName,
+  viewTransitionName: navActiveTransition,
 });
 
-globalStyle(`::view-transition-group(${transitionName})`, {
+globalStyle(`::view-transition-group(${navActiveTransition})`, {
   animationDuration: "0.12s",
   animationTimingFunction: "cubic-bezier(0.5, 0, 0, 1)",
 });
 
 globalStyle(
-  `::view-transition-old(${transitionName}), ::view-transition-new(${transitionName})`,
+  `::view-transition-old(${navActiveTransition}), ::view-transition-new(${navActiveTransition})`,
   {
     objectFit: "none",
     height: "100%",
