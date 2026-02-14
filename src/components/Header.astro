@@ -12,14 +12,14 @@ const navItems = [
 ---
 
 <header class={header}>
-  <nav>
+  <nav aria-label="Primary">
     <ul class={navList}>
       {
         navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
             <li>
-              <a href={item.href} class={navLink}>
+              <a href={item.href} class={navLink} aria-current={isActive ? "page" : undefined}>
                 <span class={isActive ? activeNavLink : ""} />
                 {item.label}
               </a>

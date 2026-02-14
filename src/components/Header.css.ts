@@ -8,17 +8,22 @@ export const header = style({
   alignItems: "center",
   height: "5rem",
   zIndex: 100,
+  userSelect: "none",
+  WebkitUserSelect: "none",
 });
 
 export const navList = style({
   display: "flex",
   justifyContent: "center",
-  alignItems: "stretch",
+  alignItems: "center",
   listStyle: "none",
-  background: "rgba(255, 255, 255, 0.1)",
-  backdropFilter: "blur(8px)",
-  WebkitBackdropFilter: "blur(8px)",
-  borderRadius: "24px",
+  gap: "0.25rem",
+  padding: "0.35rem 0.5rem",
+  background: "rgba(255, 255, 255, 0.05)",
+  border: "1px solid rgba(255, 255, 255, 0.1)",
+  backdropFilter: "blur(10px)",
+  WebkitBackdropFilter: "blur(10px)",
+  borderRadius: "999px",
 });
 
 export const navLink = style({
@@ -28,10 +33,15 @@ export const navLink = style({
   textDecoration: "none",
   color: "inherit",
   padding: "0.4rem 0.9rem",
-  borderRadius: "24px",
+  borderRadius: "999px",
+  transition: "background-color 160ms ease",
   selectors: {
     "&:hover": {
-      opacity: 0.5,
+      backgroundColor: "rgba(255, 255, 255, 0.07)",
+    },
+    "&:focus-visible": {
+      outline: "2px solid rgba(255, 255, 255, 0.5)",
+      outlineOffset: "2px",
     },
   },
 });
@@ -39,10 +49,11 @@ export const navLink = style({
 const navActiveTransition = createViewTransition("nav-active");
 
 export const activeNavLink = style({
-  background: "rgba(255, 255, 255, 0.2)",
+  background: "rgba(255, 255, 255, 0.18)",
   position: "absolute",
   inset: 0,
-  borderRadius: "24px",
+  borderRadius: "999px",
+  pointerEvents: "none",
   viewTransitionName: navActiveTransition,
 });
 
