@@ -1,6 +1,6 @@
 ---
 import Layout from "@layouts/Layout.astro";
-import { center, headerContainer, iconImage } from "@pages/index.css";
+import { center, descriptionText, headerContainer, iconImage } from "@pages/index.css";
 import Icon from "@assets/icon.png";
 import { author } from "@config/author";
 import { Image } from "astro:assets";
@@ -20,6 +20,12 @@ import { Image } from "astro:assets";
           fetchpriority="high"
         />
         <h1>Hey, I'm {author.displayName} 👋</h1>
+        <p class={descriptionText}>
+          Just a beginner developer playing around with code as a hobby. I treat this space as a
+          personal playground where I can experiment and learn how to build things, one step at a
+          time. I’m just exploring the process of trial and error, tinkering with whatever happens
+          to catch my eye.
+        </p>
       </div>
     </section>
   </div>

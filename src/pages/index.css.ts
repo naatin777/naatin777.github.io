@@ -22,3 +22,10 @@ export const iconImage = style({
   borderRadius: "50%",
   objectFit: "cover",
 });
+
+export const descriptionText = style({
+  maxWidth: "42rem",
+  color: "rgba(255, 255, 255, 0.72)",
+  lineHeight: 1.8,
+  textWrap: "balance",
+});
