@@ -10,9 +10,13 @@ globalStyle("*", {
   padding: 0,
 });
 
+globalStyle("@view-transition", {
+  navigation: "auto",
+} as any);
+
 globalStyle("html, body", {
   height: "100%",
-})
+});
 
 globalStyle("html", {
   backgroundColor: themeVars.color.background,
@@ -31,7 +35,7 @@ globalStyle("body", {
 
 globalStyle("main", {
   flex: 1,
-})
+});
 
 globalStyle("img, picture, video, canvas, svg", {
   display: "block",
@@ -57,7 +61,7 @@ globalStyle("::-webkit-scrollbar-thumb:hover", {
 });
 
 export const wrapper = style({
-  display: 'flex',
-  flexDirection: 'column',
-  minHeight: '100dvh',
+  display: "flex",
+  flexDirection: "column",
+  minHeight: "100dvh",
 });

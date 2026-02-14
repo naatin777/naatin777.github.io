@@ -19,7 +19,7 @@ const navItems = [
           const isActive = pathname === item.href;
           return (
             <li>
-              <a href={item.href} class={navLink} data-astro-history="replace">
+              <a href={item.href} class={navLink}>
                 <span class={isActive ? activeNavLink : ""} />
                 {item.label}
               </a>
