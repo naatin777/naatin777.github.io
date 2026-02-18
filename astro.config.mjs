@@ -10,4 +10,7 @@ export default defineConfig({
     inlineStylesheets: "always",
   },
   prefetch: true,
+  devToolbar: {
+    placement: "bottom-right",
+  },
 });
