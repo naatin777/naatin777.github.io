@@ -3,11 +3,23 @@ import { header, navList, navLink, activeNavLink } from "./Header.css";
 
 const { pathname } = Astro.url;
 
+const isActivePath = (href: string): boolean => {
+  if (href === "/") {
+    return pathname === "/";
+  }
+
+  if (href === "/articles" && pathname.startsWith("/blog")) {
+    return true;
+  }
+
+  return pathname === href || pathname.startsWith(href);
+};
+
 const navItems = [
   { href: "/", label: "Home" },
-  { href: "/changelog/", label: "Changelog" },
-  { href: "/projects/", label: "Projects" },
-  { href: "/articles/", label: "Articles" },
+  { href: "/changelog", label: "Changelog" },
+  { href: "/projects", label: "Projects" },
+  { href: "/articles", label: "Articles" },
 ];
 ---
 
@@ -16,7 +28,7 @@ const navItems = [
     <ul class={navList}>
       {
         navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = isActivePath(item.href);
           return (
             <li>
               <a href={item.href} class={navLink} aria-current={isActive ? "page" : undefined}>
