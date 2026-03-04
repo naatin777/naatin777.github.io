@@ -7,6 +7,5 @@ export interface SiteMetadata {
 
 export const siteMetadata: SiteMetadata = {
   title: `${author.displayName}'s Portfolio`,
-  description:
-    "Naatin's personal portfolio. A place for my coding experiments and learning journey, building things step by step.",
+  description: `${author.displayName}'s personal portfolio. A place for my coding experiments and learning journey, building things step by step.`,
 };
