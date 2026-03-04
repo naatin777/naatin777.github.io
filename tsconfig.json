@@ -8,7 +8,8 @@
       "@layouts/*": ["./src/layouts/*"],
       "@config/*": ["./src/config/*"],
       "@styles/*": ["./src/styles/*"],
-      "@assets/*": ["./src/assets/*"]
+      "@assets/*": ["./src/assets/*"],
+      "@scripts/*": ["./src/scripts/*"]
     },
     "jsx": "preserve"
   }
