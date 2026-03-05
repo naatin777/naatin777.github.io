@@ -48,6 +48,7 @@ export const themeVars = createThemeContract({
   },
 
   spacing: {
+    none: "",
     xs: "",
     sm: "",
     md: "",
