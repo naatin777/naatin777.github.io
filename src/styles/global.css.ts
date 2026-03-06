@@ -62,6 +62,7 @@ globalStyle("body", {
     [baseLayer]: {
       display: "flex",
       flexDirection: "column",
+      position: "relative",
       height: "100%",
       minHeight: "100dvh",
       overflowY: "auto",
@@ -73,6 +74,15 @@ globalStyle("body", {
       WebkitFontSmoothing: "antialiased",
       MozOsxFontSmoothing: "grayscale",
       WebkitTapHighlightColor: "transparent",
+    },
+  },
+});
+
+globalStyle("body > header, body > main, body > footer", {
+  "@layer": {
+    [baseLayer]: {
+      position: "relative",
+      zIndex: 1,
     },
   },
 });
