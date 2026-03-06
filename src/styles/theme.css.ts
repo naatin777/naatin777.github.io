@@ -149,7 +149,12 @@ export const darkThemeValues = {
   ...sharedThemeValues,
 } as const;
 
-export const theme = createTheme(themeVars, {
+export const lightTheme = createTheme(themeVars, {
   "@layer": themeLayer,
   ...lightThemeValues,
+});
+
+export const darkTheme = createTheme(themeVars, {
+  "@layer": themeLayer,
+  ...darkThemeValues,
 });
