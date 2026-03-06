@@ -5,6 +5,7 @@ export const themeVars = createThemeContract({
     background: "",
     surface: "",
     surfaceSoft: "",
+    surfaceFloating: "",
     surfaceHover: "",
     surfaceActive: "",
     overlay: "",
@@ -90,12 +91,14 @@ export const themeVars = createThemeContract({
   },
 
   layout: {
+    header: "",
     container: "",
     content: "",
     reading: "",
   },
 
   zIndex: {
+    header: "",
     dropdown: "",
     overlay: "",
     modal: "",
