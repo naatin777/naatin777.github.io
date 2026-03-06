@@ -49,6 +49,7 @@ globalStyle("html", {
   "@layer": {
     [baseLayer]: {
       height: "100%",
+      overflowY: "hidden",
       scrollbarGutter: "stable",
       scrollbarColor: `${themeVars.color.scrollThumb} transparent`,
       backgroundColor: themeVars.color.background,
@@ -61,7 +62,10 @@ globalStyle("body", {
     [baseLayer]: {
       display: "flex",
       flexDirection: "column",
+      height: "100%",
       minHeight: "100dvh",
+      overflowY: "auto",
+      overflowX: "hidden",
       fontFamily: themeVars.fontFamily,
       color: themeVars.color.text,
       backgroundColor: themeVars.color.background,
