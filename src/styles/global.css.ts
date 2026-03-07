@@ -133,6 +133,20 @@ globalStyle("::-webkit-scrollbar-thumb:hover", {
   },
 });
 
+globalStyle(
+  ':root[data-theme-transition="true"], :root[data-theme-transition="true"] *, :root[data-theme-transition="true"] *::before, :root[data-theme-transition="true"] *::after',
+  {
+    "@layer": {
+      [utilitiesLayer]: {
+        transitionProperty:
+          "color, background-color, border-color, box-shadow, fill, stroke, outline-color, text-decoration-color",
+        transitionDuration: themeVars.motion.duration.slow,
+        transitionTimingFunction: themeVars.motion.easing.standard,
+      },
+    },
+  },
+);
+
 globalStyle("*, *::before, *::after", {
   "@layer": {
     [utilitiesLayer]: {
