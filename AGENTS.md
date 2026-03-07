@@ -8,6 +8,14 @@ Instructions for coding agents working in this repository.
 - Newer conversation rules have higher priority than older wording.
 - Update this file when the user adds new rules in conversation.
 
+## Conversation Overrides (Latest)
+
+- For Playwright/UI checks, do not use `pnpm dev` because it is unreliable in this repo. Use `pnpm build` and `pnpm preview`, or reuse an existing preview server.
+- Do not modify `src/styles/layers.css.ts`, `src/styles/sprinkles.css.ts`, `src/styles/theme.css.ts`, or `src/styles/vars.css.ts` unless the user explicitly asks.
+- Editing inside `src/styles/` is allowed for the current refactor work, including files that were previously protected.
+- Avoid creating unnecessary constants and avoid excessive `export` additions during style/system refactors.
+- Reduced motion is handled globally in `src/styles/global.css.ts` under a high-priority layer. Do not add per-component `prefers-reduced-motion` transition overrides unless the user explicitly asks or a component has a proven exception that cannot be handled globally.
+
 ## Project Snapshot
 
 - Build this site with Astro.
@@ -87,6 +95,8 @@ Instructions for coding agents working in this repository.
 - Keep `src/styles/theme.css.ts` limited to theme tokens/values, `createTheme`, and theme exports.
 - Keep media-query definitions in `src/styles/responsive.css.ts`.
 - Do not add standalone breakpoint/media files (for example `src/styles/media.ts`).
+- Use `src/styles/responsive.css.ts` for shared breakpoint queries such as `mobile`, `tablet`, and `desktop`.
+- Prefer the global reduced-motion rule in `src/styles/global.css.ts` over repeating `prefers-reduced-motion` blocks in component styles.
 - Use icons from `src/assets/mode/` for the `ThemeToggle` component.
 - Use CSS layers in this order: `reset`, `base`, `component`, `utilities`.
 - `reset`: neutralize browser default styles.
@@ -107,7 +117,7 @@ Instructions for coding agents working in this repository.
 - Treat `pnpm run check` as passing only when `errors: 0`, `warnings: 0`, and `hints: 0`.
 - For theme styling changes, ensure `rg "globalStyle\\(" src/styles/theme.css.ts` returns no matches.
 - Run `pnpm format` when formatting is affected.
-- Use Playwright MCP for UI checks on the running local dev server.
+- Use Playwright MCP for UI checks against a running preview server started with `pnpm build` and `pnpm preview`.
 - If port `4321` is already running, use `http://localhost:4321` as-is and do not require port `4322`.
 - Save Playwright screenshots in the `output/` folder, then delete them after analysis is complete.
 - Interactive features must work in latest Chrome, Firefox, and Safari on desktop, mobile, and tablet.
