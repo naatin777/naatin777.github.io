@@ -35,7 +35,7 @@ const responsiveProperties = defineProperties({
       full: "100%",
     },
     maxWidth: {
-      header: themeVars.layout.header,
+      page: themeVars.layout.page,
       container: themeVars.layout.container,
       content: themeVars.layout.content,
       reading: themeVars.layout.reading,

@@ -77,6 +77,11 @@ export const themeVars = createThemeContract({
   },
 
   fontFamily: "",
+  fontWeight: {
+    medium: "",
+    semibold: "",
+    bold: "",
+  },
   fontSize: {
     xs: "",
     sm: "",
@@ -91,7 +96,7 @@ export const themeVars = createThemeContract({
   },
 
   layout: {
-    header: "",
+    page: "",
     container: "",
     content: "",
     reading: "",

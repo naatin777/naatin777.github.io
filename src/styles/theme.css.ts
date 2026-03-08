@@ -28,6 +28,11 @@ const sharedThemeValues = {
     thick: "2px",
   },
   fontFamily: "'Inter', 'Noto Sans JP', sans-serif",
+  fontWeight: {
+    medium: "500",
+    semibold: "600",
+    bold: "700",
+  },
   fontSize: {
     xs: "0.75rem",
     sm: "0.875rem",
@@ -41,7 +46,7 @@ const sharedThemeValues = {
     relaxed: "1.75",
   },
   layout: {
-    header: "68rem",
+    page: "60rem",
     container: "72rem",
     content: "56rem",
     reading: "42rem",
