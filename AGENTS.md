@@ -11,6 +11,7 @@ Instructions for coding agents working in this repository.
 ## Conversation Overrides (Latest)
 
 - For Playwright/UI checks, do not use `pnpm dev` because it is unreliable in this repo. Use `pnpm build` and `pnpm preview`, or reuse an existing preview server.
+- Before making file edits, first state the intended implementation direction briefly and wait for explicit user confirmation such as `Yes`. Do not start editing immediately after a new request unless the user explicitly asks to proceed without confirmation.
 - Do not modify `src/styles/layers.css.ts`, `src/styles/sprinkles.css.ts`, `src/styles/theme.css.ts`, or `src/styles/vars.css.ts` unless the user explicitly asks.
 - Editing inside `src/styles/` is allowed for the current refactor work, including files that were previously protected.
 - Avoid creating unnecessary constants and avoid excessive `export` additions during style/system refactors.
@@ -97,6 +98,15 @@ Instructions for coding agents working in this repository.
 - Do not add standalone breakpoint/media files (for example `src/styles/media.ts`).
 - Use `src/styles/responsive.css.ts` for shared breakpoint queries such as `mobile`, `tablet`, and `desktop`.
 - Prefer the global reduced-motion rule in `src/styles/global.css.ts` over repeating `prefers-reduced-motion` blocks in component styles.
+- In vanilla-extract, do not write `@layer: utilitiesLayer` or any other direct layer assignment. That form is not supported and causes compile errors.
+- When using layers in style objects, always write them in object form, for example:
+  ```ts
+  "@layer": {
+    [utilitiesLayer]: {
+      ...
+    },
+  }
+  ```
 - Use icons from `src/assets/mode/` for the `ThemeToggle` component.
 - Use CSS layers in this order: `reset`, `base`, `component`, `utilities`.
 - `reset`: neutralize browser default styles.
