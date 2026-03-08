@@ -48,8 +48,7 @@ globalStyle(`:root.${darkTheme}`, {
 globalStyle("html", {
   "@layer": {
     [baseLayer]: {
-      height: "100%",
-      overflowY: "hidden",
+      minHeight: "100%",
       scrollbarGutter: "stable",
       scrollbarColor: `${themeVars.color.scrollThumb} transparent`,
       backgroundColor: themeVars.color.background,
@@ -63,9 +62,7 @@ globalStyle("body", {
       display: "flex",
       flexDirection: "column",
       position: "relative",
-      height: "100%",
       minHeight: "100dvh",
-      overflowY: "auto",
       overflowX: "hidden",
       fontFamily: themeVars.fontFamily,
       color: themeVars.color.text,
