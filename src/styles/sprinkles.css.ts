@@ -12,10 +12,12 @@ const responsiveProperties = defineProperties({
   },
   defaultCondition: "mobile",
   properties: {
-    display: ["none", "block", "flex", "grid", "inline-flex"],
+    display: ["none", "block", "flex", "grid", "inline-flex", "inline-grid"],
     flexDirection: ["row", "column"],
+    flexWrap: ["nowrap", "wrap"],
     justifyContent: ["flex-start", "center", "flex-end", "space-between"],
     alignItems: ["stretch", "flex-start", "center", "flex-end"],
+    justifySelf: ["start", "center", "end"],
     gap: themeVars.spacing,
     rowGap: themeVars.spacing,
     columnGap: themeVars.spacing,
@@ -34,6 +36,10 @@ const responsiveProperties = defineProperties({
       auto: "auto",
       full: "100%",
     },
+    listStyle: ["none"],
+    textAlign: ["left", "center", "right"],
+    whiteSpace: ["nowrap"],
+    flexShrink: [0],
     maxWidth: {
       page: themeVars.layout.page,
       container: themeVars.layout.container,
@@ -65,6 +71,9 @@ const visualProperties = defineProperties({
       canvas: themeVars.color.background,
       surface: themeVars.color.surface,
       surfaceSoft: themeVars.color.surfaceSoft,
+      surfaceFloating: themeVars.color.surfaceFloating,
+      surfaceHover: themeVars.color.surfaceHover,
+      surfaceActive: themeVars.color.surfaceActive,
     },
     borderColor: {
       soft: themeVars.color.borderSoft,
@@ -75,6 +84,7 @@ const visualProperties = defineProperties({
     boxShadow: {
       sm: themeVars.shadow.sm,
       md: themeVars.shadow.md,
+      lg: themeVars.shadow.lg,
     },
     fontSize: {
       xs: themeVars.fontSize.xs,
@@ -82,6 +92,7 @@ const visualProperties = defineProperties({
       md: themeVars.fontSize.md,
       lg: themeVars.fontSize.lg,
     },
+    fontWeight: themeVars.fontWeight,
     lineHeight: {
       tight: themeVars.lineHeight.tight,
       normal: themeVars.lineHeight.normal,
