@@ -59,6 +59,13 @@ const responsiveProperties = defineProperties({
 
 const visualProperties = defineProperties({
   "@layer": sprinklesLayer,
+  conditions: {
+    default: {},
+    hover: {
+      selector: "&:hover",
+    },
+  },
+  defaultCondition: "default",
   properties: {
     color: {
       default: themeVars.color.text,
@@ -81,6 +88,7 @@ const visualProperties = defineProperties({
       strong: themeVars.color.borderStrong,
     },
     borderRadius: themeVars.radius,
+    borderWidth: themeVars.borderWidth,
     boxShadow: {
       sm: themeVars.shadow.sm,
       md: themeVars.shadow.md,
