@@ -88,6 +88,10 @@ export const themeVars = createThemeContract({
     md: "",
     lg: "",
     xl: "",
+    "2xl": "",
+    "3xl": "",
+    "4xl": "",
+    "5xl": "",
   },
   lineHeight: {
     tight: "",
