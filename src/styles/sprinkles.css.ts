@@ -91,6 +91,11 @@ const visualProperties = defineProperties({
       sm: themeVars.fontSize.sm,
       md: themeVars.fontSize.md,
       lg: themeVars.fontSize.lg,
+      xl: themeVars.fontSize.xl,
+      "2xl": themeVars.fontSize["2xl"],
+      "3xl": themeVars.fontSize["3xl"],
+      "4xl": themeVars.fontSize["4xl"],
+      "5xl": themeVars.fontSize["5xl"],
     },
     fontWeight: themeVars.fontWeight,
     lineHeight: {
