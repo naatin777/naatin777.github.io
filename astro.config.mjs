@@ -25,4 +25,6 @@ export default defineConfig({
   },
 
   integrations: [solidJs()],
+
+  security: { csp: true },
 });
