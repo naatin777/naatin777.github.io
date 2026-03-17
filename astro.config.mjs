@@ -14,6 +14,9 @@ export default defineConfig({
 
   vite: {
     plugins: [vanillaExtractPlugin()],
+    build: {
+      cssCodeSplit: false,
+    },
   },
 
   devToolbar: {
@@ -25,6 +28,4 @@ export default defineConfig({
   },
 
   integrations: [solidJs()],
-
-  security: { csp: true },
 });
