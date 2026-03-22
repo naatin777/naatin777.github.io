@@ -11,6 +11,14 @@ export const getTagsFromUrl = (): string[] => {
 
 export const $articleTags = atom<string[]>(getTagsFromUrl());
 
+export const selectAllArticleTags = (tags: string[]) => {
+  $articleTags.set([...new Set(tags)]);
+};
+
+export const clearArticleTags = () => {
+  $articleTags.set([]);
+};
+
 export const toggleArticleTag = (tag: string) => {
   const currentTags = $articleTags.get();
   const index = currentTags.indexOf(tag);

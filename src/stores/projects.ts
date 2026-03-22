@@ -11,6 +11,14 @@ export const getTagsFromUrl = (): string[] => {
 
 export const $projectTags = atom<string[]>(getTagsFromUrl());
 
+export const selectAllProjectTags = (tags: string[]) => {
+  $projectTags.set([...new Set(tags)]);
+};
+
+export const clearProjectTags = () => {
+  $projectTags.set([]);
+};
+
 export const toggleProjectTag = (tag: string) => {
   const currentTags = $projectTags.get();
   const index = currentTags.indexOf(tag);
