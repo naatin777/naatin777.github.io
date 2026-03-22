@@ -56,6 +56,7 @@ Instructions for coding agents working in this repository.
 - Prefer short purpose-based names.
 - Keep file names in `src/components/` as `PascalCase`.
 - In `src/components/`, pair each `.astro` file with a matching `.css.ts` basename.
+- In `src/components/`, each `.astro` or `.tsx` component should import only its own matching `.css.ts` basename unless the user explicitly asks for shared styles.
 - Keep page-level styles in `src/styles/pages/` with matching basenames.
   Example: `src/pages/articles.astro` -> `src/styles/pages/articles.css.ts`
 - Keep shared blog detail styles in `src/styles/pages/blog/blog.css.ts`.
