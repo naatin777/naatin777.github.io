@@ -20,9 +20,9 @@ const blog = defineCollection({
   loader: glob({ pattern: "[0-9][0-9][0-9][0-9]/*.md", base: "./src/data/blog" }),
   schema: z.object({
     title: z.string(),
-    description: z.string().optional(),
+    description: z.string(),
     publishedAt: z.coerce.date(),
-    updatedAt: z.coerce.date().optional(),
+    updatedAt: z.coerce.date(),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
   }),
@@ -61,7 +61,7 @@ const projects = defineCollection({
 export const collections = {
   qiita,
   zenn,
+  blog,
   tags,
   projects,
-  blog,
 };
