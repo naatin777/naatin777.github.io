@@ -3,13 +3,12 @@ import "@styles/global.css";
 import "@fontsource-variable/inter";
 import "@fontsource-variable/noto-sans-jp";
 import { ClientRouter } from "astro:transitions";
-import { lightTheme, darkTheme } from "@styles/theme.css";
+import { darkTheme, darkThemeValues, lightTheme, lightThemeValues } from "@styles/theme.css";
 import { siteMetadata } from "@config/site";
 import Icon from "@assets/icon.png";
 import Background from "@components/Background.astro";
 import Header from "@components/Header.tsx";
 import Footer from "@components/Footer.astro";
-import { themeVars } from "@styles/vars.css";
 
 export interface Props {
   description?: string;
@@ -19,6 +18,8 @@ export interface Props {
 const { title: pageTitle, description: pageDescription } = Astro.props;
 const title = pageTitle ? pageTitle : siteMetadata.title;
 const description = pageDescription ? pageDescription : siteMetadata.description;
+const lightThemeColor = lightThemeValues.color.background;
+const darkThemeColor = darkThemeValues.color.background;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const socialImageURL = new URL(Icon.src, Astro.url);
 const socialMeta = [
@@ -42,9 +43,10 @@ const socialMeta = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
     <ClientRouter />
-    <script is:inline define:vars={{ lightTheme, darkTheme }}>
+    <script is:inline define:vars={{ lightTheme, darkTheme, lightThemeColor, darkThemeColor }}>
       const STORAGE_KEY = "theme";
       const THEME_TRANSITION_DURATION_MS = 180;
+      const THEME_COLOR_META_SELECTOR = 'meta[name="theme-color"]';
       const VALID_THEMES = new Set(["light", "dark", "system"]);
       const root = document.documentElement;
       const media = window.matchMedia("(prefers-color-scheme: dark)");
@@ -60,9 +62,20 @@ const socialMeta = [
         return themePreference === "system" ? (media.matches ? "dark" : "light") : themePreference;
       };
 
+      const updateThemeColorMeta = () => {
+        const metaThemeColor = document.querySelector(THEME_COLOR_META_SELECTOR);
+        if (!(metaThemeColor instanceof HTMLMetaElement)) {
+          return;
+        }
+
+        metaThemeColor.content = getResolvedTheme() === "dark" ? darkThemeColor : lightThemeColor;
+      };
+
       const applyTheme = () => {
+        const resolvedTheme = getResolvedTheme();
         root.classList.remove(lightTheme, darkTheme);
-        root.classList.add(getResolvedTheme() === "dark" ? darkTheme : lightTheme);
+        root.classList.add(resolvedTheme === "dark" ? darkTheme : lightTheme);
+        updateThemeColorMeta();
       };
 
       const beginThemeTransition = () => {
@@ -102,7 +115,7 @@ const socialMeta = [
     </script>
 
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content={themeVars.color.background} />
+    <meta name="theme-color" content={lightThemeColor} />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
     <title>{title}</title>
