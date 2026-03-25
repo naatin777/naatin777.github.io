@@ -32,12 +32,25 @@ export const chip = recipe({
   variants: {
     active: {
       false: {},
-      true: sprinkles({
-        background: {
-          default: "surfaceActive",
-          hover: "surfaceActive",
+      true: [
+        sprinkles({
+          background: {
+            default: "surfaceActive",
+            hover: "surfaceActive",
+          },
+        }),
+        {
+          color: themeVars.color.textStrong,
+          selectors: {
+            "&::before": {
+              content: '"✓"',
+              marginInlineEnd: "0.25rem",
+              fontSize: "0.75rem",
+              lineHeight: 1,
+            },
+          },
         },
-      }),
+      ],
     },
   },
   defaultVariants: {

@@ -19,7 +19,7 @@ export default function ProjectChip(props: ProjectChipProps) {
   };
 
   return (
-    <button class={chip({ active: isActive() })} onClick={handleClick}>
+    <button type="button" class={chip({ active: isActive() })} aria-pressed={isActive()} onClick={handleClick}>
       {value}
     </button>
   );
