@@ -22,15 +22,19 @@ const responsiveProperties = defineProperties({
     rowGap: themeVars.spacing,
     columnGap: themeVars.spacing,
 
-    paddingTop: themeVars.spacing,
-    paddingBottom: themeVars.spacing,
-    paddingLeft: themeVars.spacing,
-    paddingRight: themeVars.spacing,
+    paddingInline: themeVars.spacing,
+    paddingBlock: themeVars.spacing,
+    paddingInlineStart: themeVars.spacing,
+    paddingInlineEnd: themeVars.spacing,
+    paddingBlockStart: themeVars.spacing,
+    paddingBlockEnd: themeVars.spacing,
 
-    marginTop: themeVars.spacing,
-    marginBottom: themeVars.spacing,
-    marginLeft: themeVars.spacing,
-    marginRight: themeVars.spacing,
+    marginInline: { ...themeVars.spacing, auto: "auto" },
+    marginBlock: { ...themeVars.spacing, auto: "auto" },
+    marginInlineStart: { ...themeVars.spacing, auto: "auto" },
+    marginInlineEnd: { ...themeVars.spacing, auto: "auto" },
+    marginBlockStart: { ...themeVars.spacing, auto: "auto" },
+    marginBlockEnd: { ...themeVars.spacing, auto: "auto" },
 
     width: {
       auto: "auto",
@@ -39,6 +43,7 @@ const responsiveProperties = defineProperties({
     listStyle: ["none"],
     textAlign: ["left", "center", "right"],
     whiteSpace: ["nowrap"],
+    textDecoration: ["none"],
     flexShrink: [0],
     maxWidth: {
       page: themeVars.layout.page,
@@ -46,14 +51,6 @@ const responsiveProperties = defineProperties({
       content: themeVars.layout.content,
       reading: themeVars.layout.reading,
     },
-  },
-  shorthands: {
-    paddingX: ["paddingLeft", "paddingRight"],
-    paddingY: ["paddingTop", "paddingBottom"],
-    marginX: ["marginLeft", "marginRight"],
-    marginY: ["marginTop", "marginBottom"],
-    padding: ["paddingTop", "paddingBottom", "paddingLeft", "paddingRight"],
-    margin: ["marginTop", "marginBottom", "marginLeft", "marginRight"],
   },
 });
 
