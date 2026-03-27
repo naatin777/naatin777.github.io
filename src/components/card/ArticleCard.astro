@@ -1,0 +1,63 @@
+---
+import {
+  articleCard,
+  articleCardContentSection,
+  articleCardDateList,
+  articleCardHeader,
+  articleCardLink,
+  articleCardMetaSection,
+  articleCardSourceBadge,
+  articleCardSummary,
+  articleCardTagList,
+  articleCardTitle,
+} from "@components/card/ArticleCard.css";
+import { card } from "@components/card/Card.css";
+import { chip } from "@components/chip/Chip.css";
+import ArticleChip from "@components/chip/ArticleChip";
+
+export interface Props {
+  source: string;
+  url: string;
+  title: string;
+  description: string;
+  tags: string[];
+  updatedAt: string;
+  publishedAt: string;
+}
+
+const { source, url, title, description, tags, updatedAt, publishedAt } = Astro.props;
+
+const sourceBadgeTone: "blog" | "qiita" | "zenn" | "default" = source as "blog" | "qiita" | "zenn" | "default";
+---
+
+<article class:list={[card, articleCard]} transition:animate="none">
+  <div class={articleCardMetaSection}>
+    <div class={articleCardHeader}>
+      <span class={articleCardSourceBadge({ tone: sourceBadgeTone })}>{source}</span>
+      <span class={articleCardDateList}>
+        <span class={chip()}>Updated: {updatedAt}</span>
+        <span class={chip()}>Published: {publishedAt}</span>
+      </span>
+    </div>
+  </div>
+  <a
+    href={url}
+    target={source != "blog" ? "_blank" : undefined}
+    rel={source != "blog" ? "noopener noreferrer" : undefined}
+    class={articleCardLink}
+  >
+    <div class={articleCardContentSection}>
+      <h2 class={articleCardTitle}>{title}</h2>
+      <p class={articleCardSummary}>{description}</p>
+    </div>
+  </a>
+  <ul class={articleCardTagList}>
+    {
+      tags.map((tag) => (
+        <li>
+          <ArticleChip value={tag} client:only />
+        </li>
+      ))
+    }
+  </ul>
+</article>

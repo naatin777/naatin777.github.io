@@ -2,56 +2,137 @@
 import "@styles/global.css";
 import "@fontsource-variable/inter";
 import "@fontsource-variable/noto-sans-jp";
-import { theme } from "@styles/theme.css";
+import { ClientRouter } from "astro:transitions";
+import { darkTheme, darkThemeValues, lightTheme, lightThemeValues } from "@styles/theme.css";
 import { siteMetadata } from "@config/site";
 import Icon from "@assets/icon.png";
+import Background from "@components/Background.astro";
 import Header from "@components/Header.astro";
 import Footer from "@components/Footer.astro";
-import { wrapper } from "@styles/global.css";
 
-const { title, description } = siteMetadata;
+export interface Props {
+  description?: string;
+  title?: string;
+}
+
+const { title: pageTitle, description: pageDescription } = Astro.props;
+const title = pageTitle ? pageTitle : siteMetadata.title;
+const description = pageDescription ? pageDescription : siteMetadata.description;
+const lightThemeColor = lightThemeValues.color.background;
+const darkThemeColor = darkThemeValues.color.background;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const socialImageURL = new URL(Icon.src, Astro.url);
+const socialMeta = [
+  ["og:type", "website"],
+  ["og:url", canonicalURL],
+  ["og:title", title],
+  ["og:description", description],
+  ["og:image", socialImageURL],
+  ["twitter:card", "summary_large_image"],
+  ["twitter:url", canonicalURL],
+  ["twitter:title", title],
+  ["twitter:description", description],
+  ["twitter:image", socialImageURL],
+] as const;
 ---
 
 <!doctype html>
-<html lang="en" class={theme} data-theme="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
+    <ClientRouter />
+    <script is:inline define:vars={{ lightTheme, darkTheme, lightThemeColor, darkThemeColor }}>
+      const STORAGE_KEY = "theme";
+      const THEME_TRANSITION_DURATION_MS = 180;
+      const THEME_COLOR_META_SELECTOR = 'meta[name="theme-color"]';
+      const VALID_THEMES = new Set(["light", "dark", "system"]);
+      const root = document.documentElement;
+      const media = window.matchMedia("(prefers-color-scheme: dark)");
+      let themeTransitionTimer;
 
-    <meta name="theme-color" content="#0e0e0eff" />
-    <meta
-      name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
-    />
+      const getStoredThemePreference = () => {
+        const value = localStorage.getItem(STORAGE_KEY);
+        return VALID_THEMES.has(value) ? value : "system";
+      };
+
+      const getResolvedTheme = () => {
+        const themePreference = getStoredThemePreference();
+        return themePreference === "system" ? (media.matches ? "dark" : "light") : themePreference;
+      };
+
+      const updateThemeColorMeta = () => {
+        const metaThemeColor = document.querySelector(THEME_COLOR_META_SELECTOR);
+        if (!(metaThemeColor instanceof HTMLMetaElement)) {
+          return;
+        }
+
+        metaThemeColor.content = getResolvedTheme() === "dark" ? darkThemeColor : lightThemeColor;
+      };
+
+      const applyTheme = () => {
+        const resolvedTheme = getResolvedTheme();
+        root.classList.remove(lightTheme, darkTheme);
+        root.classList.add(resolvedTheme === "dark" ? darkTheme : lightTheme);
+        updateThemeColorMeta();
+      };
+
+      const beginThemeTransition = () => {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          return;
+        }
+
+        root.setAttribute("data-theme-transition", "true");
+        window.clearTimeout(themeTransitionTimer);
+        themeTransitionTimer = window.setTimeout(() => {
+          root.removeAttribute("data-theme-transition");
+        }, THEME_TRANSITION_DURATION_MS);
+      };
+
+      if (window.__siteThemeMediaBound__ !== true) {
+        if (typeof media.addEventListener === "function") {
+          media.addEventListener("change", applyTheme);
+        }
+        window.__siteThemeMediaBound__ = true;
+      }
+
+      if (window.__siteThemePageLoadBound__ !== true) {
+        document.addEventListener("astro:page-load", applyTheme);
+        window.__siteThemePageLoadBound__ = true;
+      }
+
+      window.__theme = {
+        get: getStoredThemePreference,
+        set: (theme) => {
+          theme === "system" ? localStorage.removeItem(STORAGE_KEY) : localStorage.setItem(STORAGE_KEY, theme);
+          beginThemeTransition();
+          applyTheme();
+        },
+      };
+
+      applyTheme();
+    </script>
+
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content={lightThemeColor} />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
     <title>{title}</title>
     <meta name="title" content={title} />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
 
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={canonicalURL} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:image" content={new URL(Icon.src, Astro.url)} />
-
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content={canonicalURL} />
-    <meta property="twitter:title" content={title} />
-    <meta property="twitter:description" content={description} />
-    <meta property="twitter:image" content={new URL(Icon.src, Astro.url)} />
+    {socialMeta.map(([property, content]) => <meta property={property} content={content} />)}
 
     <link rel="icon" href="/favicon.ico" />
   </head>
   <body>
-    <div class={wrapper}>
-      <Header />
-      <main>
-        <slot />
-      </main>
-      <Footer />
-    </div>
+    <Background />
+    <Header />
+    <main>
+      <slot />
+    </main>
+    <Footer />
   </body>
 </html>

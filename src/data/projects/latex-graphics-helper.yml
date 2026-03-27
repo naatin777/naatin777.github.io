@@ -1,0 +1,15 @@
+name: "LaTeX Graphics Helper"
+description: "A VS Code extension for working with PDF/image workflows and generating LaTeX-related output."
+iconPath: "../../assets/projects/latex-graphics-helper.png"
+sourceUrl: "https://github.com/naatin777/LaTeX-Graphics-Helper"
+links:
+  - label: "Open Marketplace"
+    url: "https://marketplace.visualstudio.com/items?itemName=naatin777.latex-graphics-helper"
+  - label: "Open VSX"
+    url: "https://open-vsx.org/extension/naatin777/latex-graphics-helper"
+tags:
+  - VSCode
+  - LaTeX
+  - PDF
+  - draw.io
+  - Typescript

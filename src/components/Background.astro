@@ -1,0 +1,194 @@
+---
+import { ambientBackground } from "@components/Background.css";
+---
+
+<div transition:persist class={ambientBackground} aria-hidden="true" id="bg-pixi"></div>
+
+<script>
+  import { Application, Graphics, Sprite, Container } from "pixi.js";
+  import { darkTheme } from "@styles/theme.css";
+
+  /* =========================
+     定数
+  ========================= */
+  const GRID = 21;
+  const WARP = 80;
+  const RANGE_MIN = -2.5;
+  const RANGE_MAX = 2.5;
+  const DARK_BG = 0x030712;
+  const LIGHT_BG = 0xf8fafc;
+
+  // 色ごとのセル内 2×2 オフセット（モジュールレベルで1回だけ生成）
+  const COLOR_OFFSETS: [number, number][] = [
+    [0,   0  ],
+    [0.5, 0  ],
+    [0,   0.5],
+    [0.5, 0.5],
+  ];
+
+  // グリッド座標（固定サイズなので起動時に1回だけ計算）
+  const xVals = new Float32Array(GRID);
+  const yVals = new Float32Array(GRID);
+  for (let i = 0; i < GRID; i++) {
+    xVals[i] = RANGE_MIN + (i / GRID) * (RANGE_MAX - RANGE_MIN);
+    yVals[i] = RANGE_MIN + (i / GRID) * (RANGE_MAX - RANGE_MIN);
+  }
+
+  // ティッカー内アロケーションをゼロにする z バッファ
+  const zBuf = new Float32Array(4);
+
+  /* =========================
+     モジュールレベルの状態
+  ========================= */
+  let app: Application | null = null;
+  let sprites: Sprite[] = [];
+  let container: Container | null = null;
+
+  /* =========================
+     テーマ
+  ========================= */
+  function isDark() {
+    return document.documentElement.classList.contains(darkTheme);
+  }
+
+  function applyTheme() {
+    if (!app) return;
+    const dark = isDark();
+    app.renderer.background.color = dark ? DARK_BG : LIGHT_BG;
+    const blendMode = dark ? "add" : "multiply";
+    for (const s of sprites) s.blendMode = blendMode;
+  }
+
+  /* =========================
+     波関数（全て有界 [-3, 3]）
+  ========================= */
+  function f0(x: number, y: number, t: number) {
+    return (
+      Math.sin(1.2 * x - t) +
+      0.4 * Math.sin(2.5 * x - 1.8 * t + 1.0) +
+      0.2 * Math.sin(1.5 * x + y - 1.2 * t)
+    );
+  }
+
+  function f1(x: number, y: number, t: number) {
+    return (
+      Math.sin(x * 1.8 - y * 0.9 + t * 1.3) +
+      Math.cos(x * 0.7 + y * 2.1 - t * 0.8) +
+      Math.sin((x - y) * 1.4 + t * 0.5)
+    );
+  }
+
+  function f2(x: number, y: number, t: number) {
+    return (
+      Math.sin(1.5 * x + 1.2 * y + t) +
+      Math.cos(-2.1 * x + 1.7 * y - t) +
+      Math.sin(0.8 * x - 2.5 * y + t)
+    );
+  }
+
+  function f3(x: number, y: number, t: number) {
+    return Math.cos(2.5 * (x * x + y * y) - t);
+  }
+
+  /* =========================
+     Pixi 初期化（初回のみ）
+  ========================= */
+  async function initPixi() {
+    app = new Application();
+    await app.init({
+      resizeTo: window,
+      background: isDark() ? DARK_BG : LIGHT_BG,
+      antialias: false,
+      resolution: Math.min(window.devicePixelRatio, 1.5),
+    });
+
+    function createDotTexture(color: number) {
+      const g = new Graphics();
+      g.circle(0, 0, 5).fill({ color });
+      return app!.renderer.generateTexture({ target: g });
+    }
+
+    const textures = [
+      createDotTexture(0x2dd4bf),
+      createDotTexture(0xfb7185),
+      createDotTexture(0xfbbf24),
+      createDotTexture(0xa7f3d0),
+    ];
+
+    container = new Container();
+    app.stage.addChild(container);
+
+    // スプライトは起動時に一度だけ生成・以降再生成なし
+    for (let i = 0; i < GRID * GRID; i++) {
+      for (let k = 0; k < 4; k++) {
+        const s = new Sprite(textures[k]);
+        s.anchor.set(0.5);
+        container.addChild(s);
+        sprites.push(s);
+      }
+    }
+
+    applyTheme();
+
+    new MutationObserver(() => applyTheme()).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    app.ticker.add(() => {
+      const t = performance.now() * 0.001;
+      const w = app!.screen.width;
+      const h = app!.screen.height;
+      const step = Math.max(w, h) / GRID;
+      const offsetX = (w - step * GRID) / 2;
+      const offsetY = (h - step * GRID) / 2;
+      let idx = 0;
+
+      for (let i = 0; i < GRID; i++) {
+        const x = xVals[i];
+        const bx = i * step + offsetX;
+
+        for (let j = 0; j < GRID; j++) {
+          const y = yVals[j];
+          const by = j * step + offsetY;
+
+          const dx = Math.sin(y * 2.2 + t) + Math.cos(x * 1.3 - t * 0.5);
+          const dy = Math.cos(x * 2.2 - t) + Math.sin(y * 1.3 + t * 0.5);
+
+          // アロケーションなしで z を更新
+          zBuf[0] = f0(x, y, t);
+          zBuf[1] = f1(x, y, t);
+          zBuf[2] = f2(x, y, t);
+          zBuf[3] = f3(x, y, t);
+
+          for (let k = 0; k < 4; k++) {
+            const s = sprites[idx++];
+            const nz = (Math.tanh(zBuf[k] * 0.5) + 1) * 0.5;
+            const warp = (nz - 0.5) * WARP;
+
+            s.x = bx + COLOR_OFFSETS[k][0] * step + dx * warp;
+            s.y = by + COLOR_OFFSETS[k][1] * step + dy * warp;
+            s.scale.set(Math.max(nz * 0.8, 0.1));
+            s.alpha = 0.3 + nz * 0.7;
+          }
+        }
+      }
+    });
+  }
+
+  /* =========================
+     ページロード毎のマウント処理
+  ========================= */
+  document.addEventListener("astro:page-load", async () => {
+    const mount = document.getElementById("bg-pixi");
+    if (!mount) return;
+
+    if (!app) await initPixi();
+
+    if (app && !mount.contains(app.canvas)) {
+      mount.appendChild(app.canvas);
+    }
+
+    applyTheme();
+  });
+</script>

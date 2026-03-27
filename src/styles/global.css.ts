@@ -1,67 +1,160 @@
-import { globalStyle, style } from "@vanilla-extract/css";
-import { themeVars } from "./theme.css";
+import { globalStyle } from "@vanilla-extract/css";
+import { darkTheme, lightTheme } from "./theme.css";
+import { themeVars } from "./vars.css";
+import { resetLayer, themeLayer, baseLayer, utilitiesLayer } from "./layers.css";
 
 globalStyle("*, *::before, *::after", {
-  boxSizing: "border-box",
+  "@layer": {
+    [resetLayer]: {
+      boxSizing: "border-box",
+    },
+  },
 });
 
 globalStyle("*", {
-  margin: 0,
-  padding: 0,
-});
-
-globalStyle("@view-transition", {
-  navigation: "auto",
-} as any);
-
-globalStyle("html, body", {
-  height: "100%",
+  "@layer": {
+    [resetLayer]: {
+      margin: 0,
+      padding: 0,
+    },
+  },
 });
 
 globalStyle("html", {
-  backgroundColor: themeVars.color.background,
+  "@layer": {
+    [resetLayer]: {
+      display: "block",
+      maxWidth: "100%",
+    },
+  },
+});
+
+globalStyle(`:root.${lightTheme}`, {
+  "@layer": {
+    [themeLayer]: {
+      colorScheme: "light",
+    },
+  },
+});
+
+globalStyle(`:root.${darkTheme}`, {
+  "@layer": {
+    [themeLayer]: {
+      colorScheme: "dark",
+    },
+  },
+});
+
+globalStyle("html", {
+  "@layer": {
+    [baseLayer]: {
+      minHeight: "100%",
+      scrollbarGutter: "stable",
+      scrollbarColor: `${themeVars.color.scrollThumb} transparent`,
+      backgroundColor: themeVars.color.background,
+    },
+  },
 });
 
 globalStyle("body", {
-  fontFamily: themeVars.fontFamily,
-  color: themeVars.color.text,
-  backgroundColor: themeVars.color.background,
-  lineHeight: 1.5,
-  WebkitFontSmoothing: "antialiased",
-  MozOsxFontSmoothing: "grayscale",
-  WebkitTapHighlightColor: "transparent",
-  overflowY: "scroll",
+  "@layer": {
+    [baseLayer]: {
+      display: "flex",
+      flexDirection: "column",
+      position: "relative",
+      minHeight: "100dvh",
+      overflowX: "hidden",
+      fontFamily: themeVars.fontFamily,
+      color: themeVars.color.text,
+      backgroundColor: themeVars.color.background,
+      lineHeight: themeVars.lineHeight.normal,
+      WebkitFontSmoothing: "antialiased",
+      MozOsxFontSmoothing: "grayscale",
+      WebkitTapHighlightColor: "transparent",
+    },
+  },
+});
+
+globalStyle("body > header, body > main, body > footer", {
+  "@layer": {
+    [baseLayer]: {
+      position: "relative",
+      zIndex: 1,
+    },
+  },
 });
 
 globalStyle("main", {
-  flex: 1,
-});
-
-globalStyle("img, picture, video, canvas, svg", {
-  display: "block",
-  maxWidth: "100%",
+  "@layer": {
+    [baseLayer]: {
+      flex: 1,
+      width: "100%",
+      paddingInline: themeVars.spacing.lg,
+      paddingBlockStart: themeVars.spacing.md,
+      paddingBlockEnd: themeVars.spacing.xl,
+    },
+  },
 });
 
 globalStyle("::-webkit-scrollbar", {
-  width: "8px",
+  "@layer": {
+    [baseLayer]: {
+      width: "8px",
+    },
+  },
 });
 
 globalStyle("::-webkit-scrollbar-track", {
-  background: themeVars.color.background,
-  borderRadius: "6px",
+  "@layer": {
+    [baseLayer]: {
+      background: "transparent",
+      borderRadius: "6px",
+    },
+  },
 });
 
 globalStyle("::-webkit-scrollbar-thumb", {
-  backgroundColor: "rgba(255, 255, 255, 0.2)",
-  borderRadius: "6px",
+  "@layer": {
+    [baseLayer]: {
+      backgroundColor: themeVars.color.scrollThumb,
+      borderRadius: "6px",
+    },
+  },
 });
 
 globalStyle("::-webkit-scrollbar-thumb:hover", {
-  backgroundColor: "rgba(255, 255, 255, 0.3)",
+  "@layer": {
+    [baseLayer]: {
+      backgroundColor: themeVars.color.scrollThumbHover,
+    },
+  },
 });
 
-export const wrapper = style({
-  display: "flex",
-  flexDirection: "column",
-  minHeight: "100dvh",
+globalStyle(
+  ':root[data-theme-transition="true"], :root[data-theme-transition="true"] *, :root[data-theme-transition="true"] *::before, :root[data-theme-transition="true"] *::after',
+  {
+    "@layer": {
+      [utilitiesLayer]: {
+        transitionProperty:
+          "color, background-color, border-color, box-shadow, fill, stroke, outline-color, text-decoration-color",
+        transitionDuration: themeVars.motion.duration.slow,
+        transitionTimingFunction: themeVars.motion.easing.standard,
+      },
+    },
+  },
+);
+
+globalStyle("*, *::before, *::after", {
+  "@layer": {
+    [utilitiesLayer]: {
+      "@media": {
+        "(prefers-reduced-motion: reduce)": {
+          animationDuration: "0.01ms",
+          animationIterationCount: "1",
+          transitionDuration: "0.01ms",
+          scrollBehavior: "auto",
+        },
+      },
+    },
+  },
 });

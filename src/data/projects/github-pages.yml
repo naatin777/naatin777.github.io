@@ -1,0 +1,12 @@
+name: "This Website"
+description: "Portfolio site built with Astro, featuring projects, articles, and GitHub Pages deployment."
+iconPath: "../../assets/projects/github-pages.png"
+sourceUrl: "https://github.com/naatin777/naatin777.github.io"
+links:
+  - label: "Open Website"
+    url: "https://naatin777.dev"
+tags:
+  - Astro
+  - SolidJS
+  - vanilla-extract
+  - Typescript
