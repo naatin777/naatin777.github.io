@@ -1,0 +1,1 @@
+import{c as s,r as u}from"./store.1w7e-nMM.js";import{o as c}from"./web.DZqlJbhb.js";function p(e,r={}){let t=e.listen(()=>{}),[o,a]=s({value:e.get()}),n=e.subscribe(l=>{a("value",u(l,r))});return c(()=>n()),t(),()=>o.value}export{p as m};
