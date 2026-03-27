@@ -1,7 +1,29 @@
 ---
+import { getCollection } from "astro:content";
 import Layout from "@layouts/Layout.astro";
+import ProjectCard from "@components/card/ProjectCard.astro";
+import ProjectTagCard from "@components/card/ProjectTagCard.astro";
+import { projectsCardList, projectsPageBody, projectsPageLayout, projectsPageTitle } from "@styles/pages/projects.css";
+
+const projects = await getCollection("projects");
+const allTags = projects.flatMap((project) => project.data.tags);
+const uniqueTags = [...new Set(allTags)].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 ---
 
-<Layout>
-  <div></div>
+<Layout title="Projects" description="A list of personal projects and experiments.">
+  <section class={projectsPageBody}>
+    <h1 class={projectsPageTitle}>Projects</h1>
+    <div class={projectsPageLayout}>
+      <ProjectTagCard tags={uniqueTags} />
+      <ul class={projectsCardList}>
+        {
+          projects.map((project) => (
+            <li>
+              <ProjectCard project={project} />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
 </Layout>
