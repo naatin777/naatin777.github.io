@@ -1,0 +1,90 @@
+---
+import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+import GitHubDarkIcon from "@assets/social/github-dark.svg";
+import GitHubLightIcon from "@assets/social/github-light.svg";
+import { card } from "@components/card/Card.css";
+import {
+  projectActionLink,
+  projectActionIcon,
+  projectActionIconDark,
+  projectActionIconLight,
+  projectActions,
+  projectCard,
+  projectContentSection,
+  projectHeader,
+  projectIcon,
+  projectName,
+  projectSummary,
+  projectTagList,
+} from "@components/card/ProjectCard.css";
+import ProjectChip from "@components/chip/ProjectChip";
+
+export interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+---
+
+<article class:list={[card, projectCard]}>
+  <ul class={projectTagList}>
+    {
+      project.data.tags.map((tag) => (
+        <li>
+          <ProjectChip value={tag} client:only />
+        </li>
+      ))
+    }
+  </ul>
+  <div class={projectContentSection}>
+    <div class={projectHeader}>
+      <Image
+        src={project.data.iconPath}
+        alt={`${project.data.name} logo`}
+        class={projectIcon}
+        width={72}
+        height={72}
+        loading="lazy"
+      />
+      <h2 class={projectName}>{project.data.name}</h2>
+    </div>
+    <p class={projectSummary}>{project.data.description}</p>
+  </div>
+  <div class={projectActions}>
+    {
+      project.data.sourceUrl && (
+        <a href={project.data.sourceUrl} target="_blank" rel="noopener noreferrer" class={projectActionLink}>
+          {
+            <>
+              <Image
+                src={GitHubLightIcon}
+                alt="source code"
+                aria-hidden="true"
+                class:list={[projectActionIcon, projectActionIconLight]}
+                width={14}
+                height={14}
+              />
+              <Image
+                src={GitHubDarkIcon}
+                alt="source code"
+                aria-hidden="true"
+                class:list={[projectActionIcon, projectActionIconDark]}
+                width={14}
+                height={14}
+              />
+            </>
+          }
+          Source Code
+        </a>
+      )
+    }
+    {
+      project.data.links.map((action) => (
+        <a href={action.url} target="_blank" rel="noopener noreferrer" class={projectActionLink}>
+          {action.label}
+        </a>
+      ))
+    }
+  </div>
+</article>

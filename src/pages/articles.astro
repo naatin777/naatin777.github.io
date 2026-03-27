@@ -1,7 +1,107 @@
 ---
 import Layout from "@layouts/Layout.astro";
+import ArticleCard from "@components/card/ArticleCard.astro";
+import ArticleTagCard from "@components/card/ArticleTagCard.astro";
+import {
+  articlesArticleList,
+  articlesPageBody,
+  articlesPageLayout,
+  articlesPageTitle,
+} from "@styles/pages/articles.css";
+import { getCollection } from "astro:content";
+
+interface Article {
+  title: string;
+  content: string;
+  publishedAt: Date;
+  updatedAt: Date;
+  tags: string[];
+  url: string;
+  source: string;
+}
+
+const qiita = await getCollection("qiita");
+const zenn = await getCollection("zenn");
+const blog = await getCollection("blog");
+const tags = await getCollection("tags");
+
+const allTags = [...blog.map((b) => b.data.tags), ...tags.map((t) => t.data.entries.map((e) => e.tags)).flat()].flat();
+const uniqueTags = [...new Set(allTags)].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+
+const external: Article[] = [...qiita, ...zenn].map((a) => ({
+  title: a.data.title,
+  content: a.data.content,
+  publishedAt: new Date(a.data.published),
+  updatedAt: new Date(a.data.updated),
+  tags: tags.flatMap((t) => t.data.entries.filter((e) => e.url === a.data.url).flatMap((e) => e.tags)),
+  url: a.data.url,
+  source: a.collection,
+}));
+
+const internal: Article[] = blog.map((a) => ({
+  title: a.data.title,
+  content: a.data.description,
+  publishedAt: a.data.publishedAt,
+  updatedAt: a.data.updatedAt,
+  tags: a.data.tags,
+  url: `/blog/${a.id.split("/")[0]}/${a.id.split("/")[1]}/`,
+  source: "blog",
+}));
+
+const articles = [...internal, ...external].sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 ---
 
-<Layout>
-  <div></div>
+<Layout
+  title="Articles"
+  description="Articles from my blog, Qiita, and Zenn gathered in one place with tag-based browsing."
+>
+  <section class={articlesPageBody}>
+    <h1 class={articlesPageTitle}>Articles</h1>
+    <div class={articlesPageLayout}>
+      <ArticleTagCard tags={uniqueTags} />
+      <ul class={articlesArticleList} id="articles-list">
+        {
+          articles.map((article) => (
+            <li data-tags={article.tags.join(",")}>
+              <ArticleCard
+                source={article.source}
+                title={article.title}
+                url={article.url}
+                description={article.content}
+                tags={article.tags}
+                updatedAt={article.updatedAt.toLocaleDateString("ja-JP", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                })}
+                publishedAt={article.publishedAt.toLocaleDateString("ja-JP", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                })}
+              />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
 </Layout>
+
+<script>
+  import { $articleTags } from "../stores/articles";
+
+  function applyFilter(selectedTags: string[]) {
+    const items = document.querySelectorAll<HTMLElement>("#articles-list > [data-tags]");
+    for (const item of items) {
+      if (selectedTags.length === 0) {
+        item.hidden = false;
+      } else {
+        const itemTags = (item.dataset.tags ?? "").split(",").filter(Boolean);
+        item.hidden = !selectedTags.some((t) => itemTags.includes(t));
+      }
+    }
+  }
+
+  $articleTags.subscribe(applyFilter);
+</script>

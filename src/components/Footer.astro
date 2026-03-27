@@ -1,13 +1,36 @@
 ---
-import { footer, socialLinkGroup } from "./Footer.css";
-import SocialLink from "./SocialLink.astro";
+import { footerInner, siteFooter } from "@components/Footer.css";
+import SocialLink from "@components/SocialLink.astro";
 import { socialLinks } from "@config/social";
 import { author } from "@config/author";
+import { sprinkles } from "@styles/sprinkles.css";
+
+const year = new Date().getFullYear();
 ---
 
-<footer class={footer}>
-  <div class={socialLinkGroup}>
-    {socialLinks.map((link) => <SocialLink {...link} />)}
+<footer class={siteFooter}>
+  <div class={footerInner}>
+    <div
+      class={sprinkles({
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "md",
+      })}
+    >
+      {socialLinks.map((link) => <SocialLink {...link} />)}
+    </div>
+    <p
+      class={sprinkles({
+        fontSize: "xs",
+        lineHeight: "tight",
+        color: "weak",
+        textAlign: "center",
+      })}
+    >
+      &copy; {year}
+      {author.displayName}. All Rights Reserved.
+    </p>
   </div>
-  <p>&copy; 2026 {author.displayName}. All Rights Reserved.</p>
 </footer>

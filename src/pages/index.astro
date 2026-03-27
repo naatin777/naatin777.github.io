@@ -1,26 +1,40 @@
 ---
 import Layout from "@layouts/Layout.astro";
-import { center, headerContainer, iconImage } from "@pages/index.css";
+import { homeIntroText, homeProfileImage } from "@styles/pages/index.css";
 import Icon from "@assets/icon.png";
 import { author } from "@config/author";
 import { Image } from "astro:assets";
+import { sprinkles } from "@styles/sprinkles.css";
 ---
 
-<Layout>
-  <div class={center}>
-    <section>
-      <div class={headerContainer}>
-        <Image
-          src={Icon}
-          alt={`${author.displayName}'s Icon`}
-          class={iconImage}
-          width={120}
-          height={120}
-          loading="eager"
-          fetchpriority="high"
-        />
-        <h1>Hey, I'm {author.displayName} 👋</h1>
-      </div>
-    </section>
-  </div>
+<Layout
+  title="Home"
+  description={`${author.displayName}'s portfolio site with an introduction and links to projects, articles, and changelog entries.`}
+>
+  <section
+    class={sprinkles({
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      textAlign: "center",
+      gap: "lg",
+    })}
+  >
+    <Image
+      src={Icon}
+      alt={`${author.displayName}'s Icon`}
+      class={homeProfileImage}
+      width={120}
+      height={120}
+      loading="eager"
+      fetchpriority="high"
+    />
+    <h1>Hey, I'm {author.displayName} 👋</h1>
+    <p class={homeIntroText}>
+      Just a beginner developer playing around with code as a hobby. I treat this space as a personal playground where I
+      can experiment and learn how to build things, one step at a time. I’m just exploring the process of trial and
+      error, tinkering with whatever happens to catch my eye.
+    </p>
+  </section>
 </Layout>

@@ -1,13 +1,37 @@
 ---
 import Layout from "@layouts/Layout.astro";
-import { center } from "@pages/404.css";
+import { sprinkles } from "@styles/sprinkles.css";
 ---
 
-<Layout>
-  <div class={center}>
-    <section>
-      <h1>404</h1>
-      <p>Not Found</p>
-    </section>
-  </div>
+<Layout
+  title="Page Not Found"
+  description="The page you were looking for could not be found."
+>
+  <section
+    class={sprinkles({
+      display: "grid",
+      justifyContent: "center",
+      alignItems: "center",
+      textAlign: "center",
+    })}
+  >
+    <h1
+      class={sprinkles({
+        fontSize: "5xl",
+        fontWeight: "bold",
+        color: "strong",
+      })}
+    >
+      404
+    </h1>
+    <p
+      class={sprinkles({
+        fontSize: "xl",
+        fontWeight: "bold",
+        color: "strong",
+      })}
+    >
+      Page not found
+    </p>
+  </section>
 </Layout>
