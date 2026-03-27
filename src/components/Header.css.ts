@@ -6,7 +6,6 @@ import { themeVars } from "../styles/vars.css";
 export const siteHeader = style([
   sprinkles({
     width: "full",
-    paddingBlockEnd: "xs",
   }),
   {
     position: "sticky",
@@ -61,14 +60,6 @@ export const siteBrand = style([
   }),
   {
     gridColumn: "1",
-    lineHeight: 1,
-    selectors: {
-      "&:focus-visible": {
-        outline: `${themeVars.borderWidth.thick} solid ${themeVars.color.focusRing}`,
-        outlineOffset: "2px",
-        borderRadius: themeVars.radius.sm,
-      },
-    },
   },
 ]);
 
@@ -102,7 +93,6 @@ export const siteNavList = style([
     justifyContent: { mobile: "center", tablet: "flex-start" },
     flexWrap: { mobile: "wrap", tablet: "nowrap" },
   }),
-  { padding: 0, margin: 0 },
 ]);
 
 export const siteNavLink = style([
@@ -119,9 +109,6 @@ export const siteNavLink = style([
     background: { hover: "surfaceHover" },
   }),
   {
-    fontSize: "0.95rem",
-    lineHeight: 1.1,
-    letterSpacing: "0.005em",
     minHeight: "2rem",
     border: "none",
     backgroundColor: "transparent",
@@ -129,20 +116,10 @@ export const siteNavLink = style([
       "&:hover": {
         boxShadow: `inset 0 0 0 1px ${themeVars.color.borderSoft}`,
       },
-      "&:focus-visible": {
-        outline: `${themeVars.borderWidth.thick} solid ${themeVars.color.focusRing}`,
-        outlineOffset: "2px",
-      },
       '&[aria-current="page"]': {
         color: themeVars.color.textStrong,
         backgroundColor: themeVars.color.surfaceActive,
         boxShadow: `inset 0 0 0 1px ${themeVars.color.border}`,
-      },
-    },
-    "@media": {
-      [media.mobile]: {
-        minHeight: "1.85rem",
-        paddingBlock: themeVars.spacing.xs,
       },
     },
   },
@@ -153,17 +130,11 @@ export const headerActions = style([
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "flex-end",
-    flexShrink: 0,
     whiteSpace: "nowrap",
     gap: "md",
     justifySelf: "end",
   }),
   {
     gridColumn: "3",
-    "@media": {
-      [media.mobile]: {
-        marginInlineStart: "auto",
-      },
-    },
   },
 ]);
