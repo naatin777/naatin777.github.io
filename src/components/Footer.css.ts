@@ -19,7 +19,6 @@ export const footerInner = style([
     justifyContent: "center",
     gap: "sm",
     borderRadius: "lg",
-    boxShadow: "sm",
     marginInline: "auto",
     paddingBlock: "md",
     paddingInline: "lg",
