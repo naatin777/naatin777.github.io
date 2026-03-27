@@ -69,8 +69,16 @@ const articles = [...internal, ...external].sort((a, b) => b.updatedAt.getTime()
                 url={article.url}
                 description={article.content}
                 tags={article.tags}
-                updatedAt={article.updatedAt.toDateString()}
-                publishedAt={article.publishedAt.toDateString()}
+                updatedAt={article.updatedAt.toLocaleDateString("ja-JP", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                })}
+                publishedAt={article.publishedAt.toLocaleDateString("ja-JP", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                })}
               />
             </li>
           ))
