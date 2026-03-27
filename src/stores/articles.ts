@@ -36,6 +36,10 @@ if (typeof window !== "undefined") {
     $articleTags.set(getTagsFromUrl());
   });
 
+  document.addEventListener("astro:page-load", () => {
+    $articleTags.set(getTagsFromUrl());
+  });
+
   $articleTags.listen((currentTags) => {
     if (typeof window === "undefined") return;
     const url = new URL(window.location.href);
