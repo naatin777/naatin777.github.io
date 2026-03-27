@@ -45,8 +45,8 @@ const projects = defineCollection({
   loader: glob({ pattern: "*.{yml,yaml}", base: "./src/data/projects" }),
   schema: z.object({
     name: z.string(),
-    description: z.string().optional(),
-    iconPath: z.string().optional(),
+    description: z.string(),
+    iconPath: z.string(),
     sourceUrl: z.url().optional(),
     links: z.array(
       z.object({
