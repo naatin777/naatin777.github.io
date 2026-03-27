@@ -97,6 +97,15 @@ const socialMeta = [
         window.__siteThemeMediaBound__ = true;
       }
 
+      if (window.__siteThemeBeforeSwapBound__ !== true) {
+        document.addEventListener("astro:before-swap", (event) => {
+          const resolvedTheme = getResolvedTheme();
+          event.newDocument.documentElement.classList.remove(lightTheme, darkTheme);
+          event.newDocument.documentElement.classList.add(resolvedTheme === "dark" ? darkTheme : lightTheme);
+        });
+        window.__siteThemeBeforeSwapBound__ = true;
+      }
+
       if (window.__siteThemePageLoadBound__ !== true) {
         document.addEventListener("astro:page-load", applyTheme);
         window.__siteThemePageLoadBound__ = true;
