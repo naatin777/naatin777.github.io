@@ -43,10 +43,10 @@ const tags = defineCollection({
 
 const projects = defineCollection({
   loader: glob({ pattern: "*.{yml,yaml}", base: "./src/data/projects" }),
-  schema: z.object({
+  schema: ({ image }) => z.object({
     name: z.string(),
     description: z.string(),
-    iconPath: z.string(),
+    iconPath: image(),
     sourceUrl: z.url().optional(),
     links: z.array(
       z.object({

@@ -1,6 +1,6 @@
 name: "LaTeX Graphics Helper"
 description: "A VS Code extension for working with PDF/image workflows and generating LaTeX-related output."
-iconPath: "/src/assets/projects/latex-graphics-helper.png"
+iconPath: "../../assets/projects/latex-graphics-helper.png"
 sourceUrl: "https://github.com/naatin777/LaTeX-Graphics-Helper"
 links:
   - label: "Open Marketplace"
