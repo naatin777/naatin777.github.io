@@ -1,0 +1,66 @@
+---
+import Layout from "@layouts/Layout.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+import {
+  blogArticleContent,
+  blogArticleDescription,
+  blogArticleHeader,
+  blogArticleLayout,
+  blogArticleMeta,
+  blogArticleTitle,
+  blogBackLink,
+  blogBackLinkContainer,
+} from "@styles/pages/blog/blog.css";
+import { render } from "astro:content";
+
+export async function getStaticPaths() {
+  const entries = (await getCollection("blog")).filter((entry) => entry.data.draft !== true);
+
+  return entries.map((entry) => {
+    const [year, slug] = entry.id.split("/");
+    return { params: { year, slug }, props: { entry } };
+  });
+}
+
+interface Props {
+  entry: CollectionEntry<"blog">;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<Layout title={entry.data.title} description={entry.data.description}>
+  <article class={blogArticleLayout}>
+    <p class={blogBackLinkContainer}>
+      <a href="/articles/" class={blogBackLink}>← Back to Articles</a>
+    </p>
+    <header class={blogArticleHeader}>
+      <h1 class={blogArticleTitle}>{entry.data.title}</h1>
+      <p class={blogArticleMeta}>
+        <span
+          >Published: {
+            entry.data.publishedAt.toLocaleDateString("ja-JP", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+            })
+          }</span
+        >
+        <span
+          >Updated: {
+            entry.data.updatedAt.toLocaleDateString("ja-JP", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+            })
+          }</span
+        >
+      </p>
+      <p class={blogArticleDescription}>{entry.data.description}</p>
+    </header>
+    <div class={blogArticleContent}>
+      <Content />
+    </div>
+  </article>
+</Layout>
