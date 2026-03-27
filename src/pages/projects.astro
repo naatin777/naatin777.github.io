@@ -15,10 +15,10 @@ const uniqueTags = [...new Set(allTags)].sort((a, b) => a.toLowerCase().localeCo
     <h1 class={projectsPageTitle}>Projects</h1>
     <div class={projectsPageLayout}>
       <ProjectTagCard tags={uniqueTags} />
-      <ul class={projectsCardList}>
+      <ul class={projectsCardList} id="projects-list">
         {
           projects.map((project) => (
-            <li>
+            <li data-tags={project.data.tags.join(",")}>
               <ProjectCard project={project} />
             </li>
           ))
@@ -27,3 +27,21 @@ const uniqueTags = [...new Set(allTags)].sort((a, b) => a.toLowerCase().localeCo
     </div>
   </section>
 </Layout>
+
+<script>
+  import { $projectTags } from "../stores/projects";
+
+  function applyFilter(selectedTags: string[]) {
+    const items = document.querySelectorAll<HTMLElement>("#projects-list > [data-tags]");
+    for (const item of items) {
+      if (selectedTags.length === 0) {
+        item.hidden = false;
+      } else {
+        const itemTags = (item.dataset.tags ?? "").split(",").filter(Boolean);
+        item.hidden = !selectedTags.some((t) => itemTags.includes(t));
+      }
+    }
+  }
+
+  $projectTags.subscribe(applyFilter);
+</script>

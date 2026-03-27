@@ -59,10 +59,10 @@ const articles = [...internal, ...external].sort((a, b) => b.updatedAt.getTime()
     <h1 class={articlesPageTitle}>Articles</h1>
     <div class={articlesPageLayout}>
       <ArticleTagCard tags={uniqueTags} />
-      <ul class={articlesArticleList}>
+      <ul class={articlesArticleList} id="articles-list">
         {
           articles.map((article) => (
-            <li>
+            <li data-tags={article.tags.join(",")}>
               <ArticleCard
                 source={article.source}
                 title={article.title}
@@ -87,3 +87,21 @@ const articles = [...internal, ...external].sort((a, b) => b.updatedAt.getTime()
     </div>
   </section>
 </Layout>
+
+<script>
+  import { $articleTags } from "../stores/articles";
+
+  function applyFilter(selectedTags: string[]) {
+    const items = document.querySelectorAll<HTMLElement>("#articles-list > [data-tags]");
+    for (const item of items) {
+      if (selectedTags.length === 0) {
+        item.hidden = false;
+      } else {
+        const itemTags = (item.dataset.tags ?? "").split(",").filter(Boolean);
+        item.hidden = !selectedTags.some((t) => itemTags.includes(t));
+      }
+    }
+  }
+
+  $articleTags.subscribe(applyFilter);
+</script>
