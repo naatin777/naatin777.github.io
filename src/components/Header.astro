@@ -1,44 +1,49 @@
 ---
-import { header, navList, navLink, activeNavLink } from "./Header.css";
-
-const { pathname } = Astro.url;
-
-const isActivePath = (href: string): boolean => {
-  if (href === "/") {
-    return pathname === "/";
-  }
-
-  if (href === "/articles" && pathname.startsWith("/blog")) {
-    return true;
-  }
-
-  return pathname === href || pathname.startsWith(href);
-};
+import ThemeToggle from "@components/ThemeToggle.tsx";
+import {
+  headerActions,
+  headerInner,
+  siteBrand,
+  siteHeader,
+  siteNav,
+  siteNavLink,
+  siteNavList,
+} from "@components/Header.css";
 
 const navItems = [
-  { href: "/", label: "Home" },
-  { href: "/changelog", label: "Changelog" },
-  { href: "/projects", label: "Projects" },
-  { href: "/articles", label: "Articles" },
-];
+  { href: "/changelog/", label: "Changelog" },
+  { href: "/projects/", label: "Projects" },
+  { href: "/articles/", label: "Articles" },
+] as const;
+
+const pathname = Astro.url.pathname;
+
+const isActive = (href: string): boolean => {
+  if (href === "/articles/") return pathname.startsWith("/articles/") || pathname.startsWith("/blog/");
+  return pathname === href || pathname.startsWith(href);
+};
 ---
 
-<header class={header}>
-  <nav aria-label="Primary">
-    <ul class={navList}>
-      {
-        navItems.map((item) => {
-          const isActive = isActivePath(item.href);
-          return (
+<header class={siteHeader}>
+  <div class={headerInner}>
+    <a href="/" class={siteBrand} aria-label="Home">naatin777.dev</a>
+
+    <div class={headerActions}>
+      <ThemeToggle client:load />
+    </div>
+
+    <nav class={siteNav} aria-label="Primary">
+      <ul class={siteNavList}>
+        {
+          navItems.map((item) => (
             <li>
-              <a href={item.href} class={navLink} aria-current={isActive ? "page" : undefined}>
-                <span class={isActive ? activeNavLink : ""} />
+              <a href={item.href} class={siteNavLink} aria-current={isActive(item.href) ? "page" : undefined}>
                 {item.label}
               </a>
             </li>
-          );
-        })
-      }
-    </ul>
-  </nav>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
 </header>

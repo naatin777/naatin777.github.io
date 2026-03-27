@@ -1,73 +1,169 @@
-import { createViewTransition, globalStyle, style } from "@vanilla-extract/css";
+import { style } from "@vanilla-extract/css";
+import { sprinkles } from "../styles/sprinkles.css";
+import { media } from "../styles/responsive.css";
+import { themeVars } from "../styles/vars.css";
 
-export const header = style({
-  position: "sticky",
-  top: 0,
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  height: "5rem",
-  zIndex: 100,
-  userSelect: "none",
-  WebkitUserSelect: "none",
-});
-
-export const navList = style({
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  listStyle: "none",
-  gap: "0.25rem",
-  padding: "0.35rem 0.5rem",
-  background: "rgba(255, 255, 255, 0.05)",
-  border: "1px solid rgba(255, 255, 255, 0.1)",
-  backdropFilter: "blur(10px)",
-  WebkitBackdropFilter: "blur(10px)",
-  borderRadius: "999px",
-});
-
-export const navLink = style({
-  position: "relative",
-  display: "flex",
-  alignItems: "center",
-  textDecoration: "none",
-  color: "inherit",
-  padding: "0.4rem 0.9rem",
-  borderRadius: "999px",
-  transition: "background-color 160ms ease",
-  selectors: {
-    "&:hover": {
-      backgroundColor: "rgba(255, 255, 255, 0.07)",
-    },
-    "&:focus-visible": {
-      outline: "2px solid rgba(255, 255, 255, 0.5)",
-      outlineOffset: "2px",
-    },
-  },
-});
-
-const navActiveTransition = createViewTransition("nav-active");
-
-export const activeNavLink = style({
-  background: "rgba(255, 255, 255, 0.18)",
-  position: "absolute",
-  inset: 0,
-  borderRadius: "999px",
-  pointerEvents: "none",
-  viewTransitionName: navActiveTransition,
-});
-
-globalStyle(`::view-transition-group(${navActiveTransition})`, {
-  animationDuration: "0.12s",
-  animationTimingFunction: "cubic-bezier(0.5, 0, 0, 1)",
-});
-
-globalStyle(
-  `::view-transition-old(${navActiveTransition}), ::view-transition-new(${navActiveTransition})`,
+export const siteHeader = style([
+  sprinkles({
+    width: "full",
+    paddingBlockEnd: "xs",
+  }),
   {
-    objectFit: "none",
-    height: "100%",
-    width: "100%",
-    mixBlendMode: "normal",
+    position: "sticky",
+    top: 0,
+    zIndex: themeVars.zIndex.header,
+    userSelect: "none",
+    WebkitUserSelect: "none",
+    paddingBlockStart: `calc(${themeVars.spacing.sm} + env(safe-area-inset-top, 0px))`,
+    paddingInlineStart: `max(${themeVars.spacing.lg}, env(safe-area-inset-left, 0px))`,
+    paddingInlineEnd: `max(${themeVars.spacing.lg}, env(safe-area-inset-right, 0px))`,
   },
-);
+]);
+
+export const headerInner = style([
+  sprinkles({
+    marginInline: "auto",
+    paddingBlock: "sm",
+    paddingInline: "md",
+    borderRadius: "lg",
+    background: "surfaceFloating",
+    width: "full",
+    maxWidth: "page",
+    display: { mobile: "flex", tablet: "grid" },
+    alignItems: "center",
+    gap: "md",
+    justifyContent: { mobile: "space-between" },
+    flexWrap: { mobile: "wrap" },
+  }),
+  {
+    gridTemplateColumns: "minmax(0, 1fr) auto minmax(0, 1fr)",
+    border: `${themeVars.borderWidth.thin} solid ${themeVars.color.borderSoft}`,
+    backdropFilter: `blur(${themeVars.effect.blur})`,
+    WebkitBackdropFilter: `blur(${themeVars.effect.blur})`,
+    "@media": {
+      [media.mobile]: {
+        rowGap: themeVars.spacing.xs,
+        columnGap: themeVars.spacing.sm,
+      },
+    },
+  },
+]);
+
+export const siteBrand = style([
+  sprinkles({
+    display: "inline-flex",
+    whiteSpace: "nowrap",
+    fontSize: "md",
+    fontWeight: "semibold",
+    justifySelf: "start",
+    textDecoration: "none",
+    color: { default: "strong", hover: "muted" },
+  }),
+  {
+    gridColumn: "1",
+    lineHeight: 1,
+    selectors: {
+      "&:focus-visible": {
+        outline: `${themeVars.borderWidth.thick} solid ${themeVars.color.focusRing}`,
+        outlineOffset: "2px",
+        borderRadius: themeVars.radius.sm,
+      },
+    },
+  },
+]);
+
+export const siteNav = style([
+  sprinkles({
+    display: { mobile: "block", tablet: "inline-flex" },
+    justifySelf: "center",
+  }),
+  {
+    gridColumn: "2",
+    gridRow: "1",
+    "@media": {
+      [media.mobile]: {
+        width: `calc(100% + ${themeVars.spacing.xl})`,
+        marginInlineStart: `-${themeVars.spacing.md}`,
+        marginInlineEnd: `-${themeVars.spacing.md}`,
+        paddingBlockStart: themeVars.spacing.xs,
+        borderTop: `${themeVars.borderWidth.thin} solid ${themeVars.color.borderSoft}`,
+      },
+    },
+  },
+]);
+
+export const siteNavList = style([
+  sprinkles({
+    listStyle: "none",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "xs",
+    width: { mobile: "full", tablet: "auto" },
+    justifyContent: { mobile: "center", tablet: "flex-start" },
+    flexWrap: { mobile: "wrap", tablet: "nowrap" },
+  }),
+  { padding: 0, margin: 0 },
+]);
+
+export const siteNavLink = style([
+  sprinkles({
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    whiteSpace: "nowrap",
+    fontWeight: "medium",
+    borderRadius: "pill",
+    textDecoration: "none",
+    paddingInline: "md",
+    color: { default: "muted", hover: "strong" },
+    background: { hover: "surfaceHover" },
+  }),
+  {
+    fontSize: "0.95rem",
+    lineHeight: 1.1,
+    letterSpacing: "0.005em",
+    minHeight: "2rem",
+    border: "none",
+    backgroundColor: "transparent",
+    selectors: {
+      "&:hover": {
+        boxShadow: `inset 0 0 0 1px ${themeVars.color.borderSoft}`,
+      },
+      "&:focus-visible": {
+        outline: `${themeVars.borderWidth.thick} solid ${themeVars.color.focusRing}`,
+        outlineOffset: "2px",
+      },
+      '&[aria-current="page"]': {
+        color: themeVars.color.textStrong,
+        backgroundColor: themeVars.color.surfaceActive,
+        boxShadow: `inset 0 0 0 1px ${themeVars.color.border}`,
+      },
+    },
+    "@media": {
+      [media.mobile]: {
+        minHeight: "1.85rem",
+        paddingBlock: themeVars.spacing.xs,
+      },
+    },
+  },
+]);
+
+export const headerActions = style([
+  sprinkles({
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    flexShrink: 0,
+    whiteSpace: "nowrap",
+    gap: "md",
+    justifySelf: "end",
+  }),
+  {
+    gridColumn: "3",
+    "@media": {
+      [media.mobile]: {
+        marginInlineStart: "auto",
+      },
+    },
+  },
+]);
