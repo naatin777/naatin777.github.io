@@ -3,3 +3,7 @@ entries:
   - url: "https://qiita.com/naatin777/items/eb58397d8f7c7913cb00"
     tags:
       - "vscode-extension"
+  - url: "https://qiita.com/naatin777/items/e594c079b68820940794"
+    tags:
+      - "redux-toolkit"
+      - "DI"
