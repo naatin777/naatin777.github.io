@@ -3,6 +3,7 @@
   "include": [".astro/types.d.ts", "**/*"],
   "exclude": ["dist"],
   "compilerOptions": {
+    "plugins": [{ "name": "@astrojs/ts-plugin" }],
     "paths": {
       "@components/*": ["./src/components/*"],
       "@layouts/*": ["./src/layouts/*"],
@@ -11,6 +12,7 @@
       "@assets/*": ["./src/assets/*"],
       "@scripts/*": ["./src/scripts/*"]
     },
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js"
   }
 }
