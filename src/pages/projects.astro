@@ -31,7 +31,7 @@ const uniqueTags = [...new Set(allTags)].sort((a, b) => a.toLowerCase().localeCo
 <script>
   import { $projectTags } from "../stores/projects";
 
-  function applyFilter(selectedTags: string[]) {
+  function applyFilter(selectedTags: readonly string[]) {
     const items = document.querySelectorAll<HTMLElement>("#projects-list > [data-tags]");
     for (const item of items) {
       if (selectedTags.length === 0) {

@@ -1,7 +1,6 @@
 import { style } from "@vanilla-extract/css";
 import { media } from "../responsive.css";
 import { sprinkles } from "../sprinkles.css";
-import { themeVars } from "../vars.css";
 
 export const articlesPageBody = style([
   sprinkles({

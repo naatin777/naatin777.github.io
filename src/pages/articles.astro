@@ -91,7 +91,7 @@ const articles = [...internal, ...external].sort((a, b) => b.updatedAt.getTime()
 <script>
   import { $articleTags } from "../stores/articles";
 
-  function applyFilter(selectedTags: string[]) {
+  function applyFilter(selectedTags: readonly string[]) {
     const items = document.querySelectorAll<HTMLElement>("#articles-list > [data-tags]");
     for (const item of items) {
       if (selectedTags.length === 0) {

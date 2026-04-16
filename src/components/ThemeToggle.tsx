@@ -14,15 +14,6 @@ import {
 
 type ThemeValue = "light" | "dark" | "system";
 
-interface ThemeController {
-  get: () => ThemeValue;
-  set: (theme: ThemeValue) => void;
-}
-
-type ThemeWindow = Window & {
-  __theme?: ThemeController;
-};
-
 interface ThemeOption {
   value: ThemeValue;
   label: string;
@@ -41,13 +32,13 @@ export default function ThemeToggle() {
   const [animate, setAnimate] = createSignal(false);
 
   const syncActiveTheme = (): void => {
-    const themeApi = (window as ThemeWindow).__theme;
+    const themeApi = window.__theme;
     setActiveTheme(themeApi?.get() ?? "system");
     setReady(true);
   };
 
   const handleSelect = (theme: ThemeValue): void => {
-    const themeApi = (window as ThemeWindow).__theme;
+    const themeApi = window.__theme;
     themeApi?.set(theme);
     setActiveTheme(theme);
     setAnimate(true);
