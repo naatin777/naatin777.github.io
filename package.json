@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.8",
+    "@astrojs/ts-plugin": "^1.10.7",
     "@vanilla-extract/vite-plugin": "5.1.2-vite-hmr-fix-20250826075423",
     "prettier": "^3.8.1",
     "prettier-plugin-astro": "^0.14.1",
