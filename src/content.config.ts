@@ -17,7 +17,7 @@ const zenn = defineCollection({
 });
 
 const blog = defineCollection({
-  loader: glob({ pattern: "[0-9][0-9][0-9][0-9]/*.md", base: "./src/data/blog" }),
+  loader: glob({ pattern: "[0-9][0-9][0-9][0-9]/*.{md,mdx}", base: "./src/data/blog" }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
