@@ -87,21 +87,3 @@ const articles = [...internal, ...external].sort((a, b) => b.updatedAt.getTime()
     </div>
   </section>
 </Layout>
-
-<script>
-  import { $articleTags } from "../stores/articles";
-
-  function applyFilter(selectedTags: readonly string[]) {
-    const items = document.querySelectorAll<HTMLElement>("#articles-list > [data-tags]");
-    for (const item of items) {
-      if (selectedTags.length === 0) {
-        item.hidden = false;
-      } else {
-        const itemTags = (item.dataset.tags ?? "").split(",").filter(Boolean);
-        item.hidden = !selectedTags.some((t) => itemTags.includes(t));
-      }
-    }
-  }
-
-  $articleTags.subscribe(applyFilter);
-</script>

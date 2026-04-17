@@ -1,13 +1,7 @@
 ---
 import { card } from "@components/card/Card.css";
-import TagCardActions from "@components/card/TagCardActions";
-import ProjectChip from "@components/chip/ProjectChip.tsx";
-import {
-  tagCard,
-  tagCardHeader,
-  tagCardList,
-  tagCardTitle,
-} from "@components/card/TagCard.css";
+import TagFilter from "@components/card/TagFilter";
+import { tagCard } from "@components/card/TagCard.css";
 
 export interface Props {
   tags: string[];
@@ -17,17 +11,11 @@ const { tags } = Astro.props;
 ---
 
 <aside class:list={[card, tagCard]}>
-  <div class={tagCardHeader}>
-    <h2 class={tagCardTitle}>Tags</h2>
-    <TagCardActions kind="project" tags={tags} client:only="solid-js" />
-  </div>
-  <ul class={tagCardList}>
-    {
-      tags.map((tag) => (
-        <li>
-          <ProjectChip value={tag} client:only="solid-js" />
-        </li>
-      ))
-    }
-  </ul>
+  <TagFilter
+    kind="project"
+    tags={tags}
+    queryKey="projectTags"
+    listSelector="#projects-list > [data-tags]"
+    client:load
+  />
 </aside>

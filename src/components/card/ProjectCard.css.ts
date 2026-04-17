@@ -24,12 +24,10 @@ export const projectTagList = style([
   },
 ]);
 
-export const projectHeader = style([
-  sprinkles({
-    display: "flex",
-    alignItems: "center",
-  }),
-]);
+export const projectHeader = sprinkles({
+  display: "flex",
+  alignItems: "center",
+});
 
 export const projectContentSection = style([
   sprinkles({
@@ -77,9 +75,12 @@ export const projectSummary = style([
   },
 ]);
 
-export const projectActions = style([
-  sprinkles({ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "xs" }),
-]);
+export const projectActions = sprinkles({
+  display: "flex",
+  alignItems: "center",
+  flexWrap: "wrap",
+  gap: "xs",
+});
 
 export const projectActionLink = style([
   sprinkles({

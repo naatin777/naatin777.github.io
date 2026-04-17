@@ -90,25 +90,21 @@ export const articleCardContentSection = style([
   },
 ]);
 
-export const articleCardDateList = style([
-  sprinkles({
-    display: "flex",
-    alignItems: "center",
-    flexWrap: "wrap",
-    justifyContent: { mobile: "flex-start", tablet: "flex-end" },
-    marginInlineStart: { mobile: "none", tablet: "auto" },
-    gap: "sm",
-  }),
-]);
+export const articleCardDateList = sprinkles({
+  display: "flex",
+  alignItems: "center",
+  flexWrap: "wrap",
+  justifyContent: { mobile: "flex-start", tablet: "flex-end" },
+  marginInlineStart: { mobile: "none", tablet: "auto" },
+  gap: "sm",
+});
 
-export const articleCardTitle = style([
-  sprinkles({
-    fontSize: "md",
-    lineHeight: "normal",
-    fontWeight: "semibold",
-    textDecoration: "none",
-  }),
-]);
+export const articleCardTitle = sprinkles({
+  fontSize: "md",
+  lineHeight: "normal",
+  fontWeight: "semibold",
+  textDecoration: "none",
+});
 
 export const articleCardSummary = style([
   sprinkles({
@@ -145,12 +141,10 @@ export const articleCardLink = style([
   },
 ]);
 
-export const articleCardTagList = style([
-  sprinkles({
-    listStyle: "none",
-    display: "flex",
-    flexWrap: "wrap",
-    paddingBlockStart: "sm",
-    gap: "sm",
-  }),
-]);
+export const articleCardTagList = sprinkles({
+  listStyle: "none",
+  display: "flex",
+  flexWrap: "wrap",
+  paddingBlockStart: "sm",
+  gap: "sm",
+});

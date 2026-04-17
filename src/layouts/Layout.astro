@@ -48,6 +48,7 @@ const socialMeta = [
       const STORAGE_KEY = "theme";
       const THEME_TRANSITION_DURATION_MS = 180;
       const THEME_COLOR_META_SELECTOR = 'meta[name="theme-color"]';
+      const THEME_PREFERENCE_ATTRIBUTE = "data-theme-preference";
       const VALID_THEMES = new Set(["light", "dark", "system"]);
       const root = document.documentElement;
       const media = window.matchMedia("(prefers-color-scheme: dark)");
@@ -58,25 +59,30 @@ const socialMeta = [
         return VALID_THEMES.has(value) ? value : "system";
       };
 
-      const getResolvedTheme = () => {
-        const themePreference = getStoredThemePreference();
+      const getResolvedTheme = (themePreference = getStoredThemePreference()) => {
         return themePreference === "system" ? (media.matches ? "dark" : "light") : themePreference;
       };
 
-      const updateThemeColorMeta = () => {
+      const syncThemePreferenceAttribute = (target = root, themePreference = getStoredThemePreference()) => {
+        target.setAttribute(THEME_PREFERENCE_ATTRIBUTE, themePreference);
+      };
+
+      const updateThemeColorMeta = (resolvedTheme = getResolvedTheme()) => {
         const metaThemeColor = document.querySelector(THEME_COLOR_META_SELECTOR);
         if (!(metaThemeColor instanceof HTMLMetaElement)) {
           return;
         }
 
-        metaThemeColor.content = getResolvedTheme() === "dark" ? darkThemeColor : lightThemeColor;
+        metaThemeColor.content = resolvedTheme === "dark" ? darkThemeColor : lightThemeColor;
       };
 
       const applyTheme = () => {
-        const resolvedTheme = getResolvedTheme();
+        const themePreference = getStoredThemePreference();
+        const resolvedTheme = getResolvedTheme(themePreference);
+        syncThemePreferenceAttribute(root, themePreference);
         root.classList.remove(lightTheme, darkTheme);
         root.classList.add(resolvedTheme === "dark" ? darkTheme : lightTheme);
-        updateThemeColorMeta();
+        updateThemeColorMeta(resolvedTheme);
       };
 
       const beginThemeTransition = () => {
@@ -100,9 +106,12 @@ const socialMeta = [
 
       if (window.__siteThemeBeforeSwapBound__ !== true) {
         document.addEventListener("astro:before-swap", (event) => {
-          const resolvedTheme = getResolvedTheme();
-          event.newDocument.documentElement.classList.remove(lightTheme, darkTheme);
-          event.newDocument.documentElement.classList.add(resolvedTheme === "dark" ? darkTheme : lightTheme);
+          const themePreference = getStoredThemePreference();
+          const resolvedTheme = getResolvedTheme(themePreference);
+          const nextRoot = event.newDocument.documentElement;
+          syncThemePreferenceAttribute(nextRoot, themePreference);
+          nextRoot.classList.remove(lightTheme, darkTheme);
+          nextRoot.classList.add(resolvedTheme === "dark" ? darkTheme : lightTheme);
         });
         window.__siteThemeBeforeSwapBound__ = true;
       }

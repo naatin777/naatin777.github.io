@@ -13,7 +13,7 @@ import {
 } from "@components/card/ArticleCard.css";
 import { card } from "@components/card/Card.css";
 import { chip } from "@components/chip/Chip.css";
-import ArticleChip from "@components/chip/ArticleChip";
+import FilterChip from "@components/chip/FilterChip";
 
 export interface Props {
   source: string;
@@ -55,7 +55,7 @@ const sourceBadgeTone: "blog" | "qiita" | "zenn" | "default" = source as "blog" 
     {
       tags.map((tag) => (
         <li>
-          <ArticleChip value={tag} client:only />
+          <FilterChip value={tag} queryKey="articleTags" client:load />
         </li>
       ))
     }

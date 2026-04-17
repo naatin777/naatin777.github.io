@@ -23,15 +23,20 @@ const options: ThemeOption[] = [
   { value: "dark", label: "Dark", icon: MoonModeIcon },
 ];
 
+const isThemeValue = (value: string | undefined): value is ThemeValue =>
+  value === "light" || value === "dark" || value === "system";
+
 const getInitialThemeState = (): { activeTheme: ThemeValue; ready: boolean } => {
-  if (typeof window === "undefined") {
-    return { activeTheme: "system", ready: false };
+  return { activeTheme: "system", ready: false };
+};
+
+const getCurrentThemePreference = (): ThemeValue => {
+  const themePreference = document.documentElement.dataset.themePreference;
+  if (isThemeValue(themePreference)) {
+    return themePreference;
   }
 
-  return {
-    activeTheme: window.__theme?.get() ?? "system",
-    ready: true,
-  };
+  return window.__theme?.get() ?? "system";
 };
 
 export default function ThemeToggle() {
@@ -39,9 +44,8 @@ export default function ThemeToggle() {
   const [animate, setAnimate] = useState(false);
 
   const syncActiveTheme = (): void => {
-    const themeApi = window.__theme;
     setThemeState({
-      activeTheme: themeApi?.get() ?? "system",
+      activeTheme: getCurrentThemePreference(),
       ready: true,
     });
   };
@@ -57,6 +61,7 @@ export default function ThemeToggle() {
   };
 
   useEffect(() => {
+    syncActiveTheme();
     document.addEventListener("astro:before-preparation", syncActiveTheme);
 
     return () => {
@@ -66,7 +71,11 @@ export default function ThemeToggle() {
 
   return (
     <div className={themeToggleRoot({ ready })} role="group" aria-label="Color Theme">
-      <span className={themeToggleActiveIndicator({ activeTheme, ready, animate })} aria-hidden="true" />
+      <span
+        className={themeToggleActiveIndicator({ activeTheme, ready, animate })}
+        aria-hidden="true"
+        data-theme-indicator="true"
+      />
       {options.map((option) => (
         <button
           key={option.value}
@@ -75,6 +84,7 @@ export default function ThemeToggle() {
           aria-pressed={activeTheme === option.value}
           aria-label={`Set ${option.label} theme`}
           title={option.label}
+          data-theme-value={option.value}
           onClick={() => {
             handleSelect(option.value);
           }}
@@ -82,6 +92,7 @@ export default function ThemeToggle() {
           <span
             className={themeToggleIcon({ active: activeTheme === option.value })}
             aria-hidden="true"
+            data-theme-value={option.value}
             dangerouslySetInnerHTML={{ __html: option.icon }}
           />
         </button>

@@ -10,6 +10,11 @@ const toggleIndicatorTransformTransition = `transform ${themeVars.motion.duratio
 const toggleIndicatorColorTransition = `background-color ${themeVars.motion.duration.slow} ${themeVars.motion.easing.standard}`;
 const toggleIndicatorOpacityTransition = `opacity ${themeVars.motion.duration.normal} ${themeVars.motion.easing.standard}`;
 const toggleButtonFocusRing = `inset 0 0 0 2px ${themeVars.color.focusRing}`;
+const themePreferenceSelector = {
+  light: 'html[data-theme-preference="light"]',
+  system: 'html[data-theme-preference="system"]',
+  dark: 'html[data-theme-preference="dark"]',
+} as const;
 
 export const themeToggleRoot = recipe({
   base: [
@@ -39,13 +44,8 @@ export const themeToggleRoot = recipe({
   ],
   variants: {
     ready: {
-      false: {
-        visibility: "hidden",
-        pointerEvents: "none",
-      },
-      true: {
-        visibility: "visible",
-      },
+      false: {},
+      true: {},
     },
   },
   defaultVariants: {
@@ -70,6 +70,17 @@ export const themeToggleActiveIndicator = recipe({
       boxShadow: `inset 0 0 0 1px ${themeVars.color.border}`,
       opacity: 0,
       transition: "none",
+      selectors: {
+        [`${themePreferenceSelector.light} &[data-theme-indicator="true"]`]: {
+          transform: "translateX(0)",
+        },
+        [`${themePreferenceSelector.system} &[data-theme-indicator="true"]`]: {
+          transform: `translateX(calc(${toggleSizeVar} + ${toggleGapVar}))`,
+        },
+        [`${themePreferenceSelector.dark} &[data-theme-indicator="true"]`]: {
+          transform: `translateX(calc((${toggleSizeVar} + ${toggleGapVar}) * 2))`,
+        },
+      },
     },
   ],
   variants: {
@@ -86,7 +97,7 @@ export const themeToggleActiveIndicator = recipe({
     },
     ready: {
       false: {
-        opacity: 0,
+        opacity: 1,
       },
       true: {
         opacity: 1,
@@ -139,6 +150,15 @@ export const themeToggleButton = recipe({
       transform: "none",
       transition: `color ${themeVars.motion.duration.normal} ease`,
       selectors: {
+        [`${themePreferenceSelector.light} &[data-theme-value="light"]`]: {
+          color: themeVars.color.textStrong,
+        },
+        [`${themePreferenceSelector.system} &[data-theme-value="system"]`]: {
+          color: themeVars.color.textStrong,
+        },
+        [`${themePreferenceSelector.dark} &[data-theme-value="dark"]`]: {
+          color: themeVars.color.textStrong,
+        },
         "&:hover": {
           color: themeVars.color.textStrong,
         },
@@ -178,6 +198,17 @@ export const themeToggleIcon = recipe({
       height: "18px",
       opacity: 0.8,
       transition: "none",
+      selectors: {
+        [`${themePreferenceSelector.light} &[data-theme-value="light"]`]: {
+          opacity: 1,
+        },
+        [`${themePreferenceSelector.system} &[data-theme-value="system"]`]: {
+          opacity: 1,
+        },
+        [`${themePreferenceSelector.dark} &[data-theme-value="dark"]`]: {
+          opacity: 1,
+        },
+      },
     },
   ],
   variants: {
