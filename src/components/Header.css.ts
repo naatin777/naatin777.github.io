@@ -83,17 +83,15 @@ export const siteNav = style([
   },
 ]);
 
-export const siteNavList = style([
-  sprinkles({
-    listStyle: "none",
-    display: "inline-flex",
-    alignItems: "center",
-    gap: "xs",
-    width: { mobile: "full", tablet: "auto" },
-    justifyContent: { mobile: "center", tablet: "flex-start" },
-    flexWrap: { mobile: "wrap", tablet: "nowrap" },
-  }),
-]);
+export const siteNavList = sprinkles({
+  listStyle: "none",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "xs",
+  width: { mobile: "full", tablet: "auto" },
+  justifyContent: { mobile: "center", tablet: "flex-start" },
+  flexWrap: { mobile: "wrap", tablet: "nowrap" },
+});
 
 export const siteNavLink = style([
   sprinkles({

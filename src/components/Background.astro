@@ -20,9 +20,9 @@ import { ambientBackground } from "@components/Background.css";
 
   // 色ごとのセル内 2×2 オフセット（モジュールレベルで1回だけ生成）
   const COLOR_OFFSETS: [number, number][] = [
-    [0,   0  ],
-    [0.5, 0  ],
-    [0,   0.5],
+    [0, 0],
+    [0.5, 0],
+    [0, 0.5],
     [0.5, 0.5],
   ];
 
@@ -41,7 +41,7 @@ import { ambientBackground } from "@components/Background.css";
      モジュールレベルの状態
   ========================= */
   let app: Application | null = null;
-  let sprites: Sprite[] = [];
+  const sprites: Sprite[] = [];
   let container: Container | null = null;
 
   /* =========================
@@ -63,27 +63,17 @@ import { ambientBackground } from "@components/Background.css";
      波関数（全て有界 [-3, 3]）
   ========================= */
   function f0(x: number, y: number, t: number) {
-    return (
-      Math.sin(1.2 * x - t) +
-      0.4 * Math.sin(2.5 * x - 1.8 * t + 1.0) +
-      0.2 * Math.sin(1.5 * x + y - 1.2 * t)
-    );
+    return Math.sin(1.2 * x - t) + 0.4 * Math.sin(2.5 * x - 1.8 * t + 1.0) + 0.2 * Math.sin(1.5 * x + y - 1.2 * t);
   }
 
   function f1(x: number, y: number, t: number) {
     return (
-      Math.sin(x * 1.8 - y * 0.9 + t * 1.3) +
-      Math.cos(x * 0.7 + y * 2.1 - t * 0.8) +
-      Math.sin((x - y) * 1.4 + t * 0.5)
+      Math.sin(x * 1.8 - y * 0.9 + t * 1.3) + Math.cos(x * 0.7 + y * 2.1 - t * 0.8) + Math.sin((x - y) * 1.4 + t * 0.5)
     );
   }
 
   function f2(x: number, y: number, t: number) {
-    return (
-      Math.sin(1.5 * x + 1.2 * y + t) +
-      Math.cos(-2.1 * x + 1.7 * y - t) +
-      Math.sin(0.8 * x - 2.5 * y + t)
-    );
+    return Math.sin(1.5 * x + 1.2 * y + t) + Math.cos(-2.1 * x + 1.7 * y - t) + Math.sin(0.8 * x - 2.5 * y + t);
   }
 
   function f3(x: number, y: number, t: number) {

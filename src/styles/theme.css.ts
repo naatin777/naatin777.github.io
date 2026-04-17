@@ -27,7 +27,7 @@ const sharedThemeValues = {
     thin: "1px",
     thick: "2px",
   },
-  fontFamily: "'Inter', 'Noto Sans JP', sans-serif",
+  fontFamily: "var(--font-inter), var(--font-noto-sans-jp), sans-serif",
   fontWeight: {
     medium: "500",
     semibold: "600",

@@ -1,7 +1,4 @@
-/** @jsxRuntime automatic */
-/** @jsxImportSource solid-js */
-
-import { For, createSignal, onCleanup, onMount } from "solid-js";
+import { useEffect, useState } from "react";
 import MoonModeIcon from "@assets/mode/light.svg?raw";
 import SunModeIcon from "@assets/mode/dark.svg?raw";
 import SystemModeIcon from "@assets/mode/system.svg?raw";
@@ -26,60 +23,69 @@ const options: ThemeOption[] = [
   { value: "dark", label: "Dark", icon: MoonModeIcon },
 ];
 
+const getInitialThemeState = (): { activeTheme: ThemeValue; ready: boolean } => {
+  if (typeof window === "undefined") {
+    return { activeTheme: "system", ready: false };
+  }
+
+  return {
+    activeTheme: window.__theme?.get() ?? "system",
+    ready: true,
+  };
+};
+
 export default function ThemeToggle() {
-  const [activeTheme, setActiveTheme] = createSignal<ThemeValue>("system");
-  const [ready, setReady] = createSignal(false);
-  const [animate, setAnimate] = createSignal(false);
+  const [{ activeTheme, ready }, setThemeState] = useState(getInitialThemeState);
+  const [animate, setAnimate] = useState(false);
 
   const syncActiveTheme = (): void => {
     const themeApi = window.__theme;
-    setActiveTheme(themeApi?.get() ?? "system");
-    setReady(true);
+    setThemeState({
+      activeTheme: themeApi?.get() ?? "system",
+      ready: true,
+    });
   };
 
   const handleSelect = (theme: ThemeValue): void => {
     const themeApi = window.__theme;
     themeApi?.set(theme);
-    setActiveTheme(theme);
+    setThemeState({
+      activeTheme: theme,
+      ready: true,
+    });
     setAnimate(true);
   };
 
-  onMount(() => {
-    syncActiveTheme();
+  useEffect(() => {
     document.addEventListener("astro:before-preparation", syncActiveTheme);
 
-    onCleanup(() => {
+    return () => {
       document.removeEventListener("astro:before-preparation", syncActiveTheme);
-    });
-  });
+    };
+  }, []);
 
   return (
-    <div
-      class={themeToggleRoot}
-      role="group"
-      aria-label="Color Theme"
-      data-theme-active={ready() ? activeTheme() : undefined}
-      data-theme-toggle-ready={ready() ? "true" : "false"}
-      data-theme-toggle-animate={animate() ? "true" : "false"}
-    >
-      <span class={themeToggleActiveIndicator} aria-hidden="true" />
-      <For each={options}>
-        {(option) => (
-          <button
-            type="button"
-            class={themeToggleButton}
-            aria-pressed={activeTheme() === option.value ? "true" : "false"}
-            aria-label={`Set ${option.label} theme`}
-            title={option.label}
-            data-theme-toggle-option={option.value}
-            onClick={() => {
-              handleSelect(option.value);
-            }}
-          >
-            <span class={themeToggleIcon} aria-hidden="true" innerHTML={option.icon} />
-          </button>
-        )}
-      </For>
+    <div className={themeToggleRoot({ ready })} role="group" aria-label="Color Theme">
+      <span className={themeToggleActiveIndicator({ activeTheme, ready, animate })} aria-hidden="true" />
+      {options.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          className={themeToggleButton({ selected: activeTheme === option.value })}
+          aria-pressed={activeTheme === option.value}
+          aria-label={`Set ${option.label} theme`}
+          title={option.label}
+          onClick={() => {
+            handleSelect(option.value);
+          }}
+        >
+          <span
+            className={themeToggleIcon({ active: activeTheme === option.value })}
+            aria-hidden="true"
+            dangerouslySetInnerHTML={{ __html: option.icon }}
+          />
+        </button>
+      ))}
     </div>
   );
 }

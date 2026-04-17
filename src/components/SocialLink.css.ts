@@ -30,48 +30,42 @@ export const socialLinkButton = style([
   },
 ]);
 
-export const socialLinkIcon = style([
-  sprinkles({ display: "block" }),
-  {
-    width: 24,
-    height: 24,
-    opacity: 0.75,
-    transition: `opacity ${themeVars.motion.duration.normal} ${themeVars.motion.easing.standard}`,
-    selectors: {
-      [`${socialLinkButton}:hover &`]: {
-        opacity: 1,
-      },
-      [`${socialLinkButton}:focus-visible &`]: {
-        opacity: 1,
-      },
+export const socialLinkIcon = style({
+  display: "block",
+  width: 24,
+  height: 24,
+  opacity: 0.75,
+  transition: `opacity ${themeVars.motion.duration.normal} ${themeVars.motion.easing.standard}`,
+  selectors: {
+    [`${socialLinkButton}:hover &`]: {
+      opacity: 1,
+    },
+    [`${socialLinkButton}:focus-visible &`]: {
+      opacity: 1,
     },
   },
-]);
+});
 
-export const socialLinkIconLight = style([
-  sprinkles({ display: "block" }),
-  {
-    selectors: {
-      [`:root.${darkTheme} &`]: {
-        display: "none",
-      },
-      [`:root.${lightTheme} &`]: {
-        display: "block",
-      },
+export const socialLinkIconLight = style({
+  display: "block",
+  selectors: {
+    [`:root.${darkTheme} &`]: {
+      display: "none",
+    },
+    [`:root.${lightTheme} &`]: {
+      display: "block",
     },
   },
-]);
+});
 
-export const socialLinkIconDark = style([
-  sprinkles({ display: "none" }),
-  {
-    selectors: {
-      [`:root.${darkTheme} &`]: {
-        display: "block",
-      },
-      [`:root.${lightTheme} &`]: {
-        display: "none",
-      },
+export const socialLinkIconDark = style({
+  display: "none",
+  selectors: {
+    [`:root.${darkTheme} &`]: {
+      display: "block",
+    },
+    [`:root.${lightTheme} &`]: {
+      display: "none",
     },
   },
-]);
+});

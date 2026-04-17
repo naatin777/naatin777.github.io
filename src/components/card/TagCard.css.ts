@@ -22,22 +22,18 @@ export const tagCard = style([
   },
 ]);
 
-export const tagCardTitle = style([
-  sprinkles({
-    fontSize: "sm",
-    color: "muted",
-    fontWeight: "semibold",
-  }),
-]);
+export const tagCardTitle = sprinkles({
+  fontSize: "sm",
+  color: "muted",
+  fontWeight: "semibold",
+});
 
-export const tagCardHeader = style([
-  sprinkles({
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: "sm",
-  }),
-]);
+export const tagCardHeader = sprinkles({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: "sm",
+});
 
 export const tagCardList = style([
   sprinkles({

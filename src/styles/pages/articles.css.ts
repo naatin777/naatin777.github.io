@@ -2,13 +2,11 @@ import { style } from "@vanilla-extract/css";
 import { media } from "../responsive.css";
 import { sprinkles } from "../sprinkles.css";
 
-export const articlesPageBody = style([
-  sprinkles({
-    width: "full",
-    maxWidth: "page",
-    marginInline: "auto",
-  }),
-]);
+export const articlesPageBody = sprinkles({
+  width: "full",
+  maxWidth: "page",
+  marginInline: "auto",
+});
 
 export const articlesPageTitle = sprinkles({
   textAlign: "center",
@@ -32,10 +30,8 @@ export const articlesPageLayout = style([
   },
 ]);
 
-export const articlesArticleList = style([
-  sprinkles({
-    listStyle: "none",
-    display: "grid",
-    gap: "lg",
-  }),
-]);
+export const articlesArticleList = sprinkles({
+  listStyle: "none",
+  display: "grid",
+  gap: "lg",
+});

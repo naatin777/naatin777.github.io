@@ -1,7 +1,6 @@
 ---
 import "@styles/global.css";
-import "@fontsource-variable/inter";
-import "@fontsource-variable/noto-sans-jp";
+import { Font } from "astro:assets";
 import { ClientRouter } from "astro:transitions";
 import { darkTheme, darkThemeValues, lightTheme, lightThemeValues } from "@styles/theme.css";
 import { siteMetadata } from "@config/site";
@@ -42,6 +41,8 @@ const socialMeta = [
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
+    <Font cssVariable="--font-inter" />
+    <Font cssVariable="--font-noto-sans-jp" />
     <ClientRouter />
     <script is:inline define:vars={{ lightTheme, darkTheme, lightThemeColor, darkThemeColor }}>
       const STORAGE_KEY = "theme";
@@ -101,9 +102,7 @@ const socialMeta = [
         document.addEventListener("astro:before-swap", (event) => {
           const resolvedTheme = getResolvedTheme();
           event.newDocument.documentElement.classList.remove(lightTheme, darkTheme);
-          event.newDocument.documentElement.classList.add(
-            resolvedTheme === "dark" ? darkTheme : lightTheme,
-          );
+          event.newDocument.documentElement.classList.add(resolvedTheme === "dark" ? darkTheme : lightTheme);
         });
         window.__siteThemeBeforeSwapBound__ = true;
       }
@@ -116,9 +115,11 @@ const socialMeta = [
       window.__theme = {
         get: getStoredThemePreference,
         set: (theme) => {
-          theme === "system"
-            ? localStorage.removeItem(STORAGE_KEY)
-            : localStorage.setItem(STORAGE_KEY, theme);
+          if (theme === "system") {
+            localStorage.removeItem(STORAGE_KEY);
+          } else {
+            localStorage.setItem(STORAGE_KEY, theme);
+          }
           beginThemeTransition();
           applyTheme();
         },
