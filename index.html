@@ -1,0 +1,116 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="Astro v7.3.2"><style>@font-face{font-family:Inter-7b6b23847b291439;src:url("/_astro/fonts/2640269fc0017342.woff2") format("woff2");font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-weight:100 900;font-style:normal;}@font-face{font-family:"Inter-7b6b23847b291439 fallback: Arial";src:local("Arial");font-display:swap;font-weight:100 900;font-style:normal;size-adjust:107.1194%;ascent-override:90.4365%;descent-override:22.518%;line-gap-override:0%;}:root{--font-inter:Inter-7b6b23847b291439,"Inter-7b6b23847b291439 fallback: Arial",sans-serif;}</style><style>@font-face{font-family:"Noto Sans JP-38ba2d73f7e18b2b";src:url("/_astro/fonts/f249dd4c68af5caa.woff2") format("woff2");font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-weight:100 900;font-style:normal;}@font-face{font-family:"Noto Sans JP-38ba2d73f7e18b2b fallback: Arial";src:local("Arial");font-display:swap;font-weight:100 900;font-style:normal;size-adjust:98.4745%;ascent-override:117.797%;descent-override:29.2462%;line-gap-override:0%;}:root{--font-noto-sans-jp:"Noto Sans JP-38ba2d73f7e18b2b","Noto Sans JP-38ba2d73f7e18b2b fallback: Arial",sans-serif;}</style><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/_astro/ClientRouter.astro_astro_type_script_index_0_lang._uGr_JH5.js"></script><script>(function(){const lightTheme = "_12016s60";
+const darkTheme = "_12016s61";
+const lightThemeColor = "#f8fafc";
+const darkThemeColor = "#0e0e0eff";
+
+      const STORAGE_KEY = "theme";
+      const THEME_TRANSITION_DURATION_MS = 180;
+      const THEME_COLOR_META_SELECTOR = 'meta[name="theme-color"]';
+      const THEME_PREFERENCE_ATTRIBUTE = "data-theme-preference";
+      const VALID_THEMES = new Set(["light", "dark", "system"]);
+      const root = document.documentElement;
+      const media = window.matchMedia("(prefers-color-scheme: dark)");
+      let themeTransitionTimer;
+
+      const getStoredThemePreference = () => {
+        const value = localStorage.getItem(STORAGE_KEY);
+        return VALID_THEMES.has(value) ? value : "system";
+      };
+
+      const getResolvedTheme = (themePreference = getStoredThemePreference()) => {
+        return themePreference === "system" ? (media.matches ? "dark" : "light") : themePreference;
+      };
+
+      const syncThemePreferenceAttribute = (target = root, themePreference = getStoredThemePreference()) => {
+        target.setAttribute(THEME_PREFERENCE_ATTRIBUTE, themePreference);
+      };
+
+      const updateThemeColorMeta = (resolvedTheme = getResolvedTheme()) => {
+        const metaThemeColor = document.querySelector(THEME_COLOR_META_SELECTOR);
+        if (!(metaThemeColor instanceof HTMLMetaElement)) {
+          return;
+        }
+
+        metaThemeColor.content = resolvedTheme === "dark" ? darkThemeColor : lightThemeColor;
+      };
+
+      const applyTheme = () => {
+        const themePreference = getStoredThemePreference();
+        const resolvedTheme = getResolvedTheme(themePreference);
+        syncThemePreferenceAttribute(root, themePreference);
+        root.classList.remove(lightTheme, darkTheme);
+        root.classList.add(resolvedTheme === "dark" ? darkTheme : lightTheme);
+        updateThemeColorMeta(resolvedTheme);
+      };
+
+      const beginThemeTransition = () => {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          return;
+        }
+
+        root.setAttribute("data-theme-transition", "true");
+        window.clearTimeout(themeTransitionTimer);
+        themeTransitionTimer = window.setTimeout(() => {
+          root.removeAttribute("data-theme-transition");
+        }, THEME_TRANSITION_DURATION_MS);
+      };
+
+      if (window.__siteThemeMediaBound__ !== true) {
+        if (typeof media.addEventListener === "function") {
+          media.addEventListener("change", applyTheme);
+        }
+        window.__siteThemeMediaBound__ = true;
+      }
+
+      if (window.__siteThemeBeforeSwapBound__ !== true) {
+        document.addEventListener("astro:before-swap", (event) => {
+          const themePreference = getStoredThemePreference();
+          const resolvedTheme = getResolvedTheme(themePreference);
+          const nextRoot = event.newDocument.documentElement;
+          syncThemePreferenceAttribute(nextRoot, themePreference);
+          nextRoot.classList.remove(lightTheme, darkTheme);
+          nextRoot.classList.add(resolvedTheme === "dark" ? darkTheme : lightTheme);
+        });
+        window.__siteThemeBeforeSwapBound__ = true;
+      }
+
+      if (window.__siteThemePageLoadBound__ !== true) {
+        document.addEventListener("astro:page-load", applyTheme);
+        window.__siteThemePageLoadBound__ = true;
+      }
+
+      window.__theme = {
+        get: getStoredThemePreference,
+        set: (theme) => {
+          if (theme === "system") {
+            localStorage.removeItem(STORAGE_KEY);
+          } else {
+            localStorage.setItem(STORAGE_KEY, theme);
+          }
+          beginThemeTransition();
+          applyTheme();
+        },
+      };
+
+      applyTheme();
+    })();</script><meta name="color-scheme" content="light dark"><meta name="theme-color" content="#f8fafc"><meta name="apple-mobile-web-app-status-bar-style" content="default"><title>Home</title><meta name="title" content="Home"><meta name="description" content="Naatin's portfolio site with an introduction and links to projects, articles, and changelog entries."><link rel="canonical" href="https://naatin777.dev/"><meta property="og:type" content="website"><meta property="og:url" content="https://naatin777.dev/"><meta property="og:title" content="Home"><meta property="og:description" content="Naatin's portfolio site with an introduction and links to projects, articles, and changelog entries."><meta property="og:image" content="https://naatin777.dev/_astro/icon.D5BprOd-.png"><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://naatin777.dev/"><meta property="twitter:title" content="Home"><meta property="twitter:description" content="Naatin's portfolio site with an introduction and links to projects, articles, and changelog entries."><meta property="twitter:image" content="https://naatin777.dev/_astro/icon.D5BprOd-.png"><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/_astro/style.BzKnM-_F.css"><link rel="stylesheet" href="/_astro/style.BaRrdowb.css"><script type="module" src="/_astro/page.Fg5MKtB-.js"></script></head><body><div data-astro-transition-persist="astro-essv6x2d-1" class="_1jwodyp0" aria-hidden="true" id="bg-pixi"></div><script type="module" src="/_astro/Background.astro_astro_type_script_index_0_lang.C5VpvU8B.js"></script><header class="_7l9k181 _7l9k180 jr2hcp9u"><div class="_7l9k183 _7l9k182 jr2hcp6r jr2hcp3x jr2hcp3i jr2hcpbq jr2hcpba jr2hcp9u jr2hcpai jr2hcp6 jr2hcpa jr2hcp1c jr2hcp20 jr2hcp13 jr2hcpr"><a href="/" class="_7l9k185 _7l9k184 jr2hcpc jr2hcpa9 jr2hcpca jr2hcpcq jr2hcp1i jr2hcpac jr2hcpaw jr2hcpaz" aria-label="Home">naatin777.dev</a><div class="_7l9k18c _7l9k18b jr2hcpc jr2hcp1c jr2hcp10 jr2hcpa9 jr2hcp20 jr2hcp1o"><style>astro-island,astro-slot,astro-static-slot{display:contents}</style><script>(()=>{var e=async t=>{await(await t())()};(self.Astro||(self.Astro={})).load=e;window.dispatchEvent(new Event("astro:load"));})();</script><script>(()=>{var g=Object.defineProperty;var w=(a,s,c)=>s in a?g(a,s,{enumerable:!0,configurable:!0,writable:!0,value:c}):a[s]=c;var l=(a,s,c)=>w(a,typeof s!="symbol"?s+"":s,c);var E=new Set(["__proto__","constructor","prototype"]);{let a={0:t=>y(t),1:t=>c(t),2:t=>new RegExp(t),3:t=>new Date(t),4:t=>new Map(c(t)),5:t=>new Set(c(t)),6:t=>BigInt(t),7:t=>new URL(t),8:t=>new Uint8Array(t),9:t=>new Uint16Array(t),10:t=>new Uint32Array(t),11:t=>Number.POSITIVE_INFINITY*t},s=t=>{let[p,e]=t;return p in a?a[p](e):void 0},c=t=>t.map(s),y=t=>typeof t!="object"||t===null?t:Object.fromEntries(Object.entries(t).map(([p,e])=>[p,s(e)]));class f extends HTMLElement{constructor(){super(...arguments);l(this,"Component");l(this,"hydrator");l(this,"hydrate",async()=>{var b;if(!this.hydrator||!this.isConnected)return;let e=(b=this.parentElement)==null?void 0:b.closest("astro-island[ssr]");if(e){e.addEventListener("astro:hydrate",this.hydrate,{once:!0});return}let r=this.querySelectorAll("astro-slot"),n={},d=this.querySelectorAll("template[data-astro-template]");for(let o of d){let i=o.closest(this.tagName);i!=null&&i.isSameNode(this)&&(n[o.getAttribute("data-astro-template")||"default"]=o.innerHTML,o.remove())}for(let o of r){let i=o.closest(this.tagName);i!=null&&i.isSameNode(this)&&(n[o.getAttribute("name")||"default"]=o.innerHTML)}let u;try{u=this.hasAttribute("props")?y(JSON.parse(this.getAttribute("props"))):{}}catch(o){let i=this.getAttribute("component-url")||"<unknown>",v=this.getAttribute("component-export");throw v&&(i+=` (export ${v})`),console.error(`[hydrate] Error parsing props for component ${i}`,this.getAttribute("props"),o),o}let h;await this.hydrator(this)(this.Component,u,n,{client:this.getAttribute("client")}),this.removeAttribute("ssr"),this.dispatchEvent(new CustomEvent("astro:hydrate"))});l(this,"unmount",()=>{this.isConnected||this.dispatchEvent(new CustomEvent("astro:unmount"))})}disconnectedCallback(){document.removeEventListener("astro:after-swap",this.unmount),document.addEventListener("astro:after-swap",this.unmount,{once:!0})}connectedCallback(){if(!this.hasAttribute("await-children")||document.readyState==="interactive"||document.readyState==="complete")this.childrenConnectedCallback();else{let e=()=>{document.removeEventListener("DOMContentLoaded",e),r.disconnect(),this.childrenConnectedCallback()},r=new MutationObserver(()=>{var n;((n=this.lastChild)==null?void 0:n.nodeType)===Node.COMMENT_NODE&&this.lastChild.nodeValue==="astro:end"&&(this.lastChild.remove(),e())});r.observe(this,{childList:!0}),document.addEventListener("DOMContentLoaded",e)}}async childrenConnectedCallback(){let e=this.getAttribute("before-hydration-url");e&&await import(e),this.start()}getRetryImportUrl(e){let r=new URL(e,document.baseURI);return r.searchParams.set("astro-retry",Date.now().toString()),r.toString()}async importWithRetry(e){try{return await import(e)}catch(r){return await new Promise(n=>setTimeout(n,1e3)),import(this.getRetryImportUrl(e))}}handleHydrationError(e){let r=this.getAttribute("component-url"),n=new CustomEvent("astro:hydration-error",{cancelable:!0,bubbles:!0,composed:!0,detail:{error:e,componentUrl:r}});this.dispatchEvent(n)&&console.error(`[astro-island] Error hydrating ${r}`,e)}async start(){let e=JSON.parse(this.getAttribute("opts")),r=this.getAttribute("client");if(Astro[r]===void 0){window.addEventListener(`astro:${r}`,()=>this.start(),{once:!0});return}try{await Astro[r](async()=>{let n=this.getAttribute("renderer-url");try{let[d,{default:u}]=await Promise.all([this.importWithRetry(this.getAttribute("component-url")),n?this.importWithRetry(n):Promise.resolve({default:()=>()=>{}})]),h=this.getAttribute("component-export")||"default";if(h.includes(".")){this.Component=d;for(let m of h.split(".")){if(E.has(m)||!this.Component||typeof this.Component!="object"&&typeof this.Component!="function"||!Object.hasOwn(this.Component,m))throw new Error(`Invalid component export path: ${h}`);this.Component=this.Component[m]}}else{if(E.has(h))throw new Error(`Invalid component export path: ${h}`);this.Component=d[h]}return this.hydrator=u,this.hydrate}catch(d){return this.handleHydrationError(d),()=>{}}},e,this)}catch(n){this.handleHydrationError(n)}}attributeChangedCallback(){this.hydrate()}}l(f,"observedAttributes",["props"]),customElements.get("astro-island")||customElements.define("astro-island",f)}})();</script><astro-island uid="Zv33EH" prefix="r1" component-url="/_astro/ThemeToggle.CIATZ0Vs.js" component-export="default" renderer-url="/_astro/client.BDdv4hzJ.js" props="{}" ssr client="load" opts="{&quot;name&quot;:&quot;ThemeToggle&quot;,&quot;value&quot;:true}" await-children><div class="_1t6cds04 _1t6cds03 jr2hcpf jr2hcp1c jr2hcpbs jr2hcpb8 _1t6cds05" role="group" aria-label="Color Theme"><span class="_1t6cds08 _1t6cds07 jr2hcpbs jr2hcpbe _1t6cds0a _1t6cds0c _1t6cds0e" aria-hidden="true" data-theme-indicator="true"></span><button type="button" class="_1t6cds0i _1t6cds0h jr2hcpc jr2hcp1c jr2hcpx jr2hcpbs _1t6cds0j" aria-pressed="false" aria-label="Set Light theme" title="Light" data-theme-value="light"><span class="_1t6cds0m _1t6cds0l jr2hcpc jr2hcp1c jr2hcpx jr2hcpaf _1t6cds0n" aria-hidden="true" data-theme-value="light"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2V4 M12 20V22 M4 12H2 M22 12H20" />
+        <path d="M12 2V4 M12 20V22 M4 12H2 M22 12H20" transform="rotate(45 12 12)" />
+    </g>
+</svg>
+</span></button><button type="button" class="_1t6cds0i _1t6cds0h jr2hcpc jr2hcp1c jr2hcpx jr2hcpbs _1t6cds0k" aria-pressed="true" aria-label="Set System theme" title="System" data-theme-value="system"><span class="_1t6cds0m _1t6cds0l jr2hcpc jr2hcp1c jr2hcpx jr2hcpaf _1t6cds0o" aria-hidden="true" data-theme-value="system"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <rect x="2" y="3" width="20" height="14" rx="2" />
+        <line x1="12" y1="17" x2="12" y2="21" />
+        <line x1="8" y1="21" x2="16" y2="21" />
+    </g>
+</svg></span></button><button type="button" class="_1t6cds0i _1t6cds0h jr2hcpc jr2hcp1c jr2hcpx jr2hcpbs _1t6cds0j" aria-pressed="false" aria-label="Set Dark theme" title="Dark" data-theme-value="dark"><span class="_1t6cds0m _1t6cds0l jr2hcpc jr2hcp1c jr2hcpx jr2hcpaf _1t6cds0n" aria-hidden="true" data-theme-value="dark"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path 
+        d="M21 12.79 A9 9 0 1 1 11.21 3 A5 5 0 0 0 21 12.79 Z" 
+        stroke="currentColor" 
+        stroke-width="2" 
+        stroke-linejoin="round"
+    />
+</svg></span></button></div><!--astro:end--></astro-island></div><nav class="_7l9k187 _7l9k186 jr2hcp3 jr2hcpd jr2hcp1l" aria-label="Primary"><ul class="_7l9k188 jr2hcp9x jr2hcpc jr2hcp1c jr2hcp1u jr2hcp9u jr2hcp9s jr2hcpx jr2hcpv jr2hcpr jr2hcpp"><li><a href="/changelog/" class="_7l9k18a _7l9k189 jr2hcpc jr2hcp1c jr2hcpx jr2hcpa9 jr2hcpco jr2hcpbs jr2hcpac jr2hcp3i jr2hcpay jr2hcpax jr2hcpbd">Changelog</a></li><li><a href="/projects/" class="_7l9k18a _7l9k189 jr2hcpc jr2hcp1c jr2hcpx jr2hcpa9 jr2hcpco jr2hcpbs jr2hcpac jr2hcp3i jr2hcpay jr2hcpax jr2hcpbd">Projects</a></li><li><a href="/articles/" class="_7l9k18a _7l9k189 jr2hcpc jr2hcp1c jr2hcpx jr2hcpa9 jr2hcpco jr2hcpbs jr2hcpac jr2hcp3i jr2hcpay jr2hcpax jr2hcpbd">Articles</a></li></ul></nav></div></header><main><section class="jr2hcp6 jr2hcpl jr2hcp1c jr2hcpx jr2hcpa3 jr2hcp23"><img src="/_astro/icon.D5BprOd-_1E2OvP.webp" alt="Naatin's Icon" loading="eager" fetchpriority="high" decoding="async" width="120" height="120" class="efwza21 efwza20 jr2hcpbs"><h1>Hey, I'm Naatin 👋</h1><p class="efwza23 efwza22 jr2hcpar jr2hcpay jr2hcpcy">Just a beginner developer playing around with code as a hobby. I treat this space as a personal playground where I can experiment and learn how to build things, one step at a time. I’m just exploring the process of trial and error, tinkering with whatever happens to catch my eye.</p></section></main><footer class="_1e216fx1 _1e216fx0 jr2hcp93 jr2hcp5l jr2hcp63 jr2hcp3l"><div class="_1e216fx3 _1e216fx2 jr2hcp9u jr2hcpai jr2hcp6 jr2hcpl jr2hcp1c jr2hcpx jr2hcp1x jr2hcpbq jr2hcp6r jr2hcp40 jr2hcp3l"><div class="jr2hcp6 jr2hcpr jr2hcp1c jr2hcpx jr2hcp20"><a href="https://github.com/naatin777" target="_blank" rel="noopener noreferrer" class="v7v48i1 v7v48i0 jr2hcpc jr2hcp1c jr2hcpx jr2hcpbs jr2hcpba" aria-label="Visit my GitHub profile"><img src="/_astro/github-light.UwMQbyrB_t0lC4.svg" alt aria-hidden="true" loading="lazy" decoding="async" width="24" height="24" class="v7v48i2 v7v48i3"><img src="/_astro/github-dark.apYuxMdV_t0lC4.svg" alt aria-hidden="true" loading="lazy" decoding="async" width="24" height="24" class="v7v48i2 v7v48i4"></a><a href="https://x.com/naatin777" target="_blank" rel="noopener noreferrer" class="v7v48i1 v7v48i0 jr2hcpc jr2hcp1c jr2hcpx jr2hcpbs jr2hcpba" aria-label="Visit my X profile"><img src="/_astro/x-light.BIVm9hpF_Z1IW475.webp" alt aria-hidden="true" loading="lazy" decoding="async" width="24" height="24" class="v7v48i2 v7v48i3"><img src="/_astro/x-dark.CnR0fRIK_1HQXY8.webp" alt aria-hidden="true" loading="lazy" decoding="async" width="24" height="24" class="v7v48i2 v7v48i4"></a><a href="https://bsky.app/profile/naatin777.bsky.social" target="_blank" rel="noopener noreferrer" class="v7v48i1 v7v48i0 jr2hcpc jr2hcp1c jr2hcpx jr2hcpbs jr2hcpba" aria-label="Visit my Bluesky profile"><img src="/_astro/bluesky-light.CEt0EbSB_t0lC4.svg" alt aria-hidden="true" loading="lazy" decoding="async" width="24" height="24" class="v7v48i2 v7v48i3"><img src="/_astro/bluesky-dark.DWycNzlP_t0lC4.svg" alt aria-hidden="true" loading="lazy" decoding="async" width="24" height="24" class="v7v48i2 v7v48i4"></a><a href="https://qiita.com/naatin777" target="_blank" rel="noopener noreferrer" class="v7v48i1 v7v48i0 jr2hcpc jr2hcp1c jr2hcpx jr2hcpbs jr2hcpba" aria-label="Visit my Qiita profile"><img src="/_astro/qiita-light.ClBQslAz_1vVMUJ.webp" alt aria-hidden="true" loading="lazy" decoding="async" width="24" height="24" class="v7v48i2 v7v48i3"><img src="/_astro/qiita-dark.D9wFGPbE_2lQ9Oi.webp" alt aria-hidden="true" loading="lazy" decoding="async" width="24" height="24" class="v7v48i2 v7v48i4"></a><a href="https://zenn.dev/naatin777" target="_blank" rel="noopener noreferrer" class="v7v48i1 v7v48i0 jr2hcpc jr2hcp1c jr2hcpx jr2hcpbs jr2hcpba" aria-label="Visit my Zenn profile"><img src="/_astro/zenn-light.0iLF6DUN_t0lC4.svg" alt aria-hidden="true" loading="lazy" decoding="async" width="24" height="24" class="v7v48i2 v7v48i3"><img src="/_astro/zenn-dark.hFYTewKA_t0lC4.svg" alt aria-hidden="true" loading="lazy" decoding="async" width="24" height="24" class="v7v48i2 v7v48i4"></a></div><p class="jr2hcpc6 jr2hcpcu jr2hcpb0 jr2hcpa3">&copy; 2026Naatin. All Rights Reserved.</p></div></footer></body></html>
