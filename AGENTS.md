@@ -25,7 +25,7 @@ Personal portfolio site (`naatin777.dev`). SvelteKit + Svelte 5, fully prerender
 - `pnpm install --frozen-lockfile`
 - `pnpm run check` — svelte-check; passing means 0 errors AND 0 warnings
 - `pnpm run lint` / `pnpm format` / `pnpm run format:check` — oxlint / oxfmt
-- `pnpm build` → `build/`; `pnpm preview` — for UI checks always preview the built output, never `pnpm dev`
+- `pnpm build` → `build/`; `pnpm preview` — for UI checks always preview the built output, never `pnpm dev`. Kill old preview processes before re-testing — sirv caches asset stats and serves stale bytes otherwise
 - `pnpm exec playwright install chromium` — required once locally for mermaid rendering (CI does this per build)
 - Update content subtrees: `git subtree pull --prefix=content/zenn https://github.com/naatin777/zenn-articles main --squash` (same pattern for qiita)
 
@@ -42,6 +42,7 @@ Personal portfolio site (`naatin777.dev`). SvelteKit + Svelte 5, fully prerender
 
 - `content/posts/*.md` → local pages at `/posts/[slug]/`. Frontmatter: `title`, `description`, `publishedAt`, `updatedAt`, `tags`, `draft`. Invalid frontmatter is skipped with a warning, never fails the build.
 - `content/zenn/` + `content/qiita/` — git subtrees; frontmatter only, rendered as external links on `/articles/`. Zenn dates come from the API (paginated via `next_page`, falls back to frontmatter).
+- A meta CSP lives in `src/app.html` (GitHub Pages cannot set headers) — when adding external resources (images, fonts, scripts, connections), update the policy or they will be blocked.
 - Markdown pipeline in `posts.ts`: `marked` + `marked-katex-extension` + `marked-shiki` + `marked-gfm-heading-id`, all at build time.
 - ` ```mermaid ` blocks: a `walkTokens` hook converts them to `html` tokens containing light+dark SVGs (CSS toggles by `data-theme`). Failed renders stay as shiki-highlighted code blocks — no separate fallback path. Playwright must stay in `ssr.external` in `vite.config.ts`.
 - Shiki uses `defaultColor: "light-dark()"` — theme switching relies on `color-scheme` (`:root` light / `[data-theme="dark"]` dark in `app.css`). Do not remove those rules or re-add manual `.shiki` overrides.

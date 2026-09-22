@@ -23,17 +23,21 @@ export const GET: RequestHandler = async () => {
       <link>${site.url}/posts/${post.slug}/</link>
       <guid isPermaLink="true">${site.url}/posts/${post.slug}/</guid>
       <pubDate>${toRfc822(post.publishedAt)}</pubDate>
+      ${post.tags.map((tag) => `<category>${escapeXml(tag)}</category>`).join("\n      ")}
       <description>${escapeXml(post.description)}</description>
     </item>`,
     )
     .join("\n");
+  const lastBuildDate = toRfc822(posts[0]?.updatedAt ?? posts[0]?.publishedAt ?? new Date());
   const body = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>${escapeXml(site.title)}</title>
     <link>${site.url}/</link>
+    <atom:link href="${site.url}/feed.xml" rel="self" type="application/rss+xml" />
     <description>${escapeXml(site.description)}</description>
     <language>ja</language>
+    <lastBuildDate>${lastBuildDate}</lastBuildDate>
     <managingEditor>${escapeXml(author.displayName)}</managingEditor>
 ${items}
   </channel>

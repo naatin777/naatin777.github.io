@@ -24,7 +24,7 @@
 </script>
 
 <select
-  aria-label="Language"
+  aria-label="言語 / Language"
   bind:value={lang}
   onchange={onChange}
   class="border-border bg-surface text-muted hover:text-foreground cursor-pointer rounded-md border px-1.5 py-1 text-xs transition-colors"
