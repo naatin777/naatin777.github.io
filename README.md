@@ -20,4 +20,5 @@ pnpm format
 ## License
 
 - Source code: [MIT](LICENSE)
-- Article content (`content/posts/`, and the imported `content/zenn/` / `content/qiita/`): © Naatin, All Rights Reserved
+- Articles in `content/posts/`: © Naatin, All Rights Reserved
+- Imported articles (`content/zenn/`, `content/qiita/`): MIT, per each upstream repo's LICENSE
