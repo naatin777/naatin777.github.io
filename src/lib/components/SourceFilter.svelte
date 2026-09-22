@@ -4,10 +4,10 @@
 
   interface Props {
     sources: ArticleSource[];
-    value?: ArticleSource | null;
+    value: ArticleSource | null;
   }
 
-  let { sources, value = $bindable(null) }: Props = $props();
+  let { sources, value = $bindable() }: Props = $props();
 </script>
 
 <div role="group" aria-label="ソースで絞り込む / Filter by source" class="flex flex-wrap gap-2">

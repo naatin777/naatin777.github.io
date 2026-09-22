@@ -7,13 +7,13 @@
     url: string;
     tags: string[];
     source: ArticleSource;
-    series?: string | null;
+    series: string | null;
     updatedAt: string | null;
     selectedTags?: Set<string>;
     ontag?: (tag: string) => void;
   }
 
-  let { title, url, tags, source, series = null, updatedAt, selectedTags, ontag }: Props = $props();
+  let { title, url, tags, source, series, updatedAt, selectedTags, ontag }: Props = $props();
 
   const external = $derived(source !== "blog");
 </script>

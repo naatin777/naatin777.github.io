@@ -1,10 +1,10 @@
 <script lang="ts">
   interface Props {
     tags: string[];
-    selected?: Set<string>;
+    selected: Set<string>;
   }
 
-  let { tags, selected = $bindable(new Set<string>()) }: Props = $props();
+  let { tags, selected = $bindable() }: Props = $props();
 
   function toggle(tag: string): void {
     const next = new Set(selected);
