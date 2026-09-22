@@ -1,51 +1,16 @@
-import blueskyDarkIcon from "$lib/assets/social/bluesky-dark.svg";
-import blueskyLightIcon from "$lib/assets/social/bluesky-light.svg";
-import githubDarkIcon from "$lib/assets/social/github-dark.svg";
-import githubLightIcon from "$lib/assets/social/github-light.svg";
-import qiitaDarkIcon from "$lib/assets/social/qiita-dark.png";
-import qiitaLightIcon from "$lib/assets/social/qiita-light.png";
-import xDarkIcon from "$lib/assets/social/x-dark.png";
-import xLightIcon from "$lib/assets/social/x-light.png";
-import zennDarkIcon from "$lib/assets/social/zenn-dark.svg";
-import zennLightIcon from "$lib/assets/social/zenn-light.svg";
+import { siBluesky, siGithub, siQiita, siX, siZenn, type SimpleIcon } from "simple-icons";
 import { author } from "./site";
 
 export interface SocialLink {
   name: string;
   url: string;
-  iconLight: string;
-  iconDark: string;
+  icon: SimpleIcon;
 }
 
 export const socialLinks: SocialLink[] = [
-  {
-    name: "GitHub",
-    url: `https://github.com/${author.name}`,
-    iconLight: githubLightIcon,
-    iconDark: githubDarkIcon,
-  },
-  {
-    name: "X",
-    url: `https://x.com/${author.name}`,
-    iconLight: xLightIcon,
-    iconDark: xDarkIcon,
-  },
-  {
-    name: "Bluesky",
-    url: `https://bsky.app/profile/${author.name}.bsky.social`,
-    iconLight: blueskyLightIcon,
-    iconDark: blueskyDarkIcon,
-  },
-  {
-    name: "Qiita",
-    url: `https://qiita.com/${author.name}`,
-    iconLight: qiitaLightIcon,
-    iconDark: qiitaDarkIcon,
-  },
-  {
-    name: "Zenn",
-    url: `https://zenn.dev/${author.name}`,
-    iconLight: zennLightIcon,
-    iconDark: zennDarkIcon,
-  },
+  { name: "GitHub", url: `https://github.com/${author.name}`, icon: siGithub },
+  { name: "X", url: `https://x.com/${author.name}`, icon: siX },
+  { name: "Bluesky", url: `https://bsky.app/profile/${author.name}.bsky.social`, icon: siBluesky },
+  { name: "Qiita", url: `https://qiita.com/${author.name}`, icon: siQiita },
+  { name: "Zenn", url: `https://zenn.dev/${author.name}`, icon: siZenn },
 ];
