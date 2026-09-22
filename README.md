@@ -23,5 +23,5 @@ Deploys automatically on push to `main` via GitHub Actions → GitHub Pages.
 ## License
 
 - Source code: [MIT](LICENSE)
-- Articles in `content/posts/`: © Naatin, All Rights Reserved
+- Articles in `content/posts/`: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) © Naatin
 - Imported articles (`content/zenn/`, `content/qiita/`): article text is [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), the rest MIT — per each upstream repo's README
