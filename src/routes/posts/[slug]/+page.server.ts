@@ -1,6 +1,8 @@
 import { error } from "@sveltejs/kit";
-import { getPosts } from "$lib/server/posts";
+import { getPosts, type Post } from "$lib/server/posts";
 import type { EntryGenerator, PageServerLoad } from "./$types";
+
+const toNavItem = (item?: Post) => (item ? { slug: item.slug, title: item.title } : null);
 
 export const entries: EntryGenerator = async () => {
   return (await getPosts()).map((post) => ({ slug: post.slug }));
@@ -11,7 +13,6 @@ export const load: PageServerLoad = async ({ params }) => {
   const index = posts.findIndex((p) => p.slug === params.slug);
   const post = posts[index];
   if (!post) error(404, "Post not found");
-  const toNavItem = (item?: (typeof posts)[number]) => (item ? { slug: item.slug, title: item.title } : null);
   const series = post.series
     ? {
         name: post.series,
