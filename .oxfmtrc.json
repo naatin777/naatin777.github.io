@@ -1,0 +1,8 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 120,
+  "trailingComma": "all",
+  "svelte": true,
+  "sortTailwindcss": true,
+  "ignorePatterns": ["content/**", "static/**", "build/**", "dist/**", "pnpm-lock.yaml"]
+}

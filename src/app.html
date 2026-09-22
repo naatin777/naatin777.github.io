@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fafafa" />
+    <link rel="icon" href="%sveltekit.assets%/favicon.ico" />
+    <script>
+      (() => {
+        try {
+          const stored = localStorage.getItem("theme");
+          const preference = stored === "light" || stored === "dark" ? stored : "system";
+          const dark =
+            preference === "dark" || (preference === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+          const root = document.documentElement;
+          root.dataset.themePreference = preference;
+          root.dataset.theme = dark ? "dark" : "light";
+          const meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.content = dark ? "#0a0a0a" : "#fafafa";
+
+          const param = new URLSearchParams(location.search).get("lang");
+          const saved = localStorage.getItem("lang");
+          const lang = param === "en" || param === "ja" ? param : saved === "en" || saved === "ja" ? saved : "ja";
+          root.lang = lang;
+          if (param === "en" || param === "ja") localStorage.setItem("lang", lang);
+        } catch {
+          // storage disabled etc. — fall through to defaults
+        }
+      })();
+    </script>
+    %sveltekit.head%
+  </head>
+  <body>
+    <div style="display: contents">%sveltekit.body%</div>
+  </body>
+</html>

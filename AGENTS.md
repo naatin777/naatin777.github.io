@@ -10,19 +10,18 @@ Instructions for coding agents working in this repository.
 
 ## Conversation Overrides (Latest)
 
-- For Playwright/UI checks, do not use `pnpm dev` because it is unreliable in this repo. Use `pnpm build` and `pnpm preview`, or reuse an existing preview server.
+- For UI checks, do not use `pnpm dev` if it is unreliable. Use `pnpm build` and `pnpm preview`, or reuse an existing preview server.
 - Before making file edits, first state the intended implementation direction briefly and wait for explicit user confirmation such as `Yes`. Do not start editing immediately after a new request unless the user explicitly asks to proceed without confirmation.
-- Do not modify `src/styles/layers.css.ts`, `src/styles/sprinkles.css.ts`, `src/styles/theme.css.ts`, or `src/styles/vars.css.ts` unless the user explicitly asks.
-- Editing inside `src/styles/` is allowed for the current refactor work, including files that were previously protected.
-- Avoid creating unnecessary constants and avoid excessive `export` additions during style/system refactors.
-- Reduced motion is handled globally in `src/styles/global.css.ts` under a high-priority layer. Do not add per-component `prefers-reduced-motion` transition overrides unless the user explicitly asks or a component has a proven exception that cannot be handled globally.
+- The visual design is being redesigned from scratch; do not port old styling decisions without asking.
+- Reduced motion handling should be global, not per-component.
 
 ## Project Snapshot
 
-- Build this site with Astro.
-- Use `pnpm` with `pnpm-lock.yaml`.
-- Match CI runtime with Node `22`.
-- Use `vanilla-extract` for styling (`*.css.ts`).
+- SvelteKit (Svelte 5) + `@sveltejs/adapter-static`, fully prerendered static site.
+- Deployed to GitHub Pages from the `build/` directory.
+- Styling: Tailwind CSS v4 (`@tailwindcss/vite`). Theme tokens live in `src/app.css` via `@theme` + CSS custom properties; dark mode uses `data-theme` attribute with `@custom-variant dark`.
+- Lint/format: `oxlint` + `oxfmt` (no ESLint/Prettier).
+- Content: Markdown files under `content/` — see "Content" below.
 
 ## Setup
 
@@ -32,108 +31,73 @@ Instructions for coding agents working in this repository.
 ## Common Commands
 
 - Start dev server: `pnpm dev`
-- Build production output: `pnpm build`
-- Run type/content checks: `pnpm run check`
+- Build production output: `pnpm build` (outputs to `build/`)
 - Preview build output: `pnpm preview`
-- Format code: `pnpm format`
+- Type/template check: `pnpm run check`
+- Lint: `pnpm run lint`
+- Format: `pnpm format` (oxfmt, includes `.svelte` via svelte compiler and Tailwind class sorting)
+
+## Content
+
+- `content/zenn/` — git subtree of `naatin777/zenn-articles`. Articles live in `articles/*.md`; only frontmatter (`title`, `topics`, `published`, optional `published_at`) is read. Rendered as external links, never as local pages.
+- `content/qiita/` — git subtree of `naatin777/qiita-articles`. Articles live in `public/*.md`; only frontmatter (`title`, `tags`, `id`, `private`, dates) is read. URL is built from `id`.
+- `content/posts/` — site-native articles, rendered as local pages at `/posts/[slug]/`. Frontmatter: `title`, `description`, `publishedAt`, `updatedAt`, `tags`, `draft`.
+- Update subtrees with `git subtree pull --prefix=content/zenn https://github.com/naatin777/zenn-articles main --squash` (same for qiita).
+- `content/` is excluded from lint/format — do not edit subtree files in this repo.
+- Tag handling: tags come from frontmatter only; no manual mapping files. Filter matching is case-insensitive.
 
 ## Editing Workflow
 
 - Keep each change minimal and focused on the user request.
-- Make source changes in `src/`, `public/`, or root config files.
-- Keep generated output and dependencies unchanged (`dist/`, `node_modules/`).
-- Move reusable UI blocks into `src/components/` when page files grow.
-- Do not use `naatin` in identifiers such as variable names, function names, or custom global keys.
-- Do not modify these files unless the user explicitly asks:
-  `src/styles/color-mode.css.ts`, `src/styles/layers.css.ts`,
-  `src/styles/motion.css.ts`, `src/styles/responsive.css.ts`,
-  `src/styles/sprinkles.css.ts`, `src/styles/theme.css.ts`,
-  `src/styles/vars.css.ts`.
-
-## Naming and File Structure
-
-- Use `kebab-case` for file and directory names in `src/pages/`, `src/styles/`, and `src/content/`.
-- Prefer short purpose-based names.
-- Keep file names in `src/components/` as `PascalCase`.
-- In `src/components/`, pair each `.astro` file with a matching `.css.ts` basename.
-- In `src/components/`, each `.astro` or `.tsx` component should import only its own matching `.css.ts` basename unless the user explicitly asks for shared styles.
-- Keep page-level styles in `src/styles/pages/` with matching basenames.
-  Example: `src/pages/articles.astro` -> `src/styles/pages/articles.css.ts`
-- Keep shared blog detail styles in `src/styles/pages/blog/blog.css.ts`.
-- Do not place `*.css.ts` files under `src/pages/` to avoid Astro route warnings.
-
-## TypeScript and Framework Rules
-
-- Use explicit types by default.
-- Use `unknown` with safe narrowing when type details are uncertain.
-- Use `any` only when the user explicitly allows it.
-- Build UI with Astro by default.
-- Introduce React only when the user explicitly requests React.
-- Add `/** @jsxImportSource solid-js */` at the top of every `.tsx` file.
-
-## Import Alias Rules
-
-- Use aliases in imports where configured.
-- Use `@scripts/*` for imports from `src/scripts/*` instead of relative paths.
-- Keep CSS import style consistent in `.astro` files by using aliases (`@components/...`, `@styles/...`).
-
-## Content and Data Rules
-
-- Manage page-facing project and article data with YAML Content Collections under `src/content/`.
-- Store project data as one file per project in `src/content/projects/`.
-- Use `iconPath` for project icons in `src/content/projects/*.yml`.
-- Maintain feed article tag mappings in `src/content/tags/*.yml`.
-- Use `/articles/` as the feed page for Qiita/Zenn content.
-- Keep site-native article content and routes in the `blog` collection and `src/pages/blog/`.
-- Keep test-only markdown articles in `src/content/dev-markdown/` (`dev-markdown` collection).
-- Use `blog` `draft: true` only for unpublished production articles.
-- Add `src/pages/blog.astro` only when the user explicitly requests that route.
+- Source lives in `src/`; static assets in `static/`; imported assets in `src/lib/assets/`.
+- Use Svelte 5 runes (`$state`, `$derived`, `$props`, `$bindable`). Do not use legacy Svelte syntax or React.
+- Use `$lib/...` aliases, not relative paths, for imports outside a route directory.
+- Use `$app/state` (not `$app/stores`) for page state.
+- Use kebab-case for file names, PascalCase for Svelte components.
 
 ## Styling Rules
 
-- Keep global styles in `src/styles/global.css.ts`.
-- Put all `globalStyle(...)` declarations in `src/styles/global.css.ts`.
-- Do not define `globalStyle(...)` in `src/styles/theme.css.ts`.
-- Keep `src/styles/theme.css.ts` limited to theme tokens/values, `createTheme`, and theme exports.
-- Keep media-query definitions in `src/styles/responsive.css.ts`.
-- Do not add standalone breakpoint/media files (for example `src/styles/media.ts`).
-- Use `src/styles/responsive.css.ts` for shared breakpoint queries such as `mobile`, `tablet`, and `desktop`.
-- Prefer the global reduced-motion rule in `src/styles/global.css.ts` over repeating `prefers-reduced-motion` blocks in component styles.
-- In vanilla-extract, do not write `@layer: utilitiesLayer` or any other direct layer assignment. That form is not supported and causes compile errors.
-- When using layers in style objects, always write them in object form, for example:
-  ```ts
-  "@layer": {
-    [utilitiesLayer]: {
-      ...
-    },
-  }
-  ```
-- Use icons from `src/assets/mode/` for the `ThemeToggle` component.
-- Use CSS layers in this order: `reset`, `base`, `component`, `utilities`.
-- `reset`: neutralize browser default styles.
-- `base`: define site-wide defaults such as fonts and typography.
-- `component`: style UI parts such as buttons, cards, and navigation.
-- `utilities`: keep single-purpose classes that should apply forcefully.
-- Keep `.astro` and CSS structure simple and readable with small, reusable class sets.
+- Global styles and theme tokens: `src/app.css` only.
+- Component styles: Tailwind utilities in markup. Reach for scoped `<style>` blocks only when utilities don't fit.
+- Dark mode: write `dark:` variants; the attribute is `data-theme` on `<html>`.
+- Theme flash prevention lives in the inline script in `src/app.html`; keep it in sync with `src/lib/theme.svelte.ts` (`THEME_COLOR` values must match `@theme` tokens in `src/app.css`).
+- Reduced motion is handled globally in `src/app.css`; do not add per-component overrides.
 
-## Accessibility
+## i18n
 
-- Write meaningful `alt` text for informative images.
-- Mark decorative images with `alt=""` and `aria-hidden="true"`.
+- Languages are defined once in `src/lib/i18n.ts` (`langs` array). Default is `ja`.
+- Translated strings use `<LangText texts={{ ja: "…", en: "…" }} />`, which renders one `span` per language; CSS `:lang()` shows the matching one. This makes language switching flash-free and JS-optional.
+- Language selection: `?lang=` query param → `localStorage` → `ja`, resolved by the inline script in `src/app.html`. `LangSelect` keeps URL param, localStorage, and `<html lang>` in sync via `$app/navigation`'s `replaceState` (never raw `history.replaceState` — it destroys SvelteKit history state).
+- Adding a language: extend `langs`/`langNames` in `i18n.ts` and add a `.lang-xx:lang(xx)` rule in `app.css`. Incomplete `texts` then fail typecheck.
+- Article content itself is not translated; UI chrome only.
+
+## SEO / Metadata
+
+- Use `<Seo title="…" description="…" />` per page (never `<svelte:head>` in `+layout.svelte` — duplicate `<title>`/description would result).
+- `404.html` is generated via `adapter({ fallback: "404.html" })` for GitHub Pages.
+- `sitemap.xml` is a prerendered `+server.ts` endpoint listing static pages + local posts; `static/robots.txt` references it.
+- `static/.nojekyll` exists (peaceiris/actions-gh-pages also auto-adds it, but keep it for robustness).
+
+## Data Layer
+
+- Server-only modules go in `src/lib/server/` (`articles.ts`, `posts.ts`, `mermaid.ts`). They use `import.meta.glob` + `gray-matter` + `zod` and run at prerender time.
+- Markdown → HTML via `marked` (plain Markdown; no embedded components).
+- Math is rendered at build time by `marked-katex-extension` (KaTeX CSS is imported in `posts/[slug]/+page.svelte`).
+- Code blocks are highlighted at build time by `marked-shiki` + `shiki` (github-light/github-dark via `--shiki-*` CSS variables toggled by `[data-theme]` in `app.css`).
+- ` ```mermaid ` blocks are rendered to SVG at build time via `mermaid-isomorphic` + Playwright Chromium. Both `default` and `dark` theme SVGs are emitted and toggled by CSS (`[data-theme]`). Playwright must NOT be bundled — `ssr.external` in `vite.config.ts` keeps it node-resolved. Render calls must be sequential; concurrent `renderer()` calls fail during prerender.
+- CI installs the browser with `pnpm exec playwright install --with-deps chromium`; locally run `pnpm exec playwright install chromium` once.
 
 ## Validation
 
 - Run `pnpm build` after functional changes.
-- Run `pnpm run check` when changing TypeScript, Astro routes, content collections, or shared utilities.
-- Treat `pnpm run check` as passing only when `errors: 0`, `warnings: 0`, and `hints: 0`.
-- For theme styling changes, ensure `rg "globalStyle\\(" src/styles/theme.css.ts` returns no matches.
-- Run `pnpm format` when formatting is affected.
-- Use Playwright MCP for UI checks against a running preview server started with `pnpm build` and `pnpm preview`.
-- If port `4321` is already running, use `http://localhost:4321` as-is and do not require port `4322`.
-- Save Playwright screenshots in the `output/` folder, then delete them after analysis is complete.
-- Interactive features must work in latest Chrome, Firefox, and Safari on desktop, mobile, and tablet.
+- Run `pnpm run check` when changing TypeScript, routes, or content loading. Passing means 0 errors and 0 warnings.
+- Run `pnpm run lint` and `pnpm format` before considering work done.
+- Use Playwright/browser preview against `pnpm preview` for UI checks.
 
 ## CI / Deploy Notes
 
-- GitHub Actions installs dependencies with `pnpm install --frozen-lockfile`.
-- GitHub Pages deployment publishes the `dist/` directory.
+- GitHub Actions installs with `pnpm install --frozen-lockfile` on Node 22.
+- Deployment publishes the `build/` directory (`publish_dir: build` in `deploy.yml`).
+- `static/CNAME` carries the custom domain.
+- A weekly scheduled rebuild (`cron`) refreshes Zenn article dates fetched from the Zenn API at build time.
+- `check` + `lint` run as a quality gate before build in CI.
