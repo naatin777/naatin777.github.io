@@ -2,12 +2,13 @@
   import icon from "$lib/assets/icon.png?enhanced";
   import LangText from "$lib/components/LangText.svelte";
   import Seo from "$lib/components/Seo.svelte";
-  import type { Lang } from "$lib/config/i18n";
+  import SocialIcon from "$lib/components/SocialIcon.svelte";
+  import type { LocalizedText } from "$lib/config/i18n";
   import { author } from "$lib/config/site";
   import { socialLinks } from "$lib/config/social";
 
   // edit freely — tools, hardware, apps, anything you use
-  const gear: { texts: Record<Lang, string>; items: string[] }[] = [
+  const gear: { texts: LocalizedText; items: string[] }[] = [
     {
       texts: { ja: "開発環境", en: "Development" },
       items: ["VS Code", "Git"],
@@ -56,9 +57,7 @@
             rel="noopener noreferrer me"
             class="text-muted hover:text-foreground flex w-fit items-center gap-2 text-sm transition-colors"
           >
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="size-4">
-              <path d={link.icon.path} />
-            </svg>
+            <SocialIcon icon={link.icon} class="size-4" />
             {link.name}
           </a>
         </li>

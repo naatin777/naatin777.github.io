@@ -64,21 +64,56 @@
     display: inline;
   }
 
-  .mermaid-diagram svg {
-    max-width: 100%;
-    height: auto;
+  :focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 2px;
   }
 
-  .mermaid-dark {
-    display: none;
+  main:focus-visible {
+    outline: none;
   }
 
-  [data-theme="dark"] .mermaid-light {
-    display: none;
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+}
+
+@layer components {
+  .card {
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    background-color: var(--surface);
+    padding: 1rem;
+    transition: border-color 0.15s;
   }
 
-  [data-theme="dark"] .mermaid-dark {
-    display: block;
+  /* Shared pill shape for tag chips and filter buttons.
+     Utilities at the call site can override padding/border-color. */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    transition:
+      color 0.15s,
+      border-color 0.15s,
+      background-color 0.15s;
+  }
+
+  .chip[aria-pressed="true"] {
+    border-color: var(--foreground);
+    background-color: var(--background);
+    color: var(--foreground);
   }
 
   .skip-link {
@@ -97,6 +132,23 @@
 
   .skip-link:focus-visible {
     top: 1rem;
+  }
+
+  .mermaid-diagram svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .mermaid-dark {
+    display: none;
+  }
+
+  [data-theme="dark"] .mermaid-light {
+    display: none;
+  }
+
+  [data-theme="dark"] .mermaid-dark {
+    display: block;
   }
 
   /* marked-alert: > [!NOTE]/[!TIP]/[!IMPORTANT]/[!WARNING]/[!CAUTION] */
@@ -152,15 +204,6 @@
     color: var(--muted);
   }
 
-  :focus-visible {
-    outline: 2px solid var(--foreground);
-    outline-offset: 2px;
-  }
-
-  main:focus-visible {
-    outline: none;
-  }
-
   /* Japanese body text reads better with wider leading (recommended 1.7–1.9). */
   .prose {
     line-height: 1.8;
@@ -181,16 +224,5 @@
 
   .prose .heading-anchor:hover {
     color: var(--foreground);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      scroll-behavior: auto !important;
-      transition-duration: 0.01ms !important;
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-    }
   }
 }

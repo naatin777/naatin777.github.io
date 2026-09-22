@@ -77,7 +77,7 @@ These values are duplicated by necessity — update them together:
 | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Add a language        | `config/i18n.ts` + `app.css` lang rule + `app.html` whitelist                                                                                                        |
 | Theme colors          | `app.css` tokens + `THEME_COLOR` in `theme.svelte.ts` + `app.html` inline script                                                                                     |
-| Add a static route    | `staticPages` in `sitemap.xml/+server.ts`                                                                                                                            |
+| Add a static route    | `navItems` in `config/nav.ts` — header nav and sitemap both derive from it                                                                                           |
 | Add an article source | `src/lib/source.ts` (`ArticleSource` union + `sourceOrder`/`sourceLabels`/`sourceStyles`) — badges, `/articles/` filter, and `ArticleItem.source` all derive from it |
 
 ## Validation

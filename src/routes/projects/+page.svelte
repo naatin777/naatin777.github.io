@@ -1,10 +1,10 @@
 <script lang="ts">
   import LangText from "$lib/components/LangText.svelte";
   import Seo from "$lib/components/Seo.svelte";
-  import type { Lang } from "$lib/config/i18n";
+  import type { LocalizedText } from "$lib/config/i18n";
 
   // add entries here — newest first
-  const projects: { name: string; url: string; texts: Record<Lang, string> }[] = [];
+  const projects: { name: string; url: string; texts: LocalizedText }[] = [];
 </script>
 
 <Seo title="Projects · Naatin's Portfolio" description="Things I have built, gathered in one place." />
@@ -20,7 +20,7 @@
   {:else}
     <ul class="flex flex-col gap-3">
       {#each projects as project (project.url)}
-        <li class="border-border bg-surface flex flex-col gap-1 rounded-lg border p-4">
+        <li class="card flex flex-col gap-1">
           <a
             href={project.url}
             target="_blank"

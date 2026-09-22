@@ -1,18 +1,11 @@
 <script lang="ts">
   import { page } from "$app/state";
+  import { navItems, type NavItem } from "$lib/config/nav";
   import LangToggle from "./LangToggle.svelte";
   import LangText from "./LangText.svelte";
   import ThemeToggle from "./ThemeToggle.svelte";
 
-  const navItems = [
-    { href: "/articles/", match: ["/articles/", "/posts/"], texts: { ja: "記事", en: "Articles" } },
-    { href: "/projects/", match: ["/projects/"], texts: { ja: "プロジェクト", en: "Projects" } },
-    { href: "/activity/", match: ["/activity/"], texts: { ja: "アクティビティ", en: "Activity" } },
-    { href: "/about/", match: ["/about/"], texts: { ja: "自己紹介", en: "About" } },
-  ] as const;
-
-  const isActive = (item: (typeof navItems)[number]): boolean =>
-    item.match.some((prefix) => page.url.pathname.startsWith(prefix));
+  const isActive = (item: NavItem): boolean => item.match.some((prefix) => page.url.pathname.startsWith(prefix));
 </script>
 
 <header class="border-border bg-background/80 sticky top-0 z-10 border-b backdrop-blur">

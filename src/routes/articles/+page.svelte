@@ -74,7 +74,7 @@
       />
     </p>
     {#if hasFilters}
-      <button type="button" onclick={clearFilters} class="hover:text-foreground underline underline-offset-2">
+      <button type="button" onclick={clearFilters} class="chip hover:border-foreground">
         <LangText texts={{ ja: "フィルターをクリア", en: "Clear filters" }} />
       </button>
     {/if}
@@ -96,11 +96,7 @@
     {:else}
       <li class="text-muted flex flex-col items-start gap-2 text-sm">
         <LangText texts={{ ja: "条件に一致する記事はありません", en: "No articles match the current filters." }} />
-        <button
-          type="button"
-          onclick={clearFilters}
-          class="border-border hover:border-foreground rounded-full border px-3 py-1 text-xs transition-colors"
-        >
+        <button type="button" onclick={clearFilters} class="chip hover:border-foreground px-3 py-1">
           <LangText texts={{ ja: "フィルターをクリア", en: "Clear filters" }} />
         </button>
       </li>

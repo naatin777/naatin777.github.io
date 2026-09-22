@@ -1,6 +1,7 @@
 <script lang="ts">
   import { author } from "$lib/config/site";
   import { socialLinks } from "$lib/config/social";
+  import SocialIcon from "./SocialIcon.svelte";
 
   const year = new Date().getFullYear();
 </script>
@@ -16,9 +17,7 @@
           aria-label={link.name}
           class="text-muted hover:text-foreground p-1 transition-colors"
         >
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="size-6">
-            <path d={link.icon.path} />
-          </svg>
+          <SocialIcon icon={link.icon} />
         </a>
       {/each}
     </div>

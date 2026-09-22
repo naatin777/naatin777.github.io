@@ -21,7 +21,7 @@ function apply(pref: ThemePreference): void {
   root.dataset.theme = resolved;
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta instanceof HTMLMetaElement) {
-    meta.content = THEME_COLOR[dark ? "dark" : "light"];
+    meta.content = THEME_COLOR[resolved];
   }
 }
 

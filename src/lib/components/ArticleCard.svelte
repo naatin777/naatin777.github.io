@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { formatDate } from "$lib/date";
   import { sourceLabels, sourceStyles, type ArticleSource } from "$lib/source";
 
   interface Props {
@@ -17,7 +18,7 @@
   const external = $derived(source !== "blog");
 </script>
 
-<article class="border-border bg-surface hover:border-accent rounded-lg border p-4 transition-colors">
+<article class="card hover:border-accent">
   <div class="flex items-start justify-between gap-3">
     <a
       href={url}
@@ -33,7 +34,7 @@
   </div>
   <div class="text-muted mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
     {#if updatedAt}
-      <time datetime={updatedAt}>{updatedAt.slice(0, 10)}</time>
+      <time datetime={updatedAt}>{formatDate(updatedAt)}</time>
     {/if}
     {#if series}
       <span class="bg-accent/10 text-accent rounded-full px-2 py-0.5">{series}</span>
@@ -44,12 +45,12 @@
           type="button"
           onclick={() => ontag(tag)}
           aria-pressed={selectedTags?.has(tag.toLowerCase()) ?? false}
-          class="bg-background hover:border-foreground aria-pressed:border-foreground rounded-full border border-transparent px-2 py-0.5 transition-colors"
+          class="chip bg-background hover:border-foreground border-transparent"
         >
           {tag}
         </button>
       {:else}
-        <span class="bg-background rounded-full px-2 py-0.5">{tag}</span>
+        <span class="chip bg-background border-transparent">{tag}</span>
       {/if}
     {/each}
   </div>

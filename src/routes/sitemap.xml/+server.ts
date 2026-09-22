@@ -1,11 +1,12 @@
+import { navItems } from "$lib/config/nav";
 import { site } from "$lib/config/site";
 import { getPosts } from "$lib/server/posts";
 import type { RequestHandler } from "./$types";
 
 export const prerender = true;
 
-// update this list when adding a new static route
-const staticPages = ["/", "/articles/", "/projects/", "/about/", "/activity/"];
+// static pages derive from the shared nav config — add new routes there
+const staticPages = ["/", ...navItems.map((item) => item.href)];
 
 const toDate = (date: Date) => date.toISOString().split("T")[0];
 
