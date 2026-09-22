@@ -73,11 +73,14 @@
         }}
       />
     </p>
-    {#if hasFilters}
-      <button type="button" onclick={clearFilters} class="chip hover:border-foreground">
-        <LangText texts={{ ja: "フィルターをクリア", en: "Clear filters" }} />
-      </button>
-    {/if}
+    <button
+      type="button"
+      onclick={clearFilters}
+      disabled={!hasFilters}
+      class="chip hover:border-foreground {hasFilters ? '' : 'invisible'}"
+    >
+      <LangText texts={{ ja: "フィルターをクリア", en: "Clear filters" }} />
+    </button>
   </div>
   <ul class="flex flex-col gap-3">
     {#each filtered as article (article.url)}
