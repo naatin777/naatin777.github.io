@@ -18,13 +18,13 @@
   const external = $derived(source !== "blog");
 </script>
 
-<article class="card hover:border-foreground">
+<article class="card hover:border-foreground relative">
   <div class="flex items-start justify-between gap-3">
     <a
       href={url}
       target={external ? "_blank" : undefined}
       rel={external ? "noopener noreferrer" : undefined}
-      class="text-foreground font-medium hover:underline"
+      class="text-foreground font-medium after:absolute after:inset-0 after:content-[''] hover:underline"
     >
       {title}
     </a>
@@ -45,7 +45,7 @@
           type="button"
           onclick={() => ontag(tag)}
           aria-pressed={selectedTags?.has(tag.toLowerCase()) ?? false}
-          class="chip bg-background hover:border-foreground border-transparent"
+          class="chip bg-background hover:border-foreground relative z-10 border-transparent"
         >
           {tag}
         </button>
