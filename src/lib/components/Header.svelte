@@ -17,12 +17,7 @@
   <div class="mx-auto flex w-full max-w-3xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
     <a href="/" class="font-bold tracking-tight">naatin777.dev</a>
 
-    <div class="ml-auto flex items-center gap-2">
-      <LangSelect />
-      <ThemeToggle />
-    </div>
-
-    <nav aria-label="Primary" class="w-full sm:w-auto">
+    <nav aria-label="Primary" class="order-last w-full sm:order-none sm:ml-auto sm:w-auto">
       <ul class="flex gap-4">
         {#each navItems as item (item.href)}
           <li>
@@ -37,5 +32,10 @@
         {/each}
       </ul>
     </nav>
+
+    <div class="ml-auto flex items-center gap-2 sm:ml-0">
+      <LangSelect />
+      <ThemeToggle />
+    </div>
   </div>
 </header>
