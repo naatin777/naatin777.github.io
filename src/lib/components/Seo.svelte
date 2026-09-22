@@ -8,7 +8,7 @@
     type?: "website" | "article";
     image?: string;
     publishedTime?: Date;
-    modifiedTime?: Date;
+    modifiedTime?: Date | undefined;
     tags?: string[];
     jsonLd?: string;
   }

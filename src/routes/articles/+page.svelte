@@ -17,7 +17,7 @@
         if (!tagNames.has(tag.toLowerCase())) tagNames.set(tag.toLowerCase(), tag);
       }
     }
-    return [...tagNames.values()].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+    return [...tagNames.values()].toSorted((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
   });
 
   let selected = $state(new Set<string>());

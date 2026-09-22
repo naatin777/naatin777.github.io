@@ -46,13 +46,13 @@ export interface ArticleItem {
   updatedAt: string | null;
 }
 
-const zennFiles = import.meta.glob("/content/zenn/articles/*.md", {
+const zennFiles = import.meta.glob<string>("/content/zenn/articles/*.md", {
   query: "?raw",
   import: "default",
   eager: true,
 });
 
-const qiitaFiles = import.meta.glob("/content/qiita/public/*.md", {
+const qiitaFiles = import.meta.glob<string>("/content/qiita/public/*.md", {
   query: "?raw",
   import: "default",
   eager: true,
@@ -64,6 +64,7 @@ async function fetchZennDates(): Promise<Map<string, { publishedAt: string; upda
 
   try {
     let page: number | null = 1;
+    /* oxlint-disable no-await-in-loop -- pages depend on the previous response's next_page cursor */
     while (page !== null && page <= MAX_PAGES) {
       const res = await fetch(`https://zenn.dev/api/articles?username=${author.name}&page=${page}`, {
         signal: AbortSignal.timeout(10_000),
@@ -87,6 +88,7 @@ async function fetchZennDates(): Promise<Map<string, { publishedAt: string; upda
       }
       page = body.data.next_page;
     }
+    /* oxlint-enable no-await-in-loop */
   } catch (error) {
     console.warn("[articles] Zenn API fetch failed; using frontmatter dates only:", error);
   }
@@ -94,11 +96,11 @@ async function fetchZennDates(): Promise<Map<string, { publishedAt: string; upda
 }
 
 function* parseMarkdownFiles<T>(
-  files: Record<string, unknown>,
+  files: Record<string, string>,
   schema: z.ZodType<T>,
 ): Generator<{ slug: string; fm: T }> {
   for (const [path, raw] of Object.entries(files)) {
-    const parsed = schema.safeParse(matter(raw as string).data);
+    const parsed = schema.safeParse(matter(raw).data);
     if (!parsed.success) {
       console.warn(`[articles] skipping ${path}:`, parsed.error.issues);
       continue;

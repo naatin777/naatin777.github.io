@@ -11,13 +11,13 @@ export const load: PageServerLoad = async ({ params }) => {
   const index = posts.findIndex((p) => p.slug === params.slug);
   const post = posts[index];
   if (!post) error(404, "Post not found");
-  const toNavItem = (post?: (typeof posts)[number]) => (post ? { slug: post.slug, title: post.title } : null);
+  const toNavItem = (item?: (typeof posts)[number]) => (item ? { slug: item.slug, title: item.title } : null);
   const series = post.series
     ? {
         name: post.series,
         posts: posts
           .filter((p) => p.series === post.series)
-          .sort((a, b) => a.publishedAt.getTime() - b.publishedAt.getTime())
+          .toSorted((a, b) => a.publishedAt.getTime() - b.publishedAt.getTime())
           .map((p) => ({ slug: p.slug, title: p.title })),
       }
     : null;

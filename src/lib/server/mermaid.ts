@@ -19,9 +19,9 @@ export function renderMermaid(source: string): Promise<MermaidDiagrams | null> {
 async function renderBothThemes(source: string): Promise<MermaidDiagrams | null> {
   const [light] = await renderer([source], { mermaidConfig: { theme: "default" } });
   const [dark] = await renderer([source], { mermaidConfig: { theme: "dark" } });
-  if (light.status !== "fulfilled" || dark.status !== "fulfilled") {
-    const failure = light.status === "rejected" ? light : dark;
-    console.warn("[posts] mermaid render failed:", (failure as PromiseRejectedResult).reason);
+  if (light?.status !== "fulfilled" || dark?.status !== "fulfilled") {
+    const failure = light?.status === "rejected" ? light : dark?.status === "rejected" ? dark : undefined;
+    console.warn("[posts] mermaid render failed:", failure?.reason ?? "no result returned");
     return null;
   }
   return { light: light.value.svg, dark: dark.value.svg };

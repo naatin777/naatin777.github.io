@@ -46,11 +46,16 @@
     if (!pagefind) return;
     if (!query.trim()) {
       results = [];
+      searching = false;
       return;
     }
     searching = true;
     const res = await pagefind.debouncedSearch(query, {}, 300);
-    if (!res) return; // superseded by a newer keystroke
+    // null when superseded by a newer keystroke — that call owns the flag
+    if (!res) {
+      searching = false;
+      return;
+    }
     // /og/ pages are build-time templates for OG image generation, not content
     const hits = res.results.slice(0, 12).map((r) => r.data());
     results = (await Promise.all(hits)).filter((r) => !r.url.includes("/og/")).slice(0, 8);

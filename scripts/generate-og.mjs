@@ -23,12 +23,14 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
 const card = page.locator(".og-card");
 
 mkdirSync(OUT_DIR, { recursive: true });
+/* oxlint-disable no-await-in-loop -- one page reused; parallel tabs unnecessary at this scale */
 for (const slug of slugs) {
   await page.goto(`http://localhost:${PORT}/og/${slug}/`, { waitUntil: "networkidle" });
   // element screenshot clips out the site header/footer around the OG card
   await card.screenshot({ path: `${OUT_DIR}/${slug}.png` });
   console.log(`[og] ${slug}.png`);
 }
+/* oxlint-enable no-await-in-loop */
 
 await browser.close();
 server.httpServer.close();

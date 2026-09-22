@@ -39,7 +39,7 @@ export interface Post {
   readingTime: number;
 }
 
-const postFiles = import.meta.glob("/content/posts/*.md", {
+const postFiles = import.meta.glob<string>("/content/posts/*.md", {
   query: "?raw",
   import: "default",
   eager: true,
@@ -90,12 +90,21 @@ md.use({
   },
 });
 
+// Injects # permalink anchors into rendered headings (h2+ already have ids
+// from marked-gfm-heading-id). Runs as a postprocess hook per marked's idiom.
+md.use({
+  hooks: {
+    postprocess(html) {
+      return html.replace(/<h([2-6]) id="([^"]+)">([\s\S]*?)<\/h\1>/g, (_match, depth, id, inner) => {
+        const label = String(inner).replace(/<[^>]*>/g, "");
+        return `<h${depth} id="${id}">${inner}<a class="heading-anchor" href="#${id}" aria-label="${label} へのリンク">#</a></h${depth}>`;
+      });
+    },
+  },
+});
+
 export async function renderMarkdown(content: string): Promise<{ html: string; toc: TocItem[] }> {
-  const parsed = await md.parse(content, { async: true });
-  const html = parsed.replace(/<h([2-6]) id="([^"]+)">([\s\S]*?)<\/h\1>/g, (match, depth, id, inner) => {
-    const label = String(inner).replace(/<[^>]*>/g, "");
-    return `<h${depth} id="${id}">${inner}<a class="heading-anchor" href="#${id}" aria-label="${label} へのリンク">#</a></h${depth}>`;
-  });
+  const html = await md.parse(content, { async: true });
   const toc = getHeadingList().map(({ id, raw, level }) => ({ id, text: raw, depth: level }));
   return { html, toc };
 }
@@ -121,8 +130,9 @@ async function loadPosts(): Promise<Post[]> {
   const posts: Post[] = [];
   // Sequential: getHeadingList() is shared state reset by each parse,
   // so concurrent parses could attribute headings to the wrong post.
+  /* oxlint-disable no-await-in-loop */
   for (const [path, raw] of Object.entries(postFiles)) {
-    const { data, content } = matter(raw as string);
+    const { data, content } = matter(raw);
     const parsed = postFrontmatter.safeParse(data);
     if (!parsed.success) {
       console.warn(`[posts] skipping ${path}:`, parsed.error.issues);
@@ -144,5 +154,6 @@ async function loadPosts(): Promise<Post[]> {
       readingTime: estimateReadingTime(content),
     });
   }
-  return posts.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
+  /* oxlint-enable no-await-in-loop */
+  return posts.toSorted((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
 }

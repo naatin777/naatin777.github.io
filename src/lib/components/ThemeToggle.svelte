@@ -13,9 +13,10 @@
     theme.set(theme.resolved === "dark" ? "light" : "dark");
   }
 
+  const onChange = () => theme.reapply();
+
   onMount(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => theme.reapply();
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
   });

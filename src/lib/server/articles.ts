@@ -18,5 +18,5 @@ export async function getAllArticles(): Promise<ArticleItem[]> {
     publishedAt: post.publishedAt.toISOString(),
     updatedAt: (post.updatedAt ?? post.publishedAt).toISOString(),
   }));
-  return [...external, ...posts].sort((a, b) => toTimestamp(b.updatedAt) - toTimestamp(a.updatedAt));
+  return [...external, ...posts].toSorted((a, b) => toTimestamp(b.updatedAt) - toTimestamp(a.updatedAt));
 }
