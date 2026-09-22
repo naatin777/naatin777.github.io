@@ -73,7 +73,7 @@
       <ul class="flex flex-col gap-2" aria-live="polite">
         {#each results as result (result.url)}
           <li>
-            <a href={result.url} class="text-accent text-sm font-medium hover:underline">
+            <a href={result.url} class="text-foreground text-sm font-medium hover:underline">
               {result.meta.title ?? result.url}
             </a>
             <p class="text-muted line-clamp-2 text-xs">{@html result.excerpt}</p>

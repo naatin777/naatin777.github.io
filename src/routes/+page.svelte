@@ -53,7 +53,7 @@
   <section class="mt-12 flex flex-col gap-4">
     <div class="flex items-baseline justify-between">
       <h2 class="text-lg font-semibold"><LangText texts={{ ja: "最近の記事", en: "Recent articles" }} /></h2>
-      <a href="/articles/" class="text-accent text-sm hover:underline">
+      <a href="/articles/" class="text-muted hover:text-foreground text-sm transition-colors">
         <LangText texts={{ ja: "すべて見る", en: "View all" }} /> →
       </a>
     </div>

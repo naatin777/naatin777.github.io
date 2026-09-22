@@ -25,7 +25,7 @@
             href={project.url}
             target="_blank"
             rel="noopener noreferrer"
-            class="text-accent text-sm font-semibold hover:underline"
+            class="text-foreground text-sm font-semibold hover:underline"
           >
             {project.name}
           </a>

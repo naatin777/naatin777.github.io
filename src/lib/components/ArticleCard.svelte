@@ -18,13 +18,13 @@
   const external = $derived(source !== "blog");
 </script>
 
-<article class="card hover:border-accent">
+<article class="card hover:border-foreground">
   <div class="flex items-start justify-between gap-3">
     <a
       href={url}
       target={external ? "_blank" : undefined}
       rel={external ? "noopener noreferrer" : undefined}
-      class="text-foreground hover:text-accent font-medium"
+      class="text-foreground font-medium hover:underline"
     >
       {title}
     </a>
@@ -37,7 +37,7 @@
       <time datetime={updatedAt}>{formatDate(updatedAt)}</time>
     {/if}
     {#if series}
-      <span class="bg-accent/10 text-accent rounded-full px-2 py-0.5">{series}</span>
+      <span class="chip bg-foreground/10 text-foreground border-transparent">{series}</span>
     {/if}
     {#each tags as tag (tag)}
       {#if ontag}

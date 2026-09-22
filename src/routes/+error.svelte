@@ -12,7 +12,7 @@
   <p class="text-muted">
     <LangText texts={{ ja: "ページが見つかりません", en: page.error?.message ?? "Something went wrong." }} />
   </p>
-  <a href="/" class="text-accent hover:underline">
+  <a href="/" class="text-foreground underline underline-offset-2">
     <LangText texts={{ ja: "ホームに戻る", en: "Back to home" }} />
   </a>
 </section>
