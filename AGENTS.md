@@ -1,122 +1,80 @@
 # AGENTS.md
 
-Instructions for coding agents working in this repository.
+Personal portfolio site (`naatin777.dev`). SvelteKit + Svelte 5, fully prerendered static site deployed to GitHub Pages. Japanese-first UI with English support.
 
-## Scope
+## Boundaries
 
-- Apply these rules across the repository rooted at this directory.
-- Newer conversation rules have higher priority than older wording.
-- Update this file when the user adds new rules in conversation.
+**Ask first:** state the intended direction briefly before editing files, unless the user explicitly asks to proceed.
 
-## Conversation Overrides (Latest)
+**Never:**
 
-- For UI checks, do not use `pnpm dev` if it is unreliable. Use `pnpm build` and `pnpm preview`, or reuse an existing preview server.
-- Before making file edits, first state the intended implementation direction briefly and wait for explicit user confirmation such as `Yes`. Do not start editing immediately after a new request unless the user explicitly asks to proceed without confirmation.
-- The visual design is being redesigned from scratch; do not port old styling decisions without asking.
-- Reduced motion handling should be global, not per-component.
-- Design changes with future maintenance in mind: avoid ad-hoc workarounds, prefer data-driven structures, and document every cross-file sync point in this file and in code comments.
+- Use raw `history.replaceState` — it destroys SvelteKit history state. Use `replaceState` from `$app/navigation` with `page.state`.
+- Mutate the global `marked` — use the dedicated `Marked` instance in `posts.ts`.
+- Parallelize `loadPosts` (shared `getHeadingList` state) or mermaid `renderer()` calls (fails under prerender — the queue in `mermaid.ts` exists for this).
+- Edit files inside `content/zenn/` or `content/qiita/` — they are git subtrees.
+- Commit generated output (`build/`, `.svelte-kit/`) or secrets.
 
-## Project Snapshot
+## Stack
 
-- SvelteKit (Svelte 5) + `@sveltejs/adapter-static`, fully prerendered static site.
-- Deployed to GitHub Pages from the `build/` directory.
-- Styling: Tailwind CSS v4 (`@tailwindcss/vite`). Theme tokens live in `src/app.css` via `@theme` + CSS custom properties; dark mode uses `data-theme` attribute with `@custom-variant dark`.
-- Lint/format: `oxlint` + `oxfmt` (no ESLint/Prettier).
-- Content: Markdown files under `content/` — see "Content" below.
+- SvelteKit 2 + Svelte 5 runes, `@sveltejs/adapter-static` (`prerender`, `trailingSlash: "always"`, `fallback: "404.html"`)
+- Tailwind CSS v4 (`@tailwindcss/vite`) — all global styles and theme tokens in `src/app.css`; dark mode via `data-theme` attribute + `@custom-variant dark`
+- pnpm 10, Node 22 (match CI); oxlint + oxfmt — no ESLint/Prettier
 
-## Setup
+## Commands
 
-1. Enable Corepack as needed: `corepack enable`
-2. Install dependencies with lockfile: `pnpm install --frozen-lockfile`
+- `pnpm install --frozen-lockfile`
+- `pnpm run check` — svelte-check; passing means 0 errors AND 0 warnings
+- `pnpm run lint` / `pnpm format` / `pnpm run format:check` — oxlint / oxfmt
+- `pnpm build` → `build/`; `pnpm preview` — for UI checks always preview the built output, never `pnpm dev`
+- `pnpm exec playwright install chromium` — required once locally for mermaid rendering (CI does this per build)
+- Update content subtrees: `git subtree pull --prefix=content/zenn https://github.com/naatin777/zenn-articles main --squash` (same pattern for qiita)
 
-## Common Commands
+## Conventions
 
-- Start dev server: `pnpm dev`
-- Build production output: `pnpm build` (outputs to `build/`)
-- Preview build output: `pnpm preview`
-- Type/template check: `pnpm run check`
-- Lint: `pnpm run lint`
-- Format: `pnpm format` (oxfmt, includes `.svelte` via svelte compiler and Tailwind class sorting)
+- Imports via `$lib/...` aliases; `$app/state` (not `$app/stores`); Svelte 5 runes only
+- PascalCase components, kebab-case files; server-only modules in `src/lib/server/`
+- Tailwind utilities in markup; scoped `<style>` blocks only when utilities don't fit
+- Reduced motion is handled globally in `src/app.css` — do not add per-component overrides
+- Name things by what they hold: `external-articles.ts` (Zenn/Qiita), `toNavItem`, `renderBothThemes`, `toTimestamp` — avoid vague names like `time`/`pick`/`data2`
+- Prefer maintainable, data-driven structures over ad-hoc workarounds; when a value must live in two places, add it to the sync-point table below and mark it with a comment
 
 ## Content
 
-- `content/zenn/` — git subtree of `naatin777/zenn-articles`. Articles live in `articles/*.md`; only frontmatter (`title`, `topics`, `published`, optional `published_at`) is read. Rendered as external links, never as local pages.
-- `content/qiita/` — git subtree of `naatin777/qiita-articles`. Articles live in `public/*.md`; only frontmatter (`title`, `tags`, `id`, `private`, dates) is read. URL is built from `id`.
-- `content/posts/` — site-native articles, rendered as local pages at `/posts/[slug]/`. Frontmatter: `title`, `description`, `publishedAt`, `updatedAt`, `tags`, `draft`.
-- Update subtrees with `git subtree pull --prefix=content/zenn https://github.com/naatin777/zenn-articles main --squash` (same for qiita).
-- `content/` is excluded from lint/format — do not edit subtree files in this repo.
-- Tag handling: tags come from frontmatter only; no manual mapping files. Filter matching is case-insensitive.
-
-## Editing Workflow
-
-- Keep each change minimal and focused on the user request.
-- Source lives in `src/`; static assets in `static/`; imported assets in `src/lib/assets/`.
-- Use Svelte 5 runes (`$state`, `$derived`, `$props`, `$bindable`). Do not use legacy Svelte syntax or React.
-- Use `$lib/...` aliases, not relative paths, for imports outside a route directory.
-- Use `$app/state` (not `$app/stores`) for page state.
-- Use kebab-case for file names, PascalCase for Svelte components.
-
-## Styling Rules
-
-- Global styles and theme tokens: `src/app.css` only.
-- Component styles: Tailwind utilities in markup. Reach for scoped `<style>` blocks only when utilities don't fit.
-- Dark mode: write `dark:` variants; the attribute is `data-theme` on `<html>`.
-- Theme flash prevention lives in the inline script in `src/app.html`; keep it in sync with `src/lib/theme.svelte.ts` (`THEME_COLOR` values must match `@theme` tokens in `src/app.css`).
-- Reduced motion is handled globally in `src/app.css`; do not add per-component overrides.
+- `content/posts/*.md` → local pages at `/posts/[slug]/`. Frontmatter: `title`, `description`, `publishedAt`, `updatedAt`, `tags`, `draft`. Invalid frontmatter is skipped with a warning, never fails the build.
+- `content/zenn/` + `content/qiita/` — git subtrees; frontmatter only, rendered as external links on `/articles/`. Zenn dates come from the API (paginated via `next_page`, falls back to frontmatter).
+- Markdown pipeline in `posts.ts`: `marked` + `marked-katex-extension` + `marked-shiki` + `marked-gfm-heading-id`, all at build time.
+- ` ```mermaid ` blocks: a `walkTokens` hook converts them to `html` tokens containing light+dark SVGs (CSS toggles by `data-theme`). Failed renders stay as shiki-highlighted code blocks — no separate fallback path. Playwright must stay in `ssr.external` in `vite.config.ts`.
+- TOC data comes from `getHeadingList()` right after `md.parse` — do not re-implement slugify.
+- `content/` is excluded from lint/format.
 
 ## i18n
 
-- Languages are defined once in `src/lib/config/i18n.ts` (`langs` array). Default is `ja`.
-- Translated strings use `<LangText texts={{ ja: "…", en: "…" }} />`, which renders one `span` per language; CSS `:lang()` shows the matching one. This makes language switching flash-free and JS-optional.
-- Language selection: `?lang=` query param → `localStorage` → `ja`, resolved by the inline script in `src/app.html`. `LangSelect` keeps URL param, localStorage, and `<html lang>` in sync via `$app/navigation`'s `replaceState` (never raw `history.replaceState` — it destroys SvelteKit history state).
-- Adding a language touches THREE places (all required):
-  1. `langs` + `langNames` in `src/lib/config/i18n.ts` — incomplete `texts` then fail typecheck
-  2. A `:root:lang(xx) .lang-xx` display rule in `src/app.css`
-  3. The hardcoded `en|ja` whitelist in the `src/app.html` inline script (marked with a sync comment — `app.html` cannot import modules)
-- Article content itself is not translated; UI chrome only.
+- `src/lib/config/i18n.ts` `langs` array is the single source of truth; default is `ja`.
+- `<LangText texts={{ ja: "…", en: "…" }} />` renders one span per language; CSS `:lang()` shows the match (flash-free, works without JS).
+- Resolution order: `?lang=` → `localStorage` → `ja`, applied by the inline script in `app.html`. `LangSelect` keeps URL/localStorage/`<html lang>` in sync.
+- Adding a language touches THREE places: `langs`/`langNames` in `i18n.ts`, a `:root:lang(xx) .lang-xx` rule in `app.css`, and the hardcoded `en|ja` whitelist in the `app.html` inline script (marked with a sync comment).
 
-## SEO / Metadata
+## SEO
 
-- Use `<Seo title="…" description="…" />` per page (never `<svelte:head>` in `+layout.svelte` — duplicate `<title>`/description would result).
-- `404.html` is generated via `adapter({ fallback: "404.html" })` for GitHub Pages.
-- `sitemap.xml` and `feed.xml` (RSS 2.0) are prerendered `+server.ts` endpoints listing static pages + local posts; `static/robots.txt` references the sitemap and `app.html` links the feed.
-- `static/.nojekyll` exists (peaceiris/actions-gh-pages also auto-adds it, but keep it for robustness).
-- `<Seo>` supports `type="article"` (emits `article:*` meta), `jsonLd`, and defaults to `og-image.png` (1200×630) with `summary_large_image` Twitter cards.
-- Posts get heading ids via `marked-gfm-heading-id`; `getHeadingList()` (called right after `marked.parse`) provides TOC data — do not re-implement slugify. `getHeadingList()` reads shared state reset by each parse, so posts are parsed SEQUENTIALLY in `loadPosts` — do not parallelize it. External links get `target="_blank" rel="noopener noreferrer"` via a marked renderer.
-- `+layout.svelte` registers the skip link and the Inter latin font preload. Noto Sans JP is NOT preloaded (its ~120 unicode-range subsets make a single preload ineffective).
+- Per-page `<Seo>` component — never put `<svelte:head>` in `+layout.svelte` (duplicate `<title>`/description).
+- `sitemap.xml` and `feed.xml` are prerendered `+server.ts` endpoints; `robots.txt`, `.nojekyll`, `CNAME`, `og-image.png`, `favicon.ico`, `apple-touch-icon.png` live in `static/`.
+- Dates are shared via `src/lib/date.ts` `formatDate` (bare `YYYY-MM-DD` strings are treated as local dates, not UTC).
 
-## Data Layer
+## Sync points
 
-- Server-only modules go in `src/lib/server/` (`external-articles.ts` for Zenn/Qiita, `posts.ts` for local posts, `mermaid.ts` for diagram rendering). They use `import.meta.glob` + `gray-matter` + `zod` and run at prerender time.
-- Site metadata and author info live together in `src/lib/config/site.ts`; UI-language definitions in `src/lib/config/i18n.ts`; social links in `src/lib/config/social.ts`.
-- Markdown → HTML via a dedicated `Marked` instance in `posts.ts` (plain Markdown; no embedded components). Do not mutate the global `marked`.
-- Math is rendered at build time by `marked-katex-extension` (KaTeX CSS is imported in `posts/[slug]/+page.svelte`).
-- Code blocks are highlighted at build time by `marked-shiki` + `shiki` (github-light/github-dark via `--shiki-*` CSS variables toggled by `[data-theme]` in `app.css`).
-- ` ```mermaid ` code blocks are converted to `html` tokens inside a marked `walkTokens` hook and rendered to SVG at build time via `mermaid-isomorphic` + Playwright Chromium. Failed renders stay as code blocks (shiki-highlighted) — no separate fallback path. Both `default` and `dark` theme SVGs are emitted and toggled by CSS (`[data-theme]`). Playwright must NOT be bundled — `ssr.external` in `vite.config.ts` keeps it node-resolved. Render calls must be sequential; concurrent `renderer()` calls fail during prerender (queue lives in `mermaid.ts`).
-- CI installs the browser with `pnpm exec playwright install --with-deps chromium`; locally run `pnpm exec playwright install chromium` once.
+These values are duplicated by necessity — update them together:
 
-## Maintenance Sync Points
-
-These values are duplicated by necessity and must be updated together:
-
-| When you change...    | Also update...                                                                   |
-| --------------------- | -------------------------------------------------------------------------------- |
-| Add a language        | `config/i18n.ts` + `app.css` lang rule + `app.html` whitelist (see i18n)         |
-| Theme colors          | `app.css` tokens + `THEME_COLOR` in `theme.svelte.ts` + `app.html` inline script |
-| Add a static route    | `staticPages` in `sitemap.xml/+server.ts` (marked with a comment)                |
-| Add an article source | `ArticleItem.source` union + `sourceLabels` in `ArticleCard.svelte`              |
+| Change | Also update |
+| --- | --- |
+| Add a language | `config/i18n.ts` + `app.css` lang rule + `app.html` whitelist |
+| Theme colors | `app.css` tokens + `THEME_COLOR` in `theme.svelte.ts` + `app.html` inline script |
+| Add a static route | `staticPages` in `sitemap.xml/+server.ts` |
+| Add an article source | `ArticleItem.source` union + `sourceLabels` in `ArticleCard.svelte` |
 
 ## Validation
 
-- Run `pnpm build` after functional changes.
-- Run `pnpm run check` when changing TypeScript, routes, or content loading. Passing means 0 errors and 0 warnings.
-- Run `pnpm run lint` and `pnpm format` before considering work done.
-- Use Playwright/browser preview against `pnpm preview` for UI checks.
+After functional changes run all of: `pnpm run check`, `pnpm run lint`, `pnpm run format`, `pnpm build`. For UI verification use `pnpm preview` + agent-browser — inspect the accessibility tree, not just screenshots.
 
-## CI / Deploy Notes
+## Deploy
 
-- GitHub Actions installs with `pnpm install --frozen-lockfile` on Node 22.
-- Deployment publishes the `build/` directory (`publish_dir: build` in `deploy.yml`).
-- `static/CNAME` carries the custom domain.
-- A weekly scheduled rebuild (`cron`) refreshes Zenn article dates fetched from the Zenn API at build time.
-- `check` + `lint` run as a quality gate before build in CI.
+Push to `main` → GitHub Actions: install → playwright chromium → check/lint/format gate → build → publish `build/` via peaceiris/actions-gh-pages. Weekly cron rebuild refreshes Zenn API dates.
