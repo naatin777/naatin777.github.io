@@ -56,7 +56,6 @@
           tags={article.tags}
           source={article.source}
           series={article.series}
-          emoji={article.emoji}
           updatedAt={article.updatedAt}
         />
       </li>

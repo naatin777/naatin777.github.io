@@ -8,7 +8,6 @@ const dateField = z.union([z.string(), z.date().transform((d) => d.toISOString()
 
 const zennFrontmatter = z.object({
   title: z.string(),
-  emoji: z.string().optional(),
   topics: z.array(z.string()).default([]),
   published: z.boolean().default(false),
   published_at: dateField.optional(),
@@ -43,7 +42,6 @@ export interface ArticleItem {
   tags: string[];
   source: ArticleSource;
   series: string | null;
-  emoji: string | null;
   publishedAt: string | null;
   updatedAt: string | null;
 }
@@ -122,7 +120,6 @@ export async function getExternalArticles(): Promise<ArticleItem[]> {
       tags: fm.topics,
       source: "zenn",
       series: null,
-      emoji: fm.emoji ?? null,
       publishedAt: dates?.publishedAt ?? fm.published_at ?? null,
       updatedAt: dates?.updatedAt ?? fm.published_at ?? null,
     });
@@ -136,7 +133,6 @@ export async function getExternalArticles(): Promise<ArticleItem[]> {
       tags: fm.tags,
       source: "qiita",
       series: null,
-      emoji: null,
       publishedAt: fm.created_at ?? fm.updated_at ?? null,
       updatedAt: fm.updated_at ?? fm.created_at ?? null,
     });

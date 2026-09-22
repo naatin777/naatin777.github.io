@@ -7,11 +7,10 @@
     tags: string[];
     source: ArticleSource;
     series?: string | null;
-    emoji?: string | null;
     updatedAt: string | null;
   }
 
-  let { title, url, tags, source, series = null, emoji = null, updatedAt }: Props = $props();
+  let { title, url, tags, source, series = null, updatedAt }: Props = $props();
 
   const external = $derived(source !== "blog");
 </script>
@@ -24,7 +23,7 @@
       rel={external ? "noopener noreferrer" : undefined}
       class="text-foreground hover:text-accent font-medium"
     >
-      {#if emoji}<span aria-hidden="true">{emoji} </span>{/if}{title}
+      {title}
     </a>
     <span class="shrink-0 rounded border px-1.5 py-0.5 text-[10px] font-medium tracking-wide {sourceStyles[source]}">
       {sourceLabels[source]}
