@@ -33,14 +33,14 @@
 <div
   role="group"
   aria-label="言語 / Language"
-  class="flex items-center gap-0.5 text-sm transition-opacity {hydrated ? 'opacity-100' : 'opacity-0'}"
+  class="flex items-center gap-0.5 text-xs transition-opacity {hydrated ? 'opacity-100' : 'opacity-0'}"
 >
   {#each langs as option (option)}
     <button
       type="button"
       onclick={() => setLang(option)}
       aria-pressed={lang === option}
-      class="aria-pressed:text-foreground text-muted hover:text-foreground rounded-md px-1 transition-colors aria-pressed:font-semibold"
+      class="aria-pressed:text-foreground text-muted hover:text-foreground rounded-md px-1 whitespace-nowrap transition-colors aria-pressed:font-semibold"
     >
       {langNames[option]}
     </button>
