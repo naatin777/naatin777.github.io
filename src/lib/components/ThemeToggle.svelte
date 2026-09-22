@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Moon, Sun } from "lucide-svelte";
+  import { Moon, Sun } from "@lucide/svelte";
   import { onMount } from "svelte";
   import { hydrated } from "$lib/hydrated.svelte";
   import { themeState } from "$lib/theme.svelte";

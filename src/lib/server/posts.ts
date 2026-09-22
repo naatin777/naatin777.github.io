@@ -67,24 +67,46 @@ md.use({
     if (token.type !== "code" || token.lang !== "mermaid") return;
     const rendered = await renderMermaid(token.text);
     if (!rendered) return; // stays a code block — rendered by shiki as a fallback
-    const html: Pick<Tokens.HTML, "type" | "pre" | "text"> = {
+    const html: Pick<Tokens.HTML, "type" | "pre" | "text"> & { generated: true } = {
       type: "html",
       pre: false,
       text: `<div class="mermaid-diagram mermaid-light">${rendered.light}</div><div class="mermaid-diagram mermaid-dark">${rendered.dark}</div>`,
+      generated: true,
     };
     Object.assign(token, html);
   },
 });
 
 const escapeAttr = (text: string): string => text.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+const escapeHtml = (text: string): string => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+// marked's default link renderer runs cleanUrl() to reject javascript:/data:
+// hrefs; our custom renderer must do the same. Control chars and HTML
+// entities are stripped/decoded first so `&#x6A;avascript:` can't sneak by.
+const isSafeHref = (href: string): boolean => {
+  const normalized = href
+    // oxlint-disable-next-line no-control-regex -- intentionally strips control chars before scheme check
+    .replace(/[\x00-\x20]+/g, "")
+    .replace(/&#(\d+);?/g, (_m, dec: string) => String.fromCharCode(Number(dec)))
+    .replace(/&#x([0-9a-f]+);?/gi, (_m, hex: string) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/&(colon|tab|newline);/gi, "");
+  const protocol = /^([a-z][a-z0-9+.-]*):/i.exec(normalized)?.[1]?.toLowerCase();
+  return protocol === undefined || ["http", "https", "mailto"].includes(protocol);
+};
 
 md.use({
   renderer: {
     link({ href, title, tokens }) {
       const text = this.parser.parseInline(tokens);
+      if (!isSafeHref(href)) return text;
       const titleAttr = title ? ` title="${escapeAttr(title)}"` : "";
       const external = /^https?:\/\//.test(href) ? ` target="_blank" rel="noopener noreferrer"` : "";
       return `<a href="${escapeAttr(href)}"${titleAttr}${external}>${text}</a>`;
+    },
+    // Escape raw HTML written in markdown source (Hugo-style default:
+    // generated markup like mermaid SVG is marked `generated` and passes).
+    html(token: Tokens.HTML & { generated?: true }) {
+      return token.generated ? token.text : escapeHtml(token.text);
     },
   },
 });

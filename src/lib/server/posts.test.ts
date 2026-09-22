@@ -19,6 +19,21 @@ describe("renderMarkdown", () => {
     expect(html).toContain('<a href="/about/">int</a>');
   });
 
+  it("escapes raw HTML written in markdown", async () => {
+    const { html } = await renderMarkdown('<script>alert(1)</script>\n\n<img src="x.png" onerror="alert(1)">');
+    expect(html).not.toContain("<script>");
+    expect(html).not.toContain("<img");
+    expect(html).toContain("&lt;script&gt;");
+  });
+
+  it("drops links with unsafe URL schemes", async () => {
+    const { html } = await renderMarkdown("[x](javascript:alert(1)) and [y](&#x6A;avascript:alert(1))");
+    expect(html).not.toContain("javascript:");
+    expect(html).not.toContain("<a");
+    expect(html).toContain("x");
+    expect(html).toContain("y");
+  });
+
   it("renders katex math", async () => {
     const { html } = await renderMarkdown("$x^2$");
     expect(html).toContain("katex");
