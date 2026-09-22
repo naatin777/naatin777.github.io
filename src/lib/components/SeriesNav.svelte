@@ -1,14 +1,10 @@
 <script lang="ts">
+  import type { PostLink } from "$lib/types";
   import LangText from "./LangText.svelte";
-
-  interface SeriesPost {
-    slug: string;
-    title: string;
-  }
 
   interface Props {
     name: string;
-    posts: SeriesPost[];
+    posts: PostLink[];
     currentSlug: string;
   }
 

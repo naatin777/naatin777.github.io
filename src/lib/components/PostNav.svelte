@@ -1,12 +1,9 @@
 <script lang="ts">
-  interface NavPost {
-    slug: string;
-    title: string;
-  }
+  import type { PostLink } from "$lib/types";
 
   interface Props {
-    prev: NavPost | null;
-    next: NavPost | null;
+    prev: PostLink | null;
+    next: PostLink | null;
   }
 
   let { prev, next }: Props = $props();

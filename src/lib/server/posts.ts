@@ -8,6 +8,7 @@ import markedKatex from "marked-katex-extension";
 import markedShiki from "marked-shiki";
 import { codeToHtml } from "shiki";
 import { z } from "zod";
+import type { TocItem } from "$lib/types";
 import { renderMermaid } from "./mermaid";
 
 const postFrontmatter = z.object({
@@ -20,11 +21,7 @@ const postFrontmatter = z.object({
   draft: z.boolean().default(false),
 });
 
-export interface TocItem {
-  id: string;
-  text: string;
-  depth: number;
-}
+export type { TocItem };
 
 export interface Post {
   slug: string;
@@ -70,10 +67,12 @@ md.use({
     if (token.type !== "code" || token.lang !== "mermaid") return;
     const rendered = await renderMermaid(token.text);
     if (!rendered) return; // stays a code block — rendered by shiki as a fallback
-    const html = token as unknown as Tokens.HTML;
-    html.type = "html";
-    html.pre = false;
-    html.text = `<div class="mermaid-diagram mermaid-light">${rendered.light}</div><div class="mermaid-diagram mermaid-dark">${rendered.dark}</div>`;
+    const html: Pick<Tokens.HTML, "type" | "pre" | "text"> = {
+      type: "html",
+      pre: false,
+      text: `<div class="mermaid-diagram mermaid-light">${rendered.light}</div><div class="mermaid-diagram mermaid-dark">${rendered.dark}</div>`,
+    };
+    Object.assign(token, html);
   },
 });
 
@@ -96,7 +95,7 @@ md.use({
   hooks: {
     postprocess(html) {
       return html.replace(/<h([2-6]) id="([^"]+)">([\s\S]*?)<\/h\1>/g, (_match, depth, id, inner) => {
-        const label = String(inner).replace(/<[^>]*>/g, "");
+        const label = inner.replace(/<[^>]*>/g, "");
         return `<h${depth} id="${id}">${inner}<a class="heading-anchor" href="#${id}" aria-label="${label} へのリンク">#</a></h${depth}>`;
       });
     },

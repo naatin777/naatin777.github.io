@@ -1,14 +1,9 @@
 <script lang="ts">
+  import type { TocItem } from "$lib/types";
   import LangText from "./LangText.svelte";
 
-  interface TocHeading {
-    id: string;
-    text: string;
-    depth: number;
-  }
-
   interface Props {
-    headings: TocHeading[];
+    headings: TocItem[];
   }
 
   let { headings }: Props = $props();

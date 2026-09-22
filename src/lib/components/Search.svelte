@@ -12,7 +12,11 @@
   }
   interface PagefindApi {
     init: () => Promise<void>;
-    debouncedSearch: (query: string, options?: object, duration?: number) => Promise<PagefindSearch | null>;
+    debouncedSearch: (
+      query: string,
+      options?: Record<string, unknown>,
+      duration?: number,
+    ) => Promise<PagefindSearch | null>;
   }
 
   let query = $state("");
