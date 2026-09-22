@@ -16,6 +16,7 @@ const postFrontmatter = z.object({
   publishedAt: z.coerce.date(),
   updatedAt: z.coerce.date().optional(),
   tags: z.array(z.string()).default([]),
+  series: z.string().optional(),
   draft: z.boolean().default(false),
 });
 
@@ -32,6 +33,7 @@ export interface Post {
   publishedAt: Date;
   updatedAt: Date | null;
   tags: string[];
+  series: string | null;
   html: string;
   toc: TocItem[];
   readingTime: number;
@@ -132,6 +134,7 @@ async function loadPosts(): Promise<Post[]> {
       publishedAt: fm.publishedAt,
       updatedAt: fm.updatedAt ?? null,
       tags: fm.tags,
+      series: fm.series ?? null,
       html,
       toc,
       readingTime: estimateReadingTime(content),

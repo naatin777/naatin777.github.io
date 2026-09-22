@@ -1,6 +1,7 @@
 import matter from "gray-matter";
 import { z } from "zod";
 import { author } from "$lib/config/site";
+import type { ArticleSource } from "$lib/source";
 
 // gray-matter parses unquoted YAML timestamps into Date objects
 const dateField = z.union([z.string(), z.date().transform((d) => d.toISOString())]);
@@ -40,7 +41,8 @@ export interface ArticleItem {
   title: string;
   url: string;
   tags: string[];
-  source: "zenn" | "qiita" | "blog";
+  source: ArticleSource;
+  series: string | null;
   emoji: string | null;
   publishedAt: string | null;
   updatedAt: string | null;
@@ -119,6 +121,7 @@ export async function getExternalArticles(): Promise<ArticleItem[]> {
       url: `https://zenn.dev/${author.name}/articles/${slug}`,
       tags: fm.topics,
       source: "zenn",
+      series: null,
       emoji: fm.emoji ?? null,
       publishedAt: dates?.publishedAt ?? fm.published_at ?? null,
       updatedAt: dates?.updatedAt ?? fm.published_at ?? null,
@@ -132,6 +135,7 @@ export async function getExternalArticles(): Promise<ArticleItem[]> {
       url: `https://qiita.com/${author.name}/items/${fm.id}`,
       tags: fm.tags,
       source: "qiita",
+      series: null,
       emoji: null,
       publishedAt: fm.created_at ?? fm.updated_at ?? null,
       updatedAt: fm.updated_at ?? fm.created_at ?? null,

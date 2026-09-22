@@ -12,9 +12,16 @@ export const load: PageServerLoad = async ({ params }) => {
   const post = posts[index];
   if (!post) error(404, "Post not found");
   const toNavItem = (post?: (typeof posts)[number]) => (post ? { slug: post.slug, title: post.title } : null);
+  const seriesPosts = post.series
+    ? posts
+        .filter((p) => p.series === post.series)
+        .sort((a, b) => a.publishedAt.getTime() - b.publishedAt.getTime())
+        .map((p) => ({ slug: p.slug, title: p.title }))
+    : null;
   return {
     post,
     prev: toNavItem(posts[index - 1]), // newer
     next: toNavItem(posts[index + 1]), // older
+    seriesPosts,
   };
 };

@@ -59,6 +59,27 @@
       {/each}
     </div>
   </header>
+  {#if data.seriesPosts && post.series}
+    <nav class="border-border bg-surface mb-8 rounded-lg border p-4" aria-label="Series">
+      <p class="mb-2 text-sm font-bold">
+        <LangText texts={{ ja: "シリーズ", en: "Series" }} />: {post.series}
+      </p>
+      <ol class="flex list-decimal flex-col gap-1 pl-5 text-sm">
+        {#each data.seriesPosts as seriesPost (seriesPost.slug)}
+          <li class:font-semibold={seriesPost.slug === post.slug}>
+            {#if seriesPost.slug === post.slug}
+              <span class="text-foreground">{seriesPost.title}</span>
+              <span class="text-muted text-xs">
+                <LangText texts={{ ja: "（この記事）", en: " (this post)" }} />
+              </span>
+            {:else}
+              <a href="/posts/{seriesPost.slug}/" class="text-muted hover:text-foreground">{seriesPost.title}</a>
+            {/if}
+          </li>
+        {/each}
+      </ol>
+    </nav>
+  {/if}
   {#if tocHeadings.length >= 3}
     <nav class="border-border mb-8 rounded-lg border p-4" aria-label="Table of contents">
       <p class="mb-2 text-sm font-bold"><LangText texts={{ ja: "目次", en: "Contents" }} /></p>

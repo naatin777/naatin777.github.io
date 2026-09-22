@@ -14,6 +14,7 @@ export const load: PageServerLoad = async () => {
     url: `/posts/${post.slug}/`,
     tags: post.tags,
     source: "blog",
+    series: post.series,
     emoji: null,
     publishedAt: post.publishedAt.toISOString(),
     updatedAt: (post.updatedAt ?? post.publishedAt).toISOString(),

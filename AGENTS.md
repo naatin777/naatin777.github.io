@@ -66,17 +66,18 @@ Personal portfolio site (`naatin777.dev`). SvelteKit + Svelte 5, fully prerender
 - `/og/[slug]/` pages are OG-image templates (screenshotted by `scripts/generate-og.mjs` into `build/og/<slug>.png`) — noindexed, robots-disallowed, and excluded from search results. Not user-facing.
 - Site search on `/articles/` uses pagefind (index built post-build; UI hidden when the index is absent).
 - Dates are shared via `src/lib/date.ts` `formatDate` (bare `YYYY-MM-DD` strings are treated as local dates, not UTC).
+- Blog posts can set `series: <name>` in frontmatter — posts sharing a name get an ordered series navigation box on the post page and a series chip on article cards.
 
 ## Sync points
 
 These values are duplicated by necessity — update them together:
 
-| Change                | Also update                                                                      |
-| --------------------- | -------------------------------------------------------------------------------- |
-| Add a language        | `config/i18n.ts` + `app.css` lang rule + `app.html` whitelist                    |
-| Theme colors          | `app.css` tokens + `THEME_COLOR` in `theme.svelte.ts` + `app.html` inline script |
-| Add a static route    | `staticPages` in `sitemap.xml/+server.ts`                                        |
-| Add an article source | `ArticleItem.source` union + `sourceLabels` in `ArticleCard.svelte`              |
+| Change                | Also update                                                                                                                                                          |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Add a language        | `config/i18n.ts` + `app.css` lang rule + `app.html` whitelist                                                                                                        |
+| Theme colors          | `app.css` tokens + `THEME_COLOR` in `theme.svelte.ts` + `app.html` inline script                                                                                     |
+| Add a static route    | `staticPages` in `sitemap.xml/+server.ts`                                                                                                                            |
+| Add an article source | `src/lib/source.ts` (`ArticleSource` union + `sourceOrder`/`sourceLabels`/`sourceStyles`) — badges, `/articles/` filter, and `ArticleItem.source` all derive from it |
 
 ## Validation
 
