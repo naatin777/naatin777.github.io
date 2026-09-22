@@ -10,12 +10,15 @@ Personal portfolio site. Built with SvelteKit + Tailwind CSS, statically exporte
 ```sh
 pnpm install
 pnpm dev      # dev server
-pnpm build    # build to build/
+pnpm build    # vite build → pagefind index → OG images → build/
 pnpm preview  # preview build
-pnpm run check
-pnpm run lint
-pnpm format
+pnpm run check   # svelte-check
+pnpm run lint    # oxlint
+pnpm format      # oxfmt
+pnpm run test    # vitest
 ```
+
+Deploys automatically on push to `main` via GitHub Actions → GitHub Pages.
 
 ## License
 
