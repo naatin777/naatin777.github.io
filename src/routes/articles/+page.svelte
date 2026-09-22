@@ -1,6 +1,7 @@
 <script lang="ts">
   import ArticleCard from "$lib/components/ArticleCard.svelte";
   import LangText from "$lib/components/LangText.svelte";
+  import Search from "$lib/components/Search.svelte";
   import Seo from "$lib/components/Seo.svelte";
   import TagFilter from "$lib/components/TagFilter.svelte";
   import type { PageProps } from "./$types";
@@ -34,6 +35,7 @@
 
 <section class="flex flex-col gap-6">
   <h1 class="text-2xl font-bold tracking-tight"><LangText texts={{ ja: "記事", en: "Articles" }} /></h1>
+  <Search />
   <TagFilter tags={allTags} bind:selected />
   <ul class="flex flex-col gap-3">
     {#each filtered as article (article.url)}

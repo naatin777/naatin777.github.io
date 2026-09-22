@@ -1,5 +1,8 @@
+import { transformerNotationDiff, transformerNotationHighlight } from "@shikijs/transformers";
 import matter from "gray-matter";
 import { Marked, type Tokens } from "marked";
+import markedAlert from "marked-alert";
+import markedFootnote from "marked-footnote";
 import { gfmHeadingId, getHeadingList } from "marked-gfm-heading-id";
 import markedKatex from "marked-katex-extension";
 import markedShiki from "marked-shiki";
@@ -44,6 +47,8 @@ const md = new Marked();
 
 md.use(gfmHeadingId());
 md.use(markedKatex({ throwOnError: false }));
+md.use(markedAlert());
+md.use(markedFootnote());
 
 md.use(
   markedShiki({
@@ -53,6 +58,7 @@ md.use(
         themes: { light: "github-light", dark: "github-dark" },
         defaultColor: "light-dark()",
         cssVariablePrefix: "--shiki-",
+        transformers: [transformerNotationHighlight(), transformerNotationDiff()],
       }),
   }),
 );
@@ -82,7 +88,7 @@ md.use({
   },
 });
 
-async function renderMarkdown(content: string): Promise<{ html: string; toc: TocItem[] }> {
+export async function renderMarkdown(content: string): Promise<{ html: string; toc: TocItem[] }> {
   const html = await md.parse(content, { async: true });
   const toc = getHeadingList().map(({ id, raw, level }) => ({ id, text: raw, depth: level }));
   return { html, toc };

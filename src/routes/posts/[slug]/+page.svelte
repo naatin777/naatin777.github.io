@@ -33,6 +33,7 @@
   title={`${post.title} · ${site.title}`}
   description={post.description || site.description}
   type="article"
+  image={`/og/${post.slug}.png`}
   publishedTime={post.publishedAt}
   modifiedTime={post.updatedAt ?? undefined}
   tags={post.tags}

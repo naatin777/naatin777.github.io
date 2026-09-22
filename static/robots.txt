@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /og/
 
 Sitemap: https://naatin777.dev/sitemap.xml

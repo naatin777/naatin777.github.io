@@ -1,5 +1,5 @@
 <script lang="ts">
-  import icon from "$lib/assets/icon.png";
+  import icon from "$lib/assets/icon.png?enhanced";
   import LangText from "$lib/components/LangText.svelte";
   import Seo from "$lib/components/Seo.svelte";
   import { author, site } from "$lib/config/site";
@@ -17,7 +17,7 @@
 <Seo title="{author.displayName}'s Portfolio" {jsonLd} />
 
 <section class="flex flex-col items-center justify-center gap-6 text-center">
-  <img src={icon} alt={`${author.displayName}'s icon`} width="120" height="120" class="rounded-full" />
+  <enhanced:img src={icon} alt={`${author.displayName}'s icon`} class="size-30 rounded-full" />
   <h1 class="text-3xl font-bold tracking-tight">
     <LangText texts={{ ja: "Naatinです 👋", en: "Hey, I'm Naatin 👋" }} />
   </h1>

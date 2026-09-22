@@ -40,10 +40,13 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Check and lint
-        run: pnpm run check && pnpm run lint && pnpm run format:check
+        run: pnpm run check && pnpm run lint && pnpm run format:check && pnpm run test
 
       - name: Build
         run: pnpm run build
+
+      - name: Lighthouse audit
+        run: pnpm exec lhci autorun
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.0.0
