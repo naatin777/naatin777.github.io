@@ -28,7 +28,7 @@
             <a
               href={item.href}
               aria-current={isActive(item) ? "page" : undefined}
-              class="text-muted hover:text-foreground aria-[current=page]:text-foreground text-sm transition-colors aria-[current=page]:font-semibold"
+              class="text-muted hover:text-foreground aria-[current=page]:text-foreground text-sm whitespace-nowrap transition-colors aria-[current=page]:font-semibold"
             >
               <LangText texts={item.texts} />
             </a>
