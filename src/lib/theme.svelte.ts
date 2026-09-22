@@ -11,12 +11,14 @@ const readDomPreference = (): ThemePreference => {
 };
 
 let preference = $state<ThemePreference>(browser ? readDomPreference() : "system");
+let resolved = $state<"light" | "dark">("light");
 
 function apply(pref: ThemePreference): void {
   const dark = pref === "dark" || (pref === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  resolved = dark ? "dark" : "light";
   const root = document.documentElement;
   root.dataset.themePreference = pref;
-  root.dataset.theme = dark ? "dark" : "light";
+  root.dataset.theme = resolved;
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta instanceof HTMLMetaElement) {
     meta.content = THEME_COLOR[dark ? "dark" : "light"];
@@ -27,6 +29,9 @@ export function themeState() {
   return {
     get preference() {
       return preference;
+    },
+    get resolved() {
+      return resolved;
     },
     set(next: ThemePreference) {
       preference = next;

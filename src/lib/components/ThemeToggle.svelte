@@ -1,21 +1,14 @@
 <script lang="ts">
-  import { Monitor, Moon, Sun } from "lucide-svelte";
+  import { Moon, Sun } from "lucide-svelte";
   import { onMount } from "svelte";
-  import { themeState, type ThemePreference } from "$lib/theme.svelte";
+  import { themeState } from "$lib/theme.svelte";
 
   const theme = themeState();
 
-  const order: ThemePreference[] = ["system", "light", "dark"];
-  const labels: Record<ThemePreference, string> = {
-    light: "Light",
-    dark: "Dark",
-    system: "System",
-  };
-  const icons = { light: Sun, dark: Moon, system: Monitor };
-
-  function cycleTheme(): void {
-    const next = order[(order.indexOf(theme.preference) + 1) % order.length];
-    theme.set(next);
+  // Two-state flip: the button toggles light ↔ dark. "System" remains
+  // the implicit default until the user picks a side explicitly.
+  function toggle(): void {
+    theme.set(theme.resolved === "dark" ? "light" : "dark");
   }
 
   onMount(() => {
@@ -25,15 +18,24 @@
     return () => media.removeEventListener("change", onChange);
   });
 
-  const Icon = $derived(icons[theme.preference]);
+  // SSR resolves to "light"; hide the icon until hydration applies the
+  // real theme to avoid a wrong-icon flash.
+  let hydrated = $state(false);
+  onMount(() => {
+    hydrated = true;
+  });
+
+  const Icon = $derived(theme.resolved === "dark" ? Sun : Moon);
 </script>
 
 <button
   type="button"
-  onclick={cycleTheme}
-  aria-label={`Theme: ${labels[theme.preference]}`}
-  title={`Theme: ${labels[theme.preference]}`}
-  class="text-muted hover:bg-surface hover:text-foreground flex size-8 items-center justify-center rounded-md transition-colors"
+  onclick={toggle}
+  aria-label="テーマ切替 / Toggle theme"
+  title="テーマ切替 / Toggle theme"
+  class="text-muted hover:bg-surface hover:text-foreground flex size-8 items-center justify-center rounded-md transition-all {hydrated
+    ? 'opacity-100'
+    : 'opacity-0'}"
 >
   <Icon class="size-5" aria-hidden="true" />
 </button>

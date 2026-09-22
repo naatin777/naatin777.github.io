@@ -23,6 +23,12 @@
   let selected = $state(new Set<string>());
   let selectedSource = $state<ArticleSource | null>(null);
 
+  const hasFilters = $derived(selected.size > 0 || selectedSource !== null);
+  const clearFilters = () => {
+    selected = new Set();
+    selectedSource = null;
+  };
+
   const toggleTag = (tag: string) => {
     const canonical = allTags.find((t) => t.toLowerCase() === tag.toLowerCase()) ?? tag;
     const next = new Set(selected);
@@ -58,6 +64,21 @@
   <Search />
   <SourceFilter sources={presentSources} bind:value={selectedSource} />
   <TagFilter tags={allTags} bind:selected />
+  <div class="text-muted flex items-center justify-between text-xs">
+    <p>
+      <LangText
+        texts={{
+          ja: `${filtered.length} / ${data.articles.length} 件`,
+          en: `${filtered.length} of ${data.articles.length} articles`,
+        }}
+      />
+    </p>
+    {#if hasFilters}
+      <button type="button" onclick={clearFilters} class="hover:text-foreground underline underline-offset-2">
+        <LangText texts={{ ja: "フィルターをクリア", en: "Clear filters" }} />
+      </button>
+    {/if}
+  </div>
   <ul class="flex flex-col gap-3">
     {#each filtered as article (article.url)}
       <li>
@@ -73,8 +94,15 @@
         />
       </li>
     {:else}
-      <li class="text-muted text-sm">
+      <li class="text-muted flex flex-col items-start gap-2 text-sm">
         <LangText texts={{ ja: "条件に一致する記事はありません", en: "No articles match the current filters." }} />
+        <button
+          type="button"
+          onclick={clearFilters}
+          class="border-border hover:border-foreground rounded-full border px-3 py-1 text-xs transition-colors"
+        >
+          <LangText texts={{ ja: "フィルターをクリア", en: "Clear filters" }} />
+        </button>
       </li>
     {/each}
   </ul>

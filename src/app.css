@@ -161,6 +161,11 @@
     outline: none;
   }
 
+  /* Japanese body text reads better with wider leading (recommended 1.7–1.9). */
+  .prose {
+    line-height: 1.8;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

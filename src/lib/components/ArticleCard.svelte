@@ -39,14 +39,18 @@
       <span class="bg-accent/10 text-accent rounded-full px-2 py-0.5">{series}</span>
     {/if}
     {#each tags as tag (tag)}
-      <button
-        type="button"
-        onclick={() => ontag?.(tag)}
-        aria-pressed={selectedTags?.has(tag.toLowerCase()) ?? false}
-        class="bg-background hover:border-foreground aria-pressed:border-foreground rounded-full border border-transparent px-2 py-0.5 transition-colors"
-      >
-        {tag}
-      </button>
+      {#if ontag}
+        <button
+          type="button"
+          onclick={() => ontag(tag)}
+          aria-pressed={selectedTags?.has(tag.toLowerCase()) ?? false}
+          class="bg-background hover:border-foreground aria-pressed:border-foreground rounded-full border border-transparent px-2 py-0.5 transition-colors"
+        >
+          {tag}
+        </button>
+      {:else}
+        <span class="bg-background rounded-full px-2 py-0.5">{tag}</span>
+      {/if}
     {/each}
   </div>
 </article>

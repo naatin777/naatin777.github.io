@@ -1,9 +1,13 @@
 <script lang="ts">
   import icon from "$lib/assets/icon.png?enhanced";
+  import ArticleCard from "$lib/components/ArticleCard.svelte";
   import LangText from "$lib/components/LangText.svelte";
   import Seo from "$lib/components/Seo.svelte";
   import { author, site } from "$lib/config/site";
   import { socialLinks } from "$lib/config/social";
+  import type { PageProps } from "./$types";
+
+  let { data }: PageProps = $props();
 
   const jsonLd = JSON.stringify({
     "@context": "https://schema.org",
@@ -30,3 +34,28 @@
     />
   </p>
 </section>
+
+{#if data.articles.length > 0}
+  <section class="mt-12 flex flex-col gap-4">
+    <div class="flex items-baseline justify-between">
+      <h2 class="text-lg font-semibold"><LangText texts={{ ja: "最近の記事", en: "Recent articles" }} /></h2>
+      <a href="/articles/" class="text-accent text-sm hover:underline">
+        <LangText texts={{ ja: "すべて見る", en: "View all" }} /> →
+      </a>
+    </div>
+    <ul class="flex flex-col gap-3">
+      {#each data.articles as article (article.url)}
+        <li>
+          <ArticleCard
+            title={article.title}
+            url={article.url}
+            tags={article.tags}
+            source={article.source}
+            series={article.series}
+            updatedAt={article.updatedAt}
+          />
+        </li>
+      {/each}
+    </ul>
+  </section>
+{/if}

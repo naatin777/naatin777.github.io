@@ -23,7 +23,7 @@
       type="button"
       onclick={() => toggle(tag)}
       aria-pressed={selected.has(tag)}
-      class="border-border aria-pressed:border-foreground aria-pressed:bg-background rounded-full border px-3 py-1 text-xs transition-colors aria-pressed:text-foreground"
+      class="border-border aria-pressed:border-foreground aria-pressed:bg-background aria-pressed:text-foreground rounded-full border px-3 py-1 text-xs transition-colors"
     >
       {tag}
     </button>

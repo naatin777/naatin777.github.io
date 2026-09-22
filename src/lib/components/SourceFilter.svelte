@@ -15,7 +15,7 @@
     type="button"
     onclick={() => (value = null)}
     aria-pressed={value === null}
-    class="border-border aria-pressed:border-foreground aria-pressed:bg-background rounded-full border px-3 py-1 text-xs transition-colors aria-pressed:text-foreground"
+    class="border-border aria-pressed:border-foreground aria-pressed:bg-background aria-pressed:text-foreground rounded-full border px-3 py-1 text-xs transition-colors"
   >
     <LangText texts={{ ja: "すべて", en: "All" }} />
   </button>
@@ -24,7 +24,7 @@
       type="button"
       onclick={() => (value = source)}
       aria-pressed={value === source}
-      class="border-border aria-pressed:border-foreground aria-pressed:bg-background rounded-full border px-3 py-1 text-xs transition-colors aria-pressed:text-foreground"
+      class="border-border aria-pressed:border-foreground aria-pressed:bg-background aria-pressed:text-foreground rounded-full border px-3 py-1 text-xs transition-colors"
     >
       {sourceLabels[source]}
     </button>
