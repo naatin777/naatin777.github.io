@@ -14,6 +14,7 @@ Instructions for coding agents working in this repository.
 - Before making file edits, first state the intended implementation direction briefly and wait for explicit user confirmation such as `Yes`. Do not start editing immediately after a new request unless the user explicitly asks to proceed without confirmation.
 - The visual design is being redesigned from scratch; do not port old styling decisions without asking.
 - Reduced motion handling should be global, not per-component.
+- Design changes with future maintenance in mind: avoid ad-hoc workarounds, prefer data-driven structures, and document every cross-file sync point in this file and in code comments.
 
 ## Project Snapshot
 
@@ -65,10 +66,13 @@ Instructions for coding agents working in this repository.
 
 ## i18n
 
-- Languages are defined once in `src/lib/i18n.ts` (`langs` array). Default is `ja`.
+- Languages are defined once in `src/lib/config/i18n.ts` (`langs` array). Default is `ja`.
 - Translated strings use `<LangText texts={{ ja: "…", en: "…" }} />`, which renders one `span` per language; CSS `:lang()` shows the matching one. This makes language switching flash-free and JS-optional.
 - Language selection: `?lang=` query param → `localStorage` → `ja`, resolved by the inline script in `src/app.html`. `LangSelect` keeps URL param, localStorage, and `<html lang>` in sync via `$app/navigation`'s `replaceState` (never raw `history.replaceState` — it destroys SvelteKit history state).
-- Adding a language: extend `langs`/`langNames` in `i18n.ts` and add a `.lang-xx:lang(xx)` rule in `app.css`. Incomplete `texts` then fail typecheck.
+- Adding a language touches THREE places (all required):
+  1. `langs` + `langNames` in `src/lib/config/i18n.ts` — incomplete `texts` then fail typecheck
+  2. A `:root:lang(xx) .lang-xx` display rule in `src/app.css`
+  3. The hardcoded `en|ja` whitelist in the `src/app.html` inline script (marked with a sync comment — `app.html` cannot import modules)
 - Article content itself is not translated; UI chrome only.
 
 ## SEO / Metadata
@@ -78,17 +82,29 @@ Instructions for coding agents working in this repository.
 - `sitemap.xml` and `feed.xml` (RSS 2.0) are prerendered `+server.ts` endpoints listing static pages + local posts; `static/robots.txt` references the sitemap and `app.html` links the feed.
 - `static/.nojekyll` exists (peaceiris/actions-gh-pages also auto-adds it, but keep it for robustness).
 - `<Seo>` supports `type="article"` (emits `article:*` meta), `jsonLd`, and defaults to `og-image.png` (1200×630) with `summary_large_image` Twitter cards.
-- Posts get heading ids via `marked-gfm-heading-id`; `getHeadingList()` (called right after `marked.parse`) provides TOC data — do not re-implement slugify. External links get `target="_blank" rel="noopener noreferrer"` via a marked renderer.
+- Posts get heading ids via `marked-gfm-heading-id`; `getHeadingList()` (called right after `marked.parse`) provides TOC data — do not re-implement slugify. `getHeadingList()` reads shared state reset by each parse, so posts are parsed SEQUENTIALLY in `buildPosts` — do not parallelize it. External links get `target="_blank" rel="noopener noreferrer"` via a marked renderer.
 - `+layout.svelte` registers the skip link and the Inter latin font preload. Noto Sans JP is NOT preloaded (its ~120 unicode-range subsets make a single preload ineffective).
 
 ## Data Layer
 
 - Server-only modules go in `src/lib/server/` (`articles.ts`, `posts.ts`, `mermaid.ts`). They use `import.meta.glob` + `gray-matter` + `zod` and run at prerender time.
-- Markdown → HTML via `marked` (plain Markdown; no embedded components).
+- Site metadata and author info live together in `src/lib/config/site.ts`; UI-language definitions in `src/lib/config/i18n.ts`; social links in `src/lib/config/social.ts`.
+- Markdown → HTML via a dedicated `Marked` instance in `posts.ts` (plain Markdown; no embedded components). Do not mutate the global `marked`.
 - Math is rendered at build time by `marked-katex-extension` (KaTeX CSS is imported in `posts/[slug]/+page.svelte`).
 - Code blocks are highlighted at build time by `marked-shiki` + `shiki` (github-light/github-dark via `--shiki-*` CSS variables toggled by `[data-theme]` in `app.css`).
-- ` ```mermaid ` blocks are rendered to SVG at build time via `mermaid-isomorphic` + Playwright Chromium. Both `default` and `dark` theme SVGs are emitted and toggled by CSS (`[data-theme]`). Playwright must NOT be bundled — `ssr.external` in `vite.config.ts` keeps it node-resolved. Render calls must be sequential; concurrent `renderer()` calls fail during prerender.
+- ` ```mermaid ` code blocks are converted to `html` tokens inside a marked `walkTokens` hook and rendered to SVG at build time via `mermaid-isomorphic` + Playwright Chromium. Failed renders stay as code blocks (shiki-highlighted) — no separate fallback path. Both `default` and `dark` theme SVGs are emitted and toggled by CSS (`[data-theme]`). Playwright must NOT be bundled — `ssr.external` in `vite.config.ts` keeps it node-resolved. Render calls must be sequential; concurrent `renderer()` calls fail during prerender (queue lives in `mermaid.ts`).
 - CI installs the browser with `pnpm exec playwright install --with-deps chromium`; locally run `pnpm exec playwright install chromium` once.
+
+## Maintenance Sync Points
+
+These values are duplicated by necessity and must be updated together:
+
+| When you change...    | Also update...                                                                   |
+| --------------------- | -------------------------------------------------------------------------------- |
+| Add a language        | `config/i18n.ts` + `app.css` lang rule + `app.html` whitelist (see i18n)         |
+| Theme colors          | `app.css` tokens + `THEME_COLOR` in `theme.svelte.ts` + `app.html` inline script |
+| Add a static route    | `staticPages` in `sitemap.xml/+server.ts` (marked with a comment)                |
+| Add an article source | `ArticleItem.source` union + `sourceLabels` in `ArticleCard.svelte`              |
 
 ## Validation
 

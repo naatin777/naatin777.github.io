@@ -21,6 +21,7 @@
           const meta = document.querySelector('meta[name="theme-color"]');
           if (meta) meta.content = dark ? "#0a0a0a" : "#fafafa";
 
+          // keep the lang whitelist in sync with `langs` in src/lib/config/i18n.ts
           const param = new URLSearchParams(location.search).get("lang");
           const saved = localStorage.getItem("lang");
           const lang = param === "en" || param === "ja" ? param : saved === "en" || saved === "ja" ? saved : "ja";
