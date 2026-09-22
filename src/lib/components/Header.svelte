@@ -17,10 +17,12 @@
 
 <header class="border-border bg-background/80 sticky top-0 z-10 border-b backdrop-blur">
   <div class="mx-auto flex w-full max-w-3xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
-    <a href="/" class="font-bold tracking-tight">naatin777.dev</a>
+    <div class="flex-1">
+      <a href="/" class="font-bold tracking-tight">naatin777.dev</a>
+    </div>
 
-    <nav aria-label="Primary" class="order-last w-full sm:order-none sm:ml-auto sm:w-auto">
-      <ul class="flex gap-4">
+    <nav aria-label="Primary" class="order-last w-full sm:order-none sm:w-auto">
+      <ul class="flex justify-center gap-4">
         {#each navItems as item (item.href)}
           <li>
             <a
@@ -35,7 +37,7 @@
       </ul>
     </nav>
 
-    <div class="ml-auto flex items-center gap-2 sm:ml-0">
+    <div class="flex flex-1 items-center justify-end gap-2">
       <LangSelect />
       <ThemeToggle />
     </div>
