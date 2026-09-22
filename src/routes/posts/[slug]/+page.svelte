@@ -2,18 +2,12 @@
   import LangText from "$lib/components/LangText.svelte";
   import Seo from "$lib/components/Seo.svelte";
   import { author, site } from "$lib/config/site";
+  import { formatDate } from "$lib/date";
   import type { PageProps } from "./$types";
   import "katex/dist/katex.min.css";
 
   let { data }: PageProps = $props();
   const post = $derived(data.post);
-
-  const formatDate = (date: Date) =>
-    date.toLocaleDateString("ja-JP", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
 
   const showUpdated = $derived(post.updatedAt !== null && post.updatedAt.getTime() !== post.publishedAt.getTime());
 

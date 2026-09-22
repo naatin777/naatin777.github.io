@@ -9,7 +9,7 @@
   );
 
   function onChange(event: Event & { currentTarget: HTMLSelectElement }): void {
-    const next = event.currentTarget.value as Lang;
+    const next = langs.find((l) => l === event.currentTarget.value) ?? defaultLang;
     lang = next;
     document.documentElement.lang = next;
     localStorage.setItem("lang", next);

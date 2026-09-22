@@ -2,6 +2,7 @@
   import LangText from "$lib/components/LangText.svelte";
   import Seo from "$lib/components/Seo.svelte";
   import type { Lang } from "$lib/config/i18n";
+  import { formatDate } from "$lib/date";
 
   // newest first
   const entries: { date: string; texts: Record<Lang, string> }[] = [
@@ -13,13 +14,6 @@
       },
     },
   ];
-
-  const formatDate = (iso: string) =>
-    new Date(`${iso}T00:00:00`).toLocaleDateString("ja-JP", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
 </script>
 
 <Seo

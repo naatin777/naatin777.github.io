@@ -17,5 +17,5 @@ export interface SiteMetadata {
 export const site: SiteMetadata = {
   url: "https://naatin777.dev",
   title: `${author.displayName}'s Portfolio`,
-  description: `${author.displayName}'s personal portfolio. A place for my coding experiments and learning journey, building things step by step.`,
+  description: `${author.displayName}'s personal portfolio — coding experiments and things I build, collected one step at a time.`,
 };
