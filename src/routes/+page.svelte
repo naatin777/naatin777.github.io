@@ -11,10 +11,24 @@
 
   const jsonLd = JSON.stringify({
     "@context": "https://schema.org",
-    "@type": "Person",
-    name: author.displayName,
-    url: site.url,
-    sameAs: socialLinks.map((link) => link.url),
+    "@graph": [
+      {
+        "@type": "Person",
+        name: author.displayName,
+        url: site.url,
+        sameAs: socialLinks.map((link) => link.url),
+      },
+      {
+        "@type": "WebSite",
+        name: site.title,
+        url: site.url,
+        potentialAction: {
+          "@type": "SearchAction",
+          target: { "@type": "EntryPoint", urlTemplate: `${site.url}/articles/?q={query}` },
+          "query-input": "required name=query",
+        },
+      },
+    ],
   });
 </script>
 

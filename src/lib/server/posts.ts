@@ -91,7 +91,11 @@ md.use({
 });
 
 export async function renderMarkdown(content: string): Promise<{ html: string; toc: TocItem[] }> {
-  const html = await md.parse(content, { async: true });
+  const parsed = await md.parse(content, { async: true });
+  const html = parsed.replace(/<h([2-6]) id="([^"]+)">([\s\S]*?)<\/h\1>/g, (match, depth, id, inner) => {
+    const label = String(inner).replace(/<[^>]*>/g, "");
+    return `<h${depth} id="${id}">${inner}<a class="heading-anchor" href="#${id}" aria-label="${label} へのリンク">#</a></h${depth}>`;
+  });
   const toc = getHeadingList().map(({ id, raw, level }) => ({ id, text: raw, depth: level }));
   return { html, toc };
 }

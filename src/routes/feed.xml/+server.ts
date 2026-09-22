@@ -25,12 +25,13 @@ export const GET: RequestHandler = async () => {
       <pubDate>${toRfc822(post.publishedAt)}</pubDate>
       ${post.tags.map((tag) => `<category>${escapeXml(tag)}</category>`).join("\n      ")}
       <description>${escapeXml(post.description)}</description>
+      <content:encoded><![CDATA[${post.html.replace(/\]\]>/g, "]]]]><![CDATA[>")}]]></content:encoded>
     </item>`,
     )
     .join("\n");
   const lastBuildDate = toRfc822(posts[0]?.updatedAt ?? posts[0]?.publishedAt ?? new Date());
   const body = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>${escapeXml(site.title)}</title>
     <link>${site.url}/</link>

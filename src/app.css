@@ -166,6 +166,23 @@
     line-height: 1.8;
   }
 
+  .prose .heading-anchor {
+    margin-left: 0.4em;
+    font-weight: 400;
+    color: var(--muted);
+    text-decoration: none;
+    opacity: 0;
+  }
+
+  .prose :is(h2, h3, h4, h5, h6):hover .heading-anchor,
+  .prose .heading-anchor:focus-visible {
+    opacity: 1;
+  }
+
+  .prose .heading-anchor:hover {
+    color: var(--foreground);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

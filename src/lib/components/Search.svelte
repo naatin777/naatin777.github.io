@@ -28,12 +28,21 @@
       pagefind = (await import(/* @vite-ignore */ pagefindUrl)) as PagefindApi;
       await pagefind.init();
       available = true;
+      const initial = new URLSearchParams(window.location.search).get("q");
+      if (initial) {
+        query = initial;
+        onInput();
+      }
     } catch {
       available = false;
     }
   });
 
   async function onInput() {
+    const url = new URL(window.location.href);
+    if (query.trim()) url.searchParams.set("q", query.trim());
+    else url.searchParams.delete("q");
+    window.history.replaceState(null, "", url);
     if (!pagefind) return;
     if (!query.trim()) {
       results = [];
