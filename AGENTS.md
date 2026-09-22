@@ -8,7 +8,6 @@ Personal portfolio site (`naatin777.dev`). SvelteKit + Svelte 5, fully prerender
 
 **Never:**
 
-- Use raw `history.replaceState` — it destroys SvelteKit history state. Use `replaceState` from `$app/navigation` with `page.state`.
 - Mutate the global `marked` — use the dedicated `Marked` instance in `posts.ts`.
 - Parallelize `loadPosts` (shared `getHeadingList` state) or mermaid `renderer()` calls (fails under prerender — the queue in `mermaid.ts` exists for this).
 - Edit files inside `content/zenn/` or `content/qiita/` — they are git subtrees.
@@ -56,7 +55,7 @@ Personal portfolio site (`naatin777.dev`). SvelteKit + Svelte 5, fully prerender
 
 - `src/lib/config/i18n.ts` `langs` array is the single source of truth; default is `ja`.
 - `<LangText texts={{ ja: "…", en: "…" }} />` renders one span per language; CSS `:lang()` shows the match (flash-free, works without JS).
-- Resolution order: `?lang=` → `localStorage` → `ja`, applied by the inline script in `app.html`. `LangToggle` keeps URL/localStorage/`<html lang>` in sync.
+- Resolution order: `?lang=` (incoming links only) → `localStorage` → `ja`, applied by the inline script in `app.html`. `LangToggle` writes `localStorage` + `<html lang>` only — it intentionally does not touch the URL.
 - Adding a language touches THREE places: `langs`/`langNames` in `i18n.ts`, a `:root:lang(xx) .lang-xx` rule in `app.css`, and the hardcoded `en|ja` whitelist in the `app.html` inline script (marked with a sync comment).
 
 ## SEO

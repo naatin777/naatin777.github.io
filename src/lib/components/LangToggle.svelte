@@ -1,7 +1,5 @@
 <script lang="ts">
   import { browser } from "$app/environment";
-  import { replaceState } from "$app/navigation";
-  import { page } from "$app/state";
   import { defaultLang, langNames, langs, type Lang } from "$lib/config/i18n";
   import { hydrated } from "$lib/hydrated.svelte";
 
@@ -11,17 +9,12 @@
     browser ? (langs.find((l) => l === document.documentElement.lang) ?? defaultLang) : defaultLang,
   );
 
+  // ?lang= stays honored for incoming shared links (read in app.html),
+  // but toggling only persists to localStorage — URLs stay clean.
   function setLang(next: Lang): void {
     lang = next;
     document.documentElement.lang = next;
     localStorage.setItem("lang", next);
-    const url = new URL(window.location.href);
-    if (next === defaultLang) {
-      url.searchParams.delete("lang");
-    } else {
-      url.searchParams.set("lang", next);
-    }
-    replaceState(url, page.state);
   }
 </script>
 
