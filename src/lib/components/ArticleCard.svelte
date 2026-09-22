@@ -14,7 +14,7 @@
   const sourceLabels = { zenn: "Zenn", qiita: "Qiita", blog: "Blog" } as const;
 </script>
 
-<article class="reveal border-border bg-surface hover:border-accent rounded-lg border p-4 transition-colors">
+<article class="border-border bg-surface hover:border-accent rounded-lg border p-4 transition-colors">
   <div class="flex items-start justify-between gap-3">
     <a
       href={url}

@@ -70,7 +70,7 @@
       <p class="mb-2 text-sm font-bold"><LangText texts={{ ja: "目次", en: "Contents" }} /></p>
       <ul class="flex flex-col gap-1 text-sm">
         {#each tocHeadings as heading (heading.id)}
-          <li class:toc-sub={heading.depth === 3}>
+          <li class:pl-4={heading.depth === 3}>
             <a href="#{heading.id}" class="text-muted hover:text-foreground">{heading.text}</a>
           </li>
         {/each}
@@ -98,9 +98,3 @@
     {/if}
   </nav>
 </article>
-
-<style>
-  .toc-sub {
-    padding-left: 1rem;
-  }
-</style>

@@ -79,7 +79,7 @@ Instructions for coding agents working in this repository.
 - `static/.nojekyll` exists (peaceiris/actions-gh-pages also auto-adds it, but keep it for robustness).
 - `<Seo>` supports `type="article"` (emits `article:*` meta), `jsonLd`, and defaults to `og-image.png` (1200×630) with `summary_large_image` Twitter cards.
 - Posts get heading ids via `marked-gfm-heading-id`; `getHeadingList()` (called right after `marked.parse`) provides TOC data — do not re-implement slugify. External links get `target="_blank" rel="noopener noreferrer"` via a marked renderer.
-- `+layout.svelte` registers the skip link, view transitions (skipped under `prefers-reduced-motion`), and font preloads. Scroll-reveal uses CSS `animation-timeline: view()` behind `@supports` + `no-preference`.
+- `+layout.svelte` registers the skip link and the Inter latin font preload. Noto Sans JP is NOT preloaded (its ~120 unicode-range subsets make a single preload ineffective).
 
 ## Data Layer
 
