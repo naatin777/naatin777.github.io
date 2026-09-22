@@ -16,3 +16,8 @@ pnpm run check
 pnpm run lint
 pnpm format
 ```
+
+## License
+
+- Source code: [MIT](LICENSE)
+- Article content (`content/posts/`, and the imported `content/zenn/` / `content/qiita/`): © Naatin, All Rights Reserved
