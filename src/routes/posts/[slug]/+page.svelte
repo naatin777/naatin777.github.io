@@ -59,13 +59,13 @@
       {/each}
     </div>
   </header>
-  {#if data.seriesPosts && post.series}
+  {#if data.series}
     <nav class="border-border bg-surface mb-8 rounded-lg border p-4" aria-label="Series">
       <p class="mb-2 text-sm font-bold">
-        <LangText texts={{ ja: "シリーズ", en: "Series" }} />: {post.series}
+        <LangText texts={{ ja: "シリーズ", en: "Series" }} />: {data.series.name}
       </p>
       <ol class="flex list-decimal flex-col gap-1 pl-5 text-sm">
-        {#each data.seriesPosts as seriesPost (seriesPost.slug)}
+        {#each data.series.posts as seriesPost (seriesPost.slug)}
           <li class:font-semibold={seriesPost.slug === post.slug}>
             {#if seriesPost.slug === post.slug}
               <span class="text-foreground">{seriesPost.title}</span>

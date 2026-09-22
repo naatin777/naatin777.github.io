@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import LangSelect from "./LangSelect.svelte";
+  import LangToggle from "./LangToggle.svelte";
   import LangText from "./LangText.svelte";
   import ThemeToggle from "./ThemeToggle.svelte";
 
@@ -38,7 +38,7 @@
     </nav>
 
     <div class="flex flex-1 items-center justify-end gap-2">
-      <LangSelect />
+      <LangToggle />
       <ThemeToggle />
     </div>
   </div>

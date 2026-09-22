@@ -3,7 +3,9 @@
   import { replaceState } from "$app/navigation";
   import { page } from "$app/state";
   import { defaultLang, langNames, langs, type Lang } from "$lib/config/i18n";
-  import { onMount } from "svelte";
+  import { hydrated } from "$lib/hydrated.svelte";
+
+  const ready = hydrated();
 
   let lang = $state<Lang>(
     browser ? (langs.find((l) => l === document.documentElement.lang) ?? defaultLang) : defaultLang,
@@ -21,19 +23,12 @@
     }
     replaceState(url, page.state);
   }
-
-  // SSR assumes the default lang; hide until hydration applies the
-  // real preference so the wrong option never appears selected.
-  let hydrated = $state(false);
-  onMount(() => {
-    hydrated = true;
-  });
 </script>
 
 <div
   role="group"
   aria-label="言語 / Language"
-  class="flex items-center gap-0.5 text-xs transition-opacity {hydrated ? 'opacity-100' : 'opacity-0'}"
+  class="flex items-center gap-0.5 text-xs transition-opacity {ready.value ? 'opacity-100' : 'opacity-0'}"
 >
   {#each langs as option (option)}
     <button

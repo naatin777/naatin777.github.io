@@ -56,7 +56,7 @@ Personal portfolio site (`naatin777.dev`). SvelteKit + Svelte 5, fully prerender
 
 - `src/lib/config/i18n.ts` `langs` array is the single source of truth; default is `ja`.
 - `<LangText texts={{ ja: "…", en: "…" }} />` renders one span per language; CSS `:lang()` shows the match (flash-free, works without JS).
-- Resolution order: `?lang=` → `localStorage` → `ja`, applied by the inline script in `app.html`. `LangSelect` keeps URL/localStorage/`<html lang>` in sync.
+- Resolution order: `?lang=` → `localStorage` → `ja`, applied by the inline script in `app.html`. `LangToggle` keeps URL/localStorage/`<html lang>` in sync.
 - Adding a language touches THREE places: `langs`/`langNames` in `i18n.ts`, a `:root:lang(xx) .lang-xx` rule in `app.css`, and the hardcoded `en|ja` whitelist in the `app.html` inline script (marked with a sync comment).
 
 ## SEO
@@ -65,6 +65,8 @@ Personal portfolio site (`naatin777.dev`). SvelteKit + Svelte 5, fully prerender
 - `sitemap.xml` and `feed.xml` are prerendered `+server.ts` endpoints; `robots.txt`, `.nojekyll`, `CNAME`, `og-image.png`, `favicon.ico`, `apple-touch-icon.png` live in `static/`.
 - `/og/[slug]/` pages are OG-image templates (screenshotted by `scripts/generate-og.mjs` into `build/og/<slug>.png`) — noindexed, robots-disallowed, and excluded from search results. Not user-facing.
 - Site search on `/articles/` uses pagefind (index built post-build; UI hidden when the index is absent).
+- `server/articles.ts` `getAllArticles()` merges blog posts + external articles (shared by `/` and `/articles/` loads). `server/external-articles.ts` stays external-only — don't make it import `posts.ts`.
+- Controls whose SSR state can be wrong (lang, theme) hide until hydration via `hydrated()` from `src/lib/hydrated.svelte.ts` — reuse it, don't re-implement.
 - Dates are shared via `src/lib/date.ts` `formatDate` (bare `YYYY-MM-DD` strings are treated as local dates, not UTC).
 - Blog posts can set `series: <name>` in frontmatter — posts sharing a name get an ordered series navigation box on the post page and a series chip on article cards.
 

@@ -1,9 +1,11 @@
 <script lang="ts">
   import { Moon, Sun } from "lucide-svelte";
   import { onMount } from "svelte";
+  import { hydrated } from "$lib/hydrated.svelte";
   import { themeState } from "$lib/theme.svelte";
 
   const theme = themeState();
+  const ready = hydrated();
 
   // Two-state flip: the button toggles light ↔ dark. "System" remains
   // the implicit default until the user picks a side explicitly.
@@ -18,13 +20,6 @@
     return () => media.removeEventListener("change", onChange);
   });
 
-  // SSR resolves to "light"; hide the icon until hydration applies the
-  // real theme to avoid a wrong-icon flash.
-  let hydrated = $state(false);
-  onMount(() => {
-    hydrated = true;
-  });
-
   const Icon = $derived(theme.resolved === "dark" ? Sun : Moon);
 </script>
 
@@ -33,7 +28,7 @@
   onclick={toggle}
   aria-label="テーマ切替 / Toggle theme"
   title="テーマ切替 / Toggle theme"
-  class="text-muted hover:bg-surface hover:text-foreground flex size-8 items-center justify-center rounded-md transition-all {hydrated
+  class="text-muted hover:bg-surface hover:text-foreground flex size-8 items-center justify-center rounded-md transition-all {ready.value
     ? 'opacity-100'
     : 'opacity-0'}"
 >

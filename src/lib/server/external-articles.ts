@@ -2,7 +2,6 @@ import matter from "gray-matter";
 import { z } from "zod";
 import { author } from "$lib/config/site";
 import type { ArticleSource } from "$lib/source";
-import { getPosts } from "$lib/server/posts";
 
 // gray-matter parses unquoted YAML timestamps into Date objects
 const dateField = z.union([z.string(), z.date().transform((d) => d.toISOString())]);
@@ -140,24 +139,4 @@ export async function getExternalArticles(): Promise<ArticleItem[]> {
   }
 
   return items;
-}
-
-const toTimestamp = (value: string | null): number => {
-  const parsed = value ? Date.parse(value) : 0;
-  return Number.isNaN(parsed) ? 0 : parsed;
-};
-
-// Blog posts + external articles merged into one list, newest first.
-export async function getAllArticles(): Promise<ArticleItem[]> {
-  const external = await getExternalArticles();
-  const posts: ArticleItem[] = (await getPosts()).map((post) => ({
-    title: post.title,
-    url: `/posts/${post.slug}/`,
-    tags: post.tags,
-    source: "blog",
-    series: post.series,
-    publishedAt: post.publishedAt.toISOString(),
-    updatedAt: (post.updatedAt ?? post.publishedAt).toISOString(),
-  }));
-  return [...external, ...posts].sort((a, b) => toTimestamp(b.updatedAt) - toTimestamp(a.updatedAt));
 }
