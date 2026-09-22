@@ -44,6 +44,8 @@ Personal portfolio site (`naatin777.dev`). SvelteKit + Svelte 5, fully prerender
 - `content/zenn/` + `content/qiita/` — git subtrees; frontmatter only, rendered as external links on `/articles/`. Zenn dates come from the API (paginated via `next_page`, falls back to frontmatter).
 - Markdown pipeline in `posts.ts`: `marked` + `marked-katex-extension` + `marked-shiki` + `marked-gfm-heading-id`, all at build time.
 - ` ```mermaid ` blocks: a `walkTokens` hook converts them to `html` tokens containing light+dark SVGs (CSS toggles by `data-theme`). Failed renders stay as shiki-highlighted code blocks — no separate fallback path. Playwright must stay in `ssr.external` in `vite.config.ts`.
+- Shiki uses `defaultColor: "light-dark()"` — theme switching relies on `color-scheme` (`:root` light / `[data-theme="dark"]` dark in `app.css`). Do not remove those rules or re-add manual `.shiki` overrides.
+- `typescript` is pinned to `^6` — svelte-check does not support TS 7 (native port) yet; do not upgrade it when bumping deps.
 - TOC data comes from `getHeadingList()` right after `md.parse` — do not re-implement slugify.
 - `content/` is excluded from lint/format.
 
@@ -64,12 +66,12 @@ Personal portfolio site (`naatin777.dev`). SvelteKit + Svelte 5, fully prerender
 
 These values are duplicated by necessity — update them together:
 
-| Change | Also update |
-| --- | --- |
-| Add a language | `config/i18n.ts` + `app.css` lang rule + `app.html` whitelist |
-| Theme colors | `app.css` tokens + `THEME_COLOR` in `theme.svelte.ts` + `app.html` inline script |
-| Add a static route | `staticPages` in `sitemap.xml/+server.ts` |
-| Add an article source | `ArticleItem.source` union + `sourceLabels` in `ArticleCard.svelte` |
+| Change                | Also update                                                                      |
+| --------------------- | -------------------------------------------------------------------------------- |
+| Add a language        | `config/i18n.ts` + `app.css` lang rule + `app.html` whitelist                    |
+| Theme colors          | `app.css` tokens + `THEME_COLOR` in `theme.svelte.ts` + `app.html` inline script |
+| Add a static route    | `staticPages` in `sitemap.xml/+server.ts`                                        |
+| Add an article source | `ArticleItem.source` union + `sourceLabels` in `ArticleCard.svelte`              |
 
 ## Validation
 

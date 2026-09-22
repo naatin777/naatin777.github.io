@@ -51,7 +51,7 @@ md.use(
       codeToHtml(code, {
         lang: lang || "text",
         themes: { light: "github-light", dark: "github-dark" },
-        defaultColor: false,
+        defaultColor: "light-dark()",
         cssVariablePrefix: "--shiki-",
       }),
   }),
