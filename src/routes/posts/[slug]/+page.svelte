@@ -80,21 +80,23 @@
   <div class="prose dark:prose-invert max-w-none">
     {@html post.html}
   </div>
-  <nav
-    class="border-border mt-10 flex items-center justify-between gap-4 border-t pt-6 text-sm"
-    aria-label="Post navigation"
-  >
-    {#if data.prev}
-      <a href="/posts/{data.prev.slug}/" class="text-muted hover:text-foreground max-w-[45%] truncate">
-        ← {data.prev.title}
-      </a>
-    {:else}
-      <span></span>
-    {/if}
-    {#if data.next}
-      <a href="/posts/{data.next.slug}/" class="text-muted hover:text-foreground max-w-[45%] truncate text-right">
-        {data.next.title} →
-      </a>
-    {/if}
-  </nav>
+  {#if data.prev || data.next}
+    <nav
+      class="border-border mt-10 flex items-center justify-between gap-4 border-t pt-6 text-sm"
+      aria-label="Post navigation"
+    >
+      {#if data.prev}
+        <a href="/posts/{data.prev.slug}/" class="text-muted hover:text-foreground max-w-[45%] truncate">
+          ← {data.prev.title}
+        </a>
+      {:else}
+        <span></span>
+      {/if}
+      {#if data.next}
+        <a href="/posts/{data.next.slug}/" class="text-muted hover:text-foreground max-w-[45%] truncate text-right">
+          {data.next.title} →
+        </a>
+      {/if}
+    </nav>
+  {/if}
 </article>

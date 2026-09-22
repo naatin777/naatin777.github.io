@@ -53,8 +53,8 @@
     display: none;
   }
 
-  .lang-ja:lang(ja),
-  .lang-en:lang(en) {
+  :root:lang(ja) .lang-ja,
+  :root:lang(en) .lang-en {
     display: inline;
   }
 
