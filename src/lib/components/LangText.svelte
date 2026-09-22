@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { langs, type Lang } from "$lib/i18n";
+  import { langs, type Lang } from "$lib/config/i18n";
 
   interface Props {
     texts: Record<Lang, string>;

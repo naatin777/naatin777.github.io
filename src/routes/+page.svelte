@@ -2,8 +2,7 @@
   import icon from "$lib/assets/icon.png";
   import LangText from "$lib/components/LangText.svelte";
   import Seo from "$lib/components/Seo.svelte";
-  import { author } from "$lib/config/author";
-  import { site } from "$lib/config/site";
+  import { author, site } from "$lib/config/site";
   import { socialLinks } from "$lib/config/social";
 
   const jsonLd = JSON.stringify({

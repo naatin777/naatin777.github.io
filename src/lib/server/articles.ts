@@ -1,6 +1,6 @@
 import matter from "gray-matter";
 import { z } from "zod";
-import { author } from "$lib/config/author";
+import { author } from "$lib/config/site";
 
 // gray-matter parses unquoted YAML timestamps into Date objects
 const dateish = z.union([z.string(), z.date().transform((d) => d.toISOString())]);
@@ -93,19 +93,26 @@ async function fetchZennDates(): Promise<Map<string, { publishedAt: string; upda
   return dates;
 }
 
-export async function getExternalArticles(): Promise<ArticleItem[]> {
-  const zennDates = await fetchZennDates();
-  const items: ArticleItem[] = [];
-
-  for (const [path, raw] of Object.entries(zennFiles)) {
-    const parsed = zennFrontmatter.safeParse(matter(raw as string).data);
+function* parseMarkdownFiles<T>(
+  files: Record<string, unknown>,
+  schema: z.ZodType<T>,
+): Generator<{ slug: string; fm: T }> {
+  for (const [path, raw] of Object.entries(files)) {
+    const parsed = schema.safeParse(matter(raw as string).data);
     if (!parsed.success) {
       console.warn(`[articles] skipping ${path}:`, parsed.error.issues);
       continue;
     }
-    const fm = parsed.data;
+    yield { slug: path.split("/").pop()?.replace(/\.md$/, "") ?? "", fm: parsed.data };
+  }
+}
+
+export async function getExternalArticles(): Promise<ArticleItem[]> {
+  const zennDates = await fetchZennDates();
+  const items: ArticleItem[] = [];
+
+  for (const { slug, fm } of parseMarkdownFiles(zennFiles, zennFrontmatter)) {
     if (!fm.published) continue;
-    const slug = path.split("/").pop()?.replace(/\.md$/, "") ?? "";
     const dates = zennDates.get(slug);
     items.push({
       title: fm.title,
@@ -118,13 +125,7 @@ export async function getExternalArticles(): Promise<ArticleItem[]> {
     });
   }
 
-  for (const [path, raw] of Object.entries(qiitaFiles)) {
-    const parsed = qiitaFrontmatter.safeParse(matter(raw as string).data);
-    if (!parsed.success) {
-      console.warn(`[articles] skipping ${path}:`, parsed.error.issues);
-      continue;
-    }
-    const fm = parsed.data;
+  for (const { fm } of parseMarkdownFiles(qiitaFiles, qiitaFrontmatter)) {
     if (fm.private || fm.ignorePublish || !fm.id) continue;
     items.push({
       title: fm.title,

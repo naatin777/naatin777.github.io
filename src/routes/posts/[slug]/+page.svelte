@@ -1,8 +1,7 @@
 <script lang="ts">
   import LangText from "$lib/components/LangText.svelte";
   import Seo from "$lib/components/Seo.svelte";
-  import { author } from "$lib/config/author";
-  import { site } from "$lib/config/site";
+  import { author, site } from "$lib/config/site";
   import type { PageProps } from "./$types";
   import "katex/dist/katex.min.css";
 
@@ -10,7 +9,7 @@
   const post = $derived(data.post);
 
   const formatDate = (date: Date) =>
-    new Date(date).toLocaleDateString("ja-JP", {
+    date.toLocaleDateString("ja-JP", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",

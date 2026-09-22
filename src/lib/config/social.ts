@@ -8,7 +8,7 @@ import xDarkIcon from "$lib/assets/social/x-dark.png";
 import xLightIcon from "$lib/assets/social/x-light.png";
 import zennDarkIcon from "$lib/assets/social/zenn-dark.svg";
 import zennLightIcon from "$lib/assets/social/zenn-light.svg";
-import { author } from "./author";
+import { author } from "./site";
 
 export interface SocialLink {
   name: string;

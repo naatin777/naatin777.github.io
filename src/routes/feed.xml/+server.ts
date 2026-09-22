@@ -1,5 +1,4 @@
-import { author } from "$lib/config/author";
-import { site } from "$lib/config/site";
+import { author, site } from "$lib/config/site";
 import { getPosts } from "$lib/server/posts";
 import type { RequestHandler } from "./$types";
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { author } from "$lib/config/author";
+  import { author } from "$lib/config/site";
   import { socialLinks } from "$lib/config/social";
 
   const year = new Date().getFullYear();

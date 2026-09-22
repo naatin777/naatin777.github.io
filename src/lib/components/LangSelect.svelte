@@ -2,7 +2,7 @@
   import { browser } from "$app/environment";
   import { replaceState } from "$app/navigation";
   import { page } from "$app/state";
-  import { defaultLang, langNames, langs, type Lang } from "$lib/i18n";
+  import { defaultLang, langNames, langs, type Lang } from "$lib/config/i18n";
 
   let lang = $state<Lang>(
     browser ? (langs.find((l) => l === document.documentElement.lang) ?? defaultLang) : defaultLang,

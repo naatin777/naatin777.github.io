@@ -1,5 +1,5 @@
 import matter from "gray-matter";
-import { marked } from "marked";
+import { Marked, type Tokens } from "marked";
 import { gfmHeadingId, getHeadingList } from "marked-gfm-heading-id";
 import markedKatex from "marked-katex-extension";
 import markedShiki from "marked-shiki";
@@ -40,6 +40,8 @@ const files = import.meta.glob("/content/posts/*.md", {
   eager: true,
 });
 
+const marked = new Marked();
+
 marked.use(gfmHeadingId());
 marked.use(markedKatex({ throwOnError: false }));
 
@@ -56,37 +58,38 @@ marked.use(
 );
 
 marked.use({
+  async walkTokens(token) {
+    if (token.type !== "code" || token.lang !== "mermaid") return;
+    const rendered = await renderMermaid(token.text);
+    if (!rendered) return; // stays a code block — rendered by shiki as a fallback
+    const html = token as unknown as Tokens.HTML;
+    html.type = "html";
+    html.pre = false;
+    html.text = `<div class="mermaid-diagram mermaid-light">${rendered.light}</div><div class="mermaid-diagram mermaid-dark">${rendered.dark}</div>`;
+  },
+});
+
+const escapeAttr = (text: string): string => text.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+
+marked.use({
   renderer: {
     link({ href, title, tokens }) {
       const text = this.parser.parseInline(tokens);
-      const titleAttr = title ? ` title="${title}"` : "";
+      const titleAttr = title ? ` title="${escapeAttr(title)}"` : "";
       const external = /^https?:\/\//.test(href) ? ` target="_blank" rel="noopener noreferrer"` : "";
-      return `<a href="${href}"${titleAttr}${external}>${text}</a>`;
+      return `<a href="${escapeAttr(href)}"${titleAttr}${external}>${text}</a>`;
     },
   },
 });
 
-const escapeHtml = (text: string): string => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-const mermaidBlock = /```mermaid\s*\n([\s\S]*?)```/g;
-
 async function toHtml(content: string): Promise<{ html: string; toc: TocItem[] }> {
-  let out = content;
-  for (const match of content.matchAll(mermaidBlock)) {
-    const rendered = await renderMermaid(match[1]);
-    const replacement = rendered
-      ? `<div class="mermaid-diagram mermaid-light">${rendered.light}</div><div class="mermaid-diagram mermaid-dark">${rendered.dark}</div>`
-      : `<pre><code>${escapeHtml(match[1])}</code></pre>`;
-    out = out.replace(match[0], replacement);
-  }
-  const html = await marked.parse(out, { async: true });
+  const html = await marked.parse(content, { async: true });
   const toc = getHeadingList().map(({ id, raw, level }) => ({ id, text: raw, depth: level }));
   return { html, toc };
 }
 
 function estimateReadingTime(content: string): number {
   const plain = content
-    .replace(mermaidBlock, " ")
     .replace(/```[\s\S]*?```/g, " ")
     .replace(/\$\$[\s\S]*?\$\$|\$[^$\n]+\$/g, " ")
     .replace(/[#*_`>|[\]()-]/g, " ");
@@ -103,30 +106,30 @@ export function getPosts(): Promise<Post[]> {
 }
 
 async function buildPosts(): Promise<Post[]> {
-  const posts = await Promise.all(
-    Object.entries(files).flatMap(([path, raw]) => {
-      const { data, content } = matter(raw as string);
-      const parsed = frontmatter.safeParse(data);
-      if (!parsed.success) {
-        console.warn(`[posts] skipping ${path}:`, parsed.error.issues);
-        return [];
-      }
-      const fm = parsed.data;
-      if (fm.draft) return [];
-      return [
-        toHtml(content).then(({ html, toc }) => ({
-          slug: path.split("/").pop()?.replace(/\.md$/, "") ?? "",
-          title: fm.title,
-          description: fm.description,
-          publishedAt: fm.publishedAt,
-          updatedAt: fm.updatedAt ?? null,
-          tags: fm.tags,
-          html,
-          toc,
-          readingTime: estimateReadingTime(content),
-        })),
-      ];
-    }),
-  );
+  const posts: Post[] = [];
+  // Sequential: getHeadingList() is shared state reset by each parse,
+  // so concurrent parses could attribute headings to the wrong post.
+  for (const [path, raw] of Object.entries(files)) {
+    const { data, content } = matter(raw as string);
+    const parsed = frontmatter.safeParse(data);
+    if (!parsed.success) {
+      console.warn(`[posts] skipping ${path}:`, parsed.error.issues);
+      continue;
+    }
+    const fm = parsed.data;
+    if (fm.draft) continue;
+    const { html, toc } = await toHtml(content);
+    posts.push({
+      slug: path.split("/").pop()?.replace(/\.md$/, "") ?? "",
+      title: fm.title,
+      description: fm.description,
+      publishedAt: fm.publishedAt,
+      updatedAt: fm.updatedAt ?? null,
+      tags: fm.tags,
+      html,
+      toc,
+      readingTime: estimateReadingTime(content),
+    });
+  }
   return posts.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
 }

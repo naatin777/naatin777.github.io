@@ -5,16 +5,12 @@
   import ThemeToggle from "./ThemeToggle.svelte";
 
   const navItems = [
-    { href: "/changelog/", texts: { ja: "更新履歴", en: "Changelog" } },
-    { href: "/articles/", texts: { ja: "記事", en: "Articles" } },
+    { href: "/changelog/", match: ["/changelog/"], texts: { ja: "更新履歴", en: "Changelog" } },
+    { href: "/articles/", match: ["/articles/", "/posts/"], texts: { ja: "記事", en: "Articles" } },
   ] as const;
 
-  const isActive = (href: string): boolean => {
-    if (href === "/articles/") {
-      return page.url.pathname.startsWith("/articles/") || page.url.pathname.startsWith("/posts/");
-    }
-    return page.url.pathname.startsWith(href);
-  };
+  const isActive = (item: (typeof navItems)[number]): boolean =>
+    item.match.some((prefix) => page.url.pathname.startsWith(prefix));
 </script>
 
 <header class="border-border bg-background/80 sticky top-0 z-10 border-b backdrop-blur">
@@ -32,7 +28,7 @@
           <li>
             <a
               href={item.href}
-              aria-current={isActive(item.href) ? "page" : undefined}
+              aria-current={isActive(item) ? "page" : undefined}
               class="text-muted hover:text-foreground aria-[current=page]:text-foreground text-sm transition-colors aria-[current=page]:font-semibold"
             >
               <LangText texts={item.texts} />

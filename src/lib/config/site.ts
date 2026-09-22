@@ -1,4 +1,12 @@
-import { author } from "./author";
+export interface Author {
+  name: string;
+  displayName: string;
+}
+
+export const author: Author = {
+  name: "naatin777",
+  displayName: "Naatin",
+};
 
 export interface SiteMetadata {
   url: string;
