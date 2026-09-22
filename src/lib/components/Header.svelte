@@ -5,8 +5,10 @@
   import ThemeToggle from "./ThemeToggle.svelte";
 
   const navItems = [
-    { href: "/changelog/", match: ["/changelog/"], texts: { ja: "更新履歴", en: "Changelog" } },
     { href: "/articles/", match: ["/articles/", "/posts/"], texts: { ja: "記事", en: "Articles" } },
+    { href: "/projects/", match: ["/projects/"], texts: { ja: "プロジェクト", en: "Projects" } },
+    { href: "/uses/", match: ["/uses/"], texts: { ja: "使ってるもの", en: "Uses" } },
+    { href: "/changelog/", match: ["/changelog/"], texts: { ja: "更新履歴", en: "Changelog" } },
   ] as const;
 
   const isActive = (item: (typeof navItems)[number]): boolean =>
