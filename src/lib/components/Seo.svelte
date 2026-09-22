@@ -39,6 +39,7 @@
   <meta property="og:description" content={description} />
   <meta property="og:site_name" content={site.title} />
   <meta property="og:locale" content="ja_JP" />
+  <meta property="og:locale:alternate" content="en_US" />
   <meta property="og:image" content={imageUrl} />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />

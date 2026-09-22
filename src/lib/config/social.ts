@@ -15,7 +15,6 @@ export interface SocialLink {
   url: string;
   iconLight: string;
   iconDark: string;
-  label: string;
 }
 
 export const socialLinks: SocialLink[] = [
@@ -24,34 +23,29 @@ export const socialLinks: SocialLink[] = [
     url: `https://github.com/${author.name}`,
     iconLight: githubLightIcon,
     iconDark: githubDarkIcon,
-    label: "Visit my GitHub profile",
   },
   {
     name: "X",
     url: `https://x.com/${author.name}`,
     iconLight: xLightIcon,
     iconDark: xDarkIcon,
-    label: "Visit my X profile",
   },
   {
     name: "Bluesky",
     url: `https://bsky.app/profile/${author.name}.bsky.social`,
     iconLight: blueskyLightIcon,
     iconDark: blueskyDarkIcon,
-    label: "Visit my Bluesky profile",
   },
   {
     name: "Qiita",
     url: `https://qiita.com/${author.name}`,
     iconLight: qiitaLightIcon,
     iconDark: qiitaDarkIcon,
-    label: "Visit my Qiita profile",
   },
   {
     name: "Zenn",
     url: `https://zenn.dev/${author.name}`,
     iconLight: zennLightIcon,
     iconDark: zennDarkIcon,
-    label: "Visit my Zenn profile",
   },
 ];
