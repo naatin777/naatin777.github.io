@@ -75,8 +75,11 @@ Instructions for coding agents working in this repository.
 
 - Use `<Seo title="…" description="…" />` per page (never `<svelte:head>` in `+layout.svelte` — duplicate `<title>`/description would result).
 - `404.html` is generated via `adapter({ fallback: "404.html" })` for GitHub Pages.
-- `sitemap.xml` is a prerendered `+server.ts` endpoint listing static pages + local posts; `static/robots.txt` references it.
+- `sitemap.xml` and `feed.xml` (RSS 2.0) are prerendered `+server.ts` endpoints listing static pages + local posts; `static/robots.txt` references the sitemap and `app.html` links the feed.
 - `static/.nojekyll` exists (peaceiris/actions-gh-pages also auto-adds it, but keep it for robustness).
+- `<Seo>` supports `type="article"` (emits `article:*` meta), `jsonLd`, and defaults to `og-image.png` (1200×630) with `summary_large_image` Twitter cards.
+- Posts get heading ids via `marked-gfm-heading-id`; `getHeadingList()` (called right after `marked.parse`) provides TOC data — do not re-implement slugify. External links get `target="_blank" rel="noopener noreferrer"` via a marked renderer.
+- `+layout.svelte` registers the skip link, view transitions (skipped under `prefers-reduced-motion`), and font preloads. Scroll-reveal uses CSS `animation-timeline: view()` behind `@supports` + `no-preference`.
 
 ## Data Layer
 

@@ -1,5 +1,6 @@
 import matter from "gray-matter";
 import { marked } from "marked";
+import { gfmHeadingId, getHeadingList } from "marked-gfm-heading-id";
 import markedKatex from "marked-katex-extension";
 import markedShiki from "marked-shiki";
 import { codeToHtml } from "shiki";
@@ -15,6 +16,12 @@ const frontmatter = z.object({
   draft: z.boolean().default(false),
 });
 
+export interface TocItem {
+  id: string;
+  text: string;
+  depth: number;
+}
+
 export interface Post {
   slug: string;
   title: string;
@@ -23,6 +30,8 @@ export interface Post {
   updatedAt: Date | null;
   tags: string[];
   html: string;
+  toc: TocItem[];
+  readingTime: number;
 }
 
 const files = import.meta.glob("/content/posts/*.md", {
@@ -31,6 +40,7 @@ const files = import.meta.glob("/content/posts/*.md", {
   eager: true,
 });
 
+marked.use(gfmHeadingId());
 marked.use(markedKatex({ throwOnError: false }));
 
 marked.use(
@@ -45,11 +55,22 @@ marked.use(
   }),
 );
 
+marked.use({
+  renderer: {
+    link({ href, title, tokens }) {
+      const text = this.parser.parseInline(tokens);
+      const titleAttr = title ? ` title="${title}"` : "";
+      const external = /^https?:\/\//.test(href) ? ` target="_blank" rel="noopener noreferrer"` : "";
+      return `<a href="${href}"${titleAttr}${external}>${text}</a>`;
+    },
+  },
+});
+
 const escapeHtml = (text: string): string => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 const mermaidBlock = /```mermaid\s*\n([\s\S]*?)```/g;
 
-async function toHtml(content: string): Promise<string> {
+async function toHtml(content: string): Promise<{ html: string; toc: TocItem[] }> {
   let out = content;
   for (const match of content.matchAll(mermaidBlock)) {
     const rendered = await renderMermaid(match[1]);
@@ -58,7 +79,21 @@ async function toHtml(content: string): Promise<string> {
       : `<pre><code>${escapeHtml(match[1])}</code></pre>`;
     out = out.replace(match[0], replacement);
   }
-  return marked.parse(out, { async: true });
+  const html = await marked.parse(out, { async: true });
+  const toc = getHeadingList().map(({ id, raw, level }) => ({ id, text: raw, depth: level }));
+  return { html, toc };
+}
+
+function estimateReadingTime(content: string): number {
+  const plain = content
+    .replace(mermaidBlock, " ")
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/\$\$[\s\S]*?\$\$|\$[^$\n]+\$/g, " ")
+    .replace(/[#*_`>|[\]()-]/g, " ");
+  const words = plain.trim().split(/\s+/).filter(Boolean).length;
+  const chars = plain.replace(/\s/g, "").length;
+  const minutes = Math.max(words / 400, chars / 800);
+  return Math.max(1, Math.ceil(minutes));
 }
 
 let cache: Promise<Post[]> | null = null;
@@ -79,7 +114,7 @@ async function buildPosts(): Promise<Post[]> {
       const fm = parsed.data;
       if (fm.draft) return [];
       return [
-        toHtml(content).then((html) => ({
+        toHtml(content).then(({ html, toc }) => ({
           slug: path.split("/").pop()?.replace(/\.md$/, "") ?? "",
           title: fm.title,
           description: fm.description,
@@ -87,6 +122,8 @@ async function buildPosts(): Promise<Post[]> {
           updatedAt: fm.updatedAt ?? null,
           tags: fm.tags,
           html,
+          toc,
+          readingTime: estimateReadingTime(content),
         })),
       ];
     }),

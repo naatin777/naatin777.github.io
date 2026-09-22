@@ -18,6 +18,7 @@
     "gray-matter": "^4.0.3",
     "katex": "^0.18.7",
     "marked": "^18.0.14",
+    "marked-gfm-heading-id": "^4.1.4",
     "marked-katex-extension": "^5.1.13",
     "marked-shiki": "^1.2.1",
     "mermaid-isomorphic": "^3.1.0",

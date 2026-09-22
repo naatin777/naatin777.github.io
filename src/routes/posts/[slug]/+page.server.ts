@@ -7,7 +7,14 @@ export const entries: EntryGenerator = async () => {
 };
 
 export const load: PageServerLoad = async ({ params }) => {
-  const post = (await getPosts()).find((p) => p.slug === params.slug);
+  const posts = await getPosts();
+  const index = posts.findIndex((p) => p.slug === params.slug);
+  const post = posts[index];
   if (!post) error(404, "Post not found");
-  return { post };
+  const pick = (p?: (typeof posts)[number]) => (p ? { slug: p.slug, title: p.title } : null);
+  return {
+    post,
+    prev: pick(posts[index - 1]), // newer
+    next: pick(posts[index + 1]), // older
+  };
 };
