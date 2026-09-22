@@ -3,14 +3,14 @@ import { z } from "zod";
 import { author } from "$lib/config/site";
 
 // gray-matter parses unquoted YAML timestamps into Date objects
-const dateish = z.union([z.string(), z.date().transform((d) => d.toISOString())]);
+const dateField = z.union([z.string(), z.date().transform((d) => d.toISOString())]);
 
 const zennFrontmatter = z.object({
   title: z.string(),
   emoji: z.string().optional(),
   topics: z.array(z.string()).default([]),
   published: z.boolean().default(false),
-  published_at: dateish.optional(),
+  published_at: dateField.optional(),
 });
 
 const zennApiArticle = z.object({
@@ -32,8 +32,8 @@ const qiitaFrontmatter = z.object({
   tags: z.array(qiitaTag).default([]),
   private: z.boolean().default(false),
   ignorePublish: z.boolean().default(false),
-  created_at: dateish.optional(),
-  updated_at: dateish.optional(),
+  created_at: dateField.optional(),
+  updated_at: dateField.optional(),
 });
 
 export interface ArticleItem {

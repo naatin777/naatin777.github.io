@@ -1,8 +1,8 @@
-import { getExternalArticles, type ArticleItem } from "$lib/server/articles";
+import { getExternalArticles, type ArticleItem } from "$lib/server/external-articles";
 import { getPosts } from "$lib/server/posts";
 import type { PageServerLoad } from "./$types";
 
-const time = (value: string | null): number => {
+const toTimestamp = (value: string | null): number => {
   const parsed = value ? Date.parse(value) : 0;
   return Number.isNaN(parsed) ? 0 : parsed;
 };
@@ -19,7 +19,7 @@ export const load: PageServerLoad = async () => {
     updatedAt: (post.updatedAt ?? post.publishedAt).toISOString(),
   }));
 
-  const articles = [...external, ...posts].sort((a, b) => time(b.updatedAt) - time(a.updatedAt));
+  const articles = [...external, ...posts].sort((a, b) => toTimestamp(b.updatedAt) - toTimestamp(a.updatedAt));
 
   return { articles };
 };

@@ -82,12 +82,12 @@ Instructions for coding agents working in this repository.
 - `sitemap.xml` and `feed.xml` (RSS 2.0) are prerendered `+server.ts` endpoints listing static pages + local posts; `static/robots.txt` references the sitemap and `app.html` links the feed.
 - `static/.nojekyll` exists (peaceiris/actions-gh-pages also auto-adds it, but keep it for robustness).
 - `<Seo>` supports `type="article"` (emits `article:*` meta), `jsonLd`, and defaults to `og-image.png` (1200×630) with `summary_large_image` Twitter cards.
-- Posts get heading ids via `marked-gfm-heading-id`; `getHeadingList()` (called right after `marked.parse`) provides TOC data — do not re-implement slugify. `getHeadingList()` reads shared state reset by each parse, so posts are parsed SEQUENTIALLY in `buildPosts` — do not parallelize it. External links get `target="_blank" rel="noopener noreferrer"` via a marked renderer.
+- Posts get heading ids via `marked-gfm-heading-id`; `getHeadingList()` (called right after `marked.parse`) provides TOC data — do not re-implement slugify. `getHeadingList()` reads shared state reset by each parse, so posts are parsed SEQUENTIALLY in `loadPosts` — do not parallelize it. External links get `target="_blank" rel="noopener noreferrer"` via a marked renderer.
 - `+layout.svelte` registers the skip link and the Inter latin font preload. Noto Sans JP is NOT preloaded (its ~120 unicode-range subsets make a single preload ineffective).
 
 ## Data Layer
 
-- Server-only modules go in `src/lib/server/` (`articles.ts`, `posts.ts`, `mermaid.ts`). They use `import.meta.glob` + `gray-matter` + `zod` and run at prerender time.
+- Server-only modules go in `src/lib/server/` (`external-articles.ts` for Zenn/Qiita, `posts.ts` for local posts, `mermaid.ts` for diagram rendering). They use `import.meta.glob` + `gray-matter` + `zod` and run at prerender time.
 - Site metadata and author info live together in `src/lib/config/site.ts`; UI-language definitions in `src/lib/config/i18n.ts`; social links in `src/lib/config/social.ts`.
 - Markdown → HTML via a dedicated `Marked` instance in `posts.ts` (plain Markdown; no embedded components). Do not mutate the global `marked`.
 - Math is rendered at build time by `marked-katex-extension` (KaTeX CSS is imported in `posts/[slug]/+page.svelte`).

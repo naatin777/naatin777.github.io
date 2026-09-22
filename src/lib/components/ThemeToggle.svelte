@@ -11,14 +11,14 @@
     system: "System",
   };
 
-  function cycle(): void {
+  function cycleTheme(): void {
     const next = order[(order.indexOf(theme.preference) + 1) % order.length];
     theme.set(next);
   }
 
   onMount(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => theme.refresh();
+    const onChange = () => theme.reapply();
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
   });
@@ -26,7 +26,7 @@
 
 <button
   type="button"
-  onclick={cycle}
+  onclick={cycleTheme}
   aria-label={`Theme: ${labels[theme.preference]}`}
   title={`Theme: ${labels[theme.preference]}`}
   class="text-muted hover:bg-surface hover:text-foreground flex size-8 items-center justify-center rounded-md transition-colors"

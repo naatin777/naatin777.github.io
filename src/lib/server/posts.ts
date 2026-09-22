@@ -7,7 +7,7 @@ import { codeToHtml } from "shiki";
 import { z } from "zod";
 import { renderMermaid } from "./mermaid";
 
-const frontmatter = z.object({
+const postFrontmatter = z.object({
   title: z.string(),
   description: z.string().default(""),
   publishedAt: z.coerce.date(),
@@ -34,18 +34,18 @@ export interface Post {
   readingTime: number;
 }
 
-const files = import.meta.glob("/content/posts/*.md", {
+const postFiles = import.meta.glob("/content/posts/*.md", {
   query: "?raw",
   import: "default",
   eager: true,
 });
 
-const marked = new Marked();
+const md = new Marked();
 
-marked.use(gfmHeadingId());
-marked.use(markedKatex({ throwOnError: false }));
+md.use(gfmHeadingId());
+md.use(markedKatex({ throwOnError: false }));
 
-marked.use(
+md.use(
   markedShiki({
     highlight: (code, lang) =>
       codeToHtml(code, {
@@ -57,7 +57,7 @@ marked.use(
   }),
 );
 
-marked.use({
+md.use({
   async walkTokens(token) {
     if (token.type !== "code" || token.lang !== "mermaid") return;
     const rendered = await renderMermaid(token.text);
@@ -71,7 +71,7 @@ marked.use({
 
 const escapeAttr = (text: string): string => text.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 
-marked.use({
+md.use({
   renderer: {
     link({ href, title, tokens }) {
       const text = this.parser.parseInline(tokens);
@@ -82,8 +82,8 @@ marked.use({
   },
 });
 
-async function toHtml(content: string): Promise<{ html: string; toc: TocItem[] }> {
-  const html = await marked.parse(content, { async: true });
+async function renderMarkdown(content: string): Promise<{ html: string; toc: TocItem[] }> {
+  const html = await md.parse(content, { async: true });
   const toc = getHeadingList().map(({ id, raw, level }) => ({ id, text: raw, depth: level }));
   return { html, toc };
 }
@@ -102,23 +102,23 @@ function estimateReadingTime(content: string): number {
 let cache: Promise<Post[]> | null = null;
 
 export function getPosts(): Promise<Post[]> {
-  return (cache ??= buildPosts());
+  return (cache ??= loadPosts());
 }
 
-async function buildPosts(): Promise<Post[]> {
+async function loadPosts(): Promise<Post[]> {
   const posts: Post[] = [];
   // Sequential: getHeadingList() is shared state reset by each parse,
   // so concurrent parses could attribute headings to the wrong post.
-  for (const [path, raw] of Object.entries(files)) {
+  for (const [path, raw] of Object.entries(postFiles)) {
     const { data, content } = matter(raw as string);
-    const parsed = frontmatter.safeParse(data);
+    const parsed = postFrontmatter.safeParse(data);
     if (!parsed.success) {
       console.warn(`[posts] skipping ${path}:`, parsed.error.issues);
       continue;
     }
     const fm = parsed.data;
     if (fm.draft) continue;
-    const { html, toc } = await toHtml(content);
+    const { html, toc } = await renderMarkdown(content);
     posts.push({
       slug: path.split("/").pop()?.replace(/\.md$/, "") ?? "",
       title: fm.title,

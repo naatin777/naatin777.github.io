@@ -3,7 +3,7 @@ import { createMermaidRenderer } from "mermaid-isomorphic";
 const renderer = createMermaidRenderer();
 
 // Concurrent renderer() calls fail under vite prerender — serialize all renders.
-let tail: Promise<unknown> = Promise.resolve();
+let queue: Promise<unknown> = Promise.resolve();
 
 export interface MermaidDiagrams {
   light: string;
@@ -11,12 +11,12 @@ export interface MermaidDiagrams {
 }
 
 export function renderMermaid(source: string): Promise<MermaidDiagrams | null> {
-  const run = tail.then(() => renderBoth(source));
-  tail = run.catch(() => {});
-  return run;
+  const task = queue.then(() => renderBothThemes(source));
+  queue = task.catch(() => {});
+  return task;
 }
 
-async function renderBoth(source: string): Promise<MermaidDiagrams | null> {
+async function renderBothThemes(source: string): Promise<MermaidDiagrams | null> {
   const [light] = await renderer([source], { mermaidConfig: { theme: "default" } });
   const [dark] = await renderer([source], { mermaidConfig: { theme: "dark" } });
   if (light.status !== "fulfilled" || dark.status !== "fulfilled") {

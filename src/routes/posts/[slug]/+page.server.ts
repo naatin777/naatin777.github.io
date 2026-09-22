@@ -11,10 +11,10 @@ export const load: PageServerLoad = async ({ params }) => {
   const index = posts.findIndex((p) => p.slug === params.slug);
   const post = posts[index];
   if (!post) error(404, "Post not found");
-  const pick = (p?: (typeof posts)[number]) => (p ? { slug: p.slug, title: p.title } : null);
+  const toNavItem = (post?: (typeof posts)[number]) => (post ? { slug: post.slug, title: post.title } : null);
   return {
     post,
-    prev: pick(posts[index - 1]), // newer
-    next: pick(posts[index + 1]), // older
+    prev: toNavItem(posts[index - 1]), // newer
+    next: toNavItem(posts[index + 1]), // older
   };
 };

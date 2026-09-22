@@ -37,7 +37,7 @@ export function themeState() {
       }
       apply(next);
     },
-    refresh() {
+    reapply() {
       apply(preference);
     },
   };
