@@ -23,6 +23,17 @@
   let selected = $state(new Set<string>());
   let selectedSource = $state<ArticleSource | null>(null);
 
+  const toggleTag = (tag: string) => {
+    const canonical = allTags.find((t) => t.toLowerCase() === tag.toLowerCase()) ?? tag;
+    const next = new Set(selected);
+    if (next.has(canonical)) {
+      next.delete(canonical);
+    } else {
+      next.add(canonical);
+    }
+    selected = next;
+  };
+
   const presentSources = $derived(
     sourceOrder.filter((source) => data.articles.some((article) => article.source === source)),
   );
@@ -57,6 +68,8 @@
           source={article.source}
           series={article.series}
           updatedAt={article.updatedAt}
+          selectedTags={selectedKeys}
+          ontag={toggleTag}
         />
       </li>
     {:else}
