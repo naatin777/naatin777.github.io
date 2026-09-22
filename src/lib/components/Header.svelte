@@ -7,7 +7,7 @@
   const navItems = [
     { href: "/articles/", match: ["/articles/", "/posts/"], texts: { ja: "記事", en: "Articles" } },
     { href: "/projects/", match: ["/projects/"], texts: { ja: "プロジェクト", en: "Projects" } },
-    { href: "/changelog/", match: ["/changelog/"], texts: { ja: "更新履歴", en: "Changelog" } },
+    { href: "/activity/", match: ["/activity/"], texts: { ja: "アクティビティ", en: "Activity" } },
     { href: "/about/", match: ["/about/"], texts: { ja: "自己紹介", en: "About" } },
   ] as const;
 

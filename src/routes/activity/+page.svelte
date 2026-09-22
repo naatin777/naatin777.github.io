@@ -17,12 +17,12 @@
 </script>
 
 <Seo
-  title="Changelog · Naatin's Portfolio"
-  description="A running changelog for updates and improvements made across this site."
+  title="Activity · Naatin's Portfolio"
+  description="A running log of updates and activity across this site."
 />
 
 <section class="flex flex-col gap-6">
-  <h1 class="text-2xl font-bold tracking-tight"><LangText texts={{ ja: "更新履歴", en: "Changelog" }} /></h1>
+  <h1 class="text-2xl font-bold tracking-tight"><LangText texts={{ ja: "アクティビティ", en: "Activity" }} /></h1>
   <ul class="flex flex-col gap-3">
     {#each entries as entry (entry.date)}
       <li class="border-border bg-surface flex flex-col gap-1 rounded-lg border p-4">

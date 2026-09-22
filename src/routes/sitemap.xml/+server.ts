@@ -5,7 +5,7 @@ import type { RequestHandler } from "./$types";
 export const prerender = true;
 
 // update this list when adding a new static route
-const staticPages = ["/", "/articles/", "/projects/", "/about/", "/changelog/"];
+const staticPages = ["/", "/articles/", "/projects/", "/about/", "/activity/"];
 
 const toDate = (date: Date) => date.toISOString().split("T")[0];
 
