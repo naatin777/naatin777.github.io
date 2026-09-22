@@ -1,0 +1,7 @@
+{
+  // Tailwind CSS v4 uses custom at-rules (@plugin, @theme, @custom-variant)
+  // that the built-in CSS linter doesn't know — silence false warnings.
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore",
+  "less.lint.unknownAtRules": "ignore"
+}
