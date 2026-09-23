@@ -19,7 +19,7 @@ Instructions for coding agents working in this repository.
 
 - Build this site with SvelteKit + `@sveltejs/adapter-static`, deployed to GitHub Pages.
 - Use `pnpm` with `pnpm-lock.yaml` and `pnpm-workspace.yaml` (pnpm settings live there, including `minimumReleaseAge`).
-- Match CI runtime with Node `22`.
+- Match CI runtime with Node `24`.
 - Use Tailwind CSS v4 (`@tailwindcss/vite`) + `@tailwindcss/typography`; global styles live in `src/app.css`.
 - Use Svelte 5 runes syntax (`$state`, `$derived`, `$props`, `$bindable`) — no `on:` handlers, no `createEventDispatcher`, no legacy `$:` reactivity.
 
