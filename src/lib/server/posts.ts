@@ -80,6 +80,18 @@ md.use({
 const escapeAttr = (text: string): string => text.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 const escapeHtml = (text: string): string => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
+// Heading innerHTML is entity-escaped; decode before re-escaping for the
+// aria-label so screen readers get the plain heading text.
+const decodeEntities = (text: string): string =>
+  text
+    .replace(/&#x([0-9a-f]+);/gi, (_m, hex: string) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_m, dec: string) => String.fromCharCode(Number(dec)))
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&");
+
 // marked's default link renderer runs cleanUrl() to reject javascript:/data:
 // hrefs; our custom renderer must do the same. Control chars and HTML
 // entities are stripped/decoded first so `&#x6A;avascript:` can't sneak by.
@@ -103,10 +115,17 @@ md.use({
       const external = /^https?:\/\//.test(href) ? ` target="_blank" rel="noopener noreferrer"` : "";
       return `<a href="${escapeAttr(href)}"${titleAttr}${external}>${text}</a>`;
     },
+    // marked does not run cleanUrl on image src — apply the same scheme
+    // allowlist as links so javascript:/data: sources can't be emitted.
+    image({ href, title, text }) {
+      if (!isSafeHref(href)) return text;
+      const titleAttr = title ? ` title="${escapeAttr(title)}"` : "";
+      return `<img src="${escapeAttr(href)}" alt="${escapeAttr(text)}"${titleAttr} loading="lazy">`;
+    },
     // Escape raw HTML written in markdown source (Hugo-style default:
     // generated markup like mermaid SVG is marked `generated` and passes).
-    html(token: Tokens.HTML & { generated?: true }) {
-      return token.generated ? token.text : escapeHtml(token.text);
+    html(token: Tokens.HTML | Tokens.Tag) {
+      return (token as { generated?: true }).generated ? token.text : escapeHtml(token.text);
     },
   },
 });
@@ -117,7 +136,7 @@ md.use({
   hooks: {
     postprocess(html) {
       return html.replace(/<h([2-6]) id="([^"]+)">([\s\S]*?)<\/h\1>/g, (_match, depth, id, inner) => {
-        const label = inner.replace(/<[^>]*>/g, "");
+        const label = escapeAttr(decodeEntities(inner.replace(/<[^>]*>/g, "")));
         return `<h${depth} id="${id}">${inner}<a class="heading-anchor" href="#${id}" aria-label="${label} へのリンク">#</a></h${depth}>`;
       });
     },

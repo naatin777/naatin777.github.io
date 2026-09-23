@@ -25,6 +25,9 @@
   }: Props = $props();
 
   const canonical = $derived(new URL(page.url.pathname, site.url).href);
+  // Escape closing-script breakouts: JSON.stringify does not escape <,
+  // so a title containing it could close the ld+json tag early.
+  const safeJsonLd = $derived(jsonLd?.replace(/</g, "\\u003c"));
   const imageUrl = $derived(image.startsWith("http") ? image : `${site.url}${image}`);
   const imageAlt = $derived(`${title} — ${site.title}`);
 </script>
@@ -59,7 +62,7 @@
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={imageUrl} />
   <meta name="twitter:image:alt" content={imageAlt} />
-  {#if jsonLd}
-    {@html `<script type="application/ld+json">${jsonLd}<\/script>`}
+  {#if safeJsonLd}
+    {@html `<script type="application/ld+json">${safeJsonLd}<\/script>`}
   {/if}
 </svelte:head>

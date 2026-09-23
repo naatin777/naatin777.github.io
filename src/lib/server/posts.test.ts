@@ -34,6 +34,13 @@ describe("renderMarkdown", () => {
     expect(html).toContain("y");
   });
 
+  it("drops images with unsafe URL schemes", async () => {
+    const { html } = await renderMarkdown("![x](javascript:alert(1)) and ![y](data:text/html;base64,PHN2Zz4=)");
+    expect(html).not.toContain("javascript:");
+    expect(html).not.toContain("data:");
+    expect(html).not.toContain("<img");
+  });
+
   it("renders katex math", async () => {
     const { html } = await renderMarkdown("$x^2$");
     expect(html).toContain("katex");
