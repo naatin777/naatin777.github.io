@@ -300,14 +300,37 @@
     background-color: color-mix(in srgb, var(--accent) 12%, transparent);
   }
 
+  /* +/- gutter sign sits in pre's left padding, so code doesn't shift. */
+  .prose .shiki .line.diff {
+    position: relative;
+  }
+
+  .prose .shiki .line.diff::before {
+    position: absolute;
+    left: -0.9em;
+    width: 0.9em;
+    text-align: center;
+    font-weight: 600;
+  }
+
   .prose .shiki .line.diff.remove {
     background-color: color-mix(in srgb, #f85149 15%, transparent);
     box-shadow: inset 3px 0 0 #f85149;
   }
 
+  .prose .shiki .line.diff.remove::before {
+    content: "−";
+    color: #f85149;
+  }
+
   .prose .shiki .line.diff.add {
     background-color: color-mix(in srgb, #2ea043 15%, transparent);
     box-shadow: inset 3px 0 0 #2ea043;
+  }
+
+  .prose .shiki .line.diff.add::before {
+    content: "+";
+    color: #2ea043;
   }
 
   /* Revealed on hover/focus like .heading-anchor; always faintly visible
