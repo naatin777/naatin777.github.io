@@ -114,7 +114,9 @@ const rehypeMermaid: Plugin<[], Root> = () => async (tree) => {
     if (code?.type !== "element" || code.tagName !== "code") return;
     const classes = code.properties?.className;
     if (!Array.isArray(classes) || !classes.includes("language-mermaid")) return;
-    blocks.push({ parent, index, source: toText(code) });
+    // whitespace:"pre" keeps newlines — the default "normal" collapses them
+    // like CSS, handing mermaid a single-line source that fails to parse.
+    blocks.push({ parent, index, source: toText(code, { whitespace: "pre" }) });
   });
   /* oxlint-disable no-await-in-loop -- renderMermaid serializes work internally; one queue, sequential calls */
   for (const block of blocks) {
