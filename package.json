@@ -55,6 +55,7 @@
     "@types/hast": "^3.0.5",
     "@types/mdast": "^4.0.4",
     "fast-xml-parser": "^5.11.1",
+    "js-yaml": "^5.4.2",
     "lighthouse": "^13.5.0",
     "oxfmt": "^0.70.0",
     "oxlint": "^1.85.0",

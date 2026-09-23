@@ -62,7 +62,7 @@ Instructions for coding agents working in this repository.
 
 ## Content Rules
 
-- Local posts live at `content/posts/<year>/<slug>/index.md` (the year folder is organizational; the URL is `/posts/<slug>/`) with zod-validated frontmatter (`title`, `date`, `tags`, optional `series`, `updated`, `description`). Post assets (images) sit beside `index.md` and are referenced relatively (`./image.png`) — vite bundles them and the pipeline rewrites the src.
+- Local posts live at `content/posts/<year>/<slug>/index.md` (the year folder is organizational; the URL is `/posts/<slug>/`) with zod-validated frontmatter (`title`, `publishedAt`, optional `description`, `updatedAt`, `tags`, `series`, `draft`). Bare dates (`YYYY-MM-DD`, optionally `HH:MM[:SS]`) are interpreted as JST — write an explicit offset for anything else. Post assets (images) sit beside `index.md` and are referenced relatively (`./image.png`) — vite bundles them and the pipeline rewrites the src.
 - External articles (Zenn/Qiita) come from `content/generated/<source>.json`, produced by `pnpm sync:zenn` / `pnpm sync:qiita` (`pnpm sync:external-posts` runs both). Qiita uses the unauthenticated API v2. Zenn uses the official RSS for enumeration/dates/URLs joined with `content/zenn/` (git subtree) for frontmatter `topics` — no private APIs. Each source owns one generated file — a sync never touches the other source's data. The build reads only those committed files — never the network.
 - `src/lib/server/posts.ts` must never throw on malformed Markdown/frontmatter — skip and warn instead.
 

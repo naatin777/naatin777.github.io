@@ -10,8 +10,8 @@ const SOURCES = ["zenn", "qiita"] as const;
 const externalPost = z.object({
   title: z.string(),
   tags: z.array(z.string()),
-  publishedAt: z.string(),
-  updatedAt: z.string().optional(),
+  publishedAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime().optional(),
   url: z.string(),
   source: z.enum(SOURCES),
 });

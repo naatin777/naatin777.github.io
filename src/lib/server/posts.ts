@@ -2,6 +2,7 @@ import { transformerNotationDiff, transformerNotationHighlight } from "@shikijs/
 import rehypeShiki from "@shikijs/rehype";
 import matter from "gray-matter";
 import type { Element, ElementContent, Parent, Root } from "hast";
+import { CORE_SCHEMA, load } from "js-yaml";
 import { fromHtml } from "hast-util-from-html";
 import { defaultSchema, type Schema } from "hast-util-sanitize";
 import { toText } from "hast-util-to-text";
@@ -19,14 +20,36 @@ import remarkRehype from "remark-rehype";
 import { unified, type Plugin } from "unified";
 import { SKIP, visit } from "unist-util-visit";
 import { z } from "zod";
+import { parseDate } from "$lib/date";
 import type { TocItem } from "$lib/types";
 import { renderMermaid } from "./mermaid";
+
+// gray-matter's bundled js-yaml resolves YAML timestamps into Date objects
+// (UTC for date-only, machine-local otherwise) — parsing with CORE_SCHEMA
+// keeps them as strings so parseDate can pin bare dates to JST instead.
+const matterOptions = {
+  engines: {
+    yaml: {
+      parse: (input: string) => load(input, { schema: CORE_SCHEMA }) as Record<string, unknown>,
+      stringify: (data: unknown) => String(data),
+    },
+  },
+};
+
+const frontmatterDate = z.string().transform((value, ctx) => {
+  const timestamp = parseDate(value);
+  if (Number.isNaN(timestamp)) {
+    ctx.addIssue({ code: "custom", message: `invalid date: ${JSON.stringify(value)}` });
+    return z.NEVER;
+  }
+  return new Date(timestamp);
+});
 
 const postFrontmatter = z.object({
   title: z.string(),
   description: z.string().default(""),
-  publishedAt: z.coerce.date(),
-  updatedAt: z.coerce.date().optional(),
+  publishedAt: frontmatterDate,
+  updatedAt: frontmatterDate.optional(),
   tags: z.array(z.string()).default([]),
   series: z.string().optional(),
   draft: z.boolean().default(false),
@@ -188,7 +211,9 @@ const rehypeCollectReadingText: Plugin<[], Root> = () => (tree, file) => {
   visit(tree, (node) => {
     if (node.type === "element") {
       const classes = node.properties?.className;
-      const skipClass = Array.isArray(classes) && (classes.includes("katex") || classes.includes("heading-anchor"));
+      const skipClass =
+        Array.isArray(classes) &&
+        (classes.includes("katex") || classes.includes("heading-anchor") || classes.includes("footnotes"));
       if (node.tagName === "pre" || node.tagName === "svg" || skipClass) return SKIP;
     }
     if (node.type === "text") parts.push(node.value);
@@ -255,14 +280,20 @@ export function getPosts(): Promise<Post[]> {
 }
 
 async function loadPosts(): Promise<Post[]> {
+  return loadPostsFrom(postFiles, postAssets);
+}
+
+// Files/assets are injectable so tests can exercise the loading rules
+// (skip/dedup/draft/date parsing) without fixtures in content/.
+export async function loadPostsFrom(files: Record<string, string>, assets: Record<string, string>): Promise<Post[]> {
   const slugs = new Set<string>();
   const posts = await Promise.all(
-    Object.entries(postFiles).map(async ([path, raw]): Promise<Post | null> => {
+    Object.entries(files).map(async ([path, raw]): Promise<Post | null> => {
       // matter() throws YAMLException on malformed frontmatter — a single
       // bad file must not fail the whole build.
       let matterResult: ReturnType<typeof matter>;
       try {
-        matterResult = matter(raw);
+        matterResult = matter(raw, matterOptions);
       } catch (error) {
         console.warn(`[posts] skipping ${path}: frontmatter parse failed`, error);
         return null;
@@ -287,7 +318,7 @@ async function loadPosts(): Promise<Post[]> {
       const resolveImage = (src: string): string => {
         // Absolute URLs, site-root paths, and anchors pass through untouched.
         if (/^[a-z]+:/i.test(src) || src.startsWith("/") || src.startsWith("#")) return src;
-        const bundled = postAssets[`${dir}/${src.replace(/^\.\//, "")}`];
+        const bundled = assets[`${dir}/${src.replace(/^\.\//, "")}`];
         if (!bundled) {
           console.warn(`[posts] ${path}: image "${src}" not found beside the post`);
           return src;
