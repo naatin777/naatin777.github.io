@@ -21,11 +21,15 @@ describe("renderMarkdown", () => {
     expect(html).toContain('<a href="/about/">int</a>');
   });
 
-  it("escapes raw HTML written in markdown", async () => {
-    const { html } = await renderMarkdown('<script>alert(1)</script>\n\n<img src="x.png" onerror="alert(1)">');
+  it("sanitizes raw HTML: keeps safe tags, strips dangerous markup", async () => {
+    const { html } = await renderMarkdown(
+      '<details><summary>詳細</summary>中身</details>\n\n<img src="x.png" onerror="alert(1)">\n\n<script>alert(1)</script>',
+    );
+    expect(html).toContain("<details>");
+    expect(html).toContain("<summary>");
+    expect(html).toContain('<img src="x.png"');
+    expect(html).not.toContain("onerror");
     expect(html).not.toContain("<script>");
-    expect(html).not.toContain("<img src");
-    expect(html).toMatch(/&#x3C;|&lt;/);
   });
 
   // hast-util-sanitize strips the unsafe href but keeps the element —

@@ -6,9 +6,10 @@ import { CORE_SCHEMA, load } from "js-yaml";
 import { fromHtml } from "hast-util-from-html";
 import { defaultSchema, type Schema } from "hast-util-sanitize";
 import { toText } from "hast-util-to-text";
-import type { Html, Image, Parents, Root as MdastRoot } from "mdast";
+import type { Image, Root as MdastRoot } from "mdast";
 import rehypeExternalLinks from "rehype-external-links";
 import rehypeKatex from "rehype-katex";
+import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
 import rehypeSlug from "rehype-slug";
 import rehypeStringify from "rehype-stringify";
@@ -104,16 +105,6 @@ const schema: Schema = {
     svg: [["className", "octicon"], "viewBox", "width", "height", "ariaHidden"],
     path: ["d"],
   },
-};
-
-// Raw HTML in markdown source is escaped into literal text (Hugo-style):
-// generated markup is added later as hast nodes, not HTML strings.
-const remarkTextifyHtml: Plugin<[], MdastRoot> = () => (tree) => {
-  visit(tree, "html", (node: Html, index: number | undefined, parent: Parents | undefined) => {
-    if (parent && index !== undefined) {
-      parent.children[index] = { type: "text", value: node.value };
-    }
-  });
 };
 
 // Relative image srcs resolve against the post's own directory via the
@@ -290,12 +281,13 @@ const createProcessor = (resolveImage: (src: string) => string) =>
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkMath)
-    .use(remarkTextifyHtml)
     .use(remarkAlert)
     .use(remarkResolveImages(resolveImage))
-    .use(remarkRehype)
-    // Trust boundary: author-derived markup is sanitized here; everything
-    // below only adds generated markup on top of the sanitized tree.
+    .use(remarkRehype, { allowDangerousHtml: true })
+    // Trust boundary: author markup (including embedded raw HTML parsed by
+    // rehype-raw) is sanitized here; everything below only adds generated
+    // markup on top of the sanitized tree.
+    .use(rehypeRaw)
     .use(rehypeSanitize, schema)
     .use(rehypeSlug)
     .use(rehypeCollectToc)

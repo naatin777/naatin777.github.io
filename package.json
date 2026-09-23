@@ -61,6 +61,7 @@
     "oxlint": "^1.85.0",
     "pagefind": "^1.5.2",
     "playwright": "^1.63.0",
+    "rehype-raw": "^7.0.0",
     "svelte": "^5.57.1",
     "svelte-check": "^4.7.6",
     "tailwindcss": "^4.3.3",

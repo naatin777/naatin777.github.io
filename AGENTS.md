@@ -44,7 +44,7 @@ Instructions for coding agents working in this repository.
 - Keep generated output and dependencies unchanged (`build/`, `node_modules/`).
 - Keep reusable UI blocks in `src/lib/components/` when page files grow.
 - Do not use `naatin` in identifiers such as variable names, function names, or custom global keys.
-- Prefer established libraries and declarative/AST-level transforms over ad-hoc string manipulation. The Markdown pipeline (`src/lib/server/posts.ts`) is the canonical example: raw input passes `rehype-sanitize` first, generated output (KaTeX/Shiki/Mermaid SVG/heading anchors) is injected as AST nodes after the trust boundary.
+- Prefer established libraries and declarative/AST-level transforms over ad-hoc string manipulation. The Markdown pipeline (`src/lib/server/posts.ts`) is the canonical example: author markup — including embedded raw HTML, parsed by `rehype-raw` — passes `rehype-sanitize` first, and generated output (KaTeX/Shiki/Mermaid SVG/heading anchors) is injected as AST nodes after the trust boundary.
 
 ## Naming and File Structure
 

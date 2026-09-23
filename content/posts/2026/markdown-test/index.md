@@ -107,6 +107,19 @@ flowchart LR
 
 ![テスト用SVG](./sample.svg)
 
+## Raw HTML
+
+安全なHTMLはそのまま使えます。危険なものはsanitizeで除去されます。
+
+<details>
+  <summary>折りたたみの例</summary>
+
+  details/summaryで折りたたみコンテンツを作れます。
+
+</details>
+
+キーボード表記: <kbd>Ctrl</kbd> + <kbd>C</kbd>
+
 ## 脚注
 
 脚注のあるテキストです[^1]。複数の脚注[^note]も使えます。
