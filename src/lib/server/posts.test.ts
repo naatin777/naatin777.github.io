@@ -56,6 +56,14 @@ describe("renderMarkdown", () => {
     expect(html).toContain("light-dark(");
   });
 
+  it("adds a copy button to code blocks", async () => {
+    const { html } = await renderMarkdown("```js\nconst a = 1;\n```");
+    expect(html).toContain('class="code-copy"');
+    expect(html).toContain('aria-label="コードをコピー"');
+    expect(html).toContain("icon-copy");
+    expect(html).toContain("icon-check");
+  });
+
   it("renders github-style alerts", async () => {
     const { html } = await renderMarkdown("> [!NOTE]\n> take care");
     expect(html).toContain("markdown-alert markdown-alert-note");

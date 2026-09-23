@@ -201,6 +201,37 @@ const rehypeLazyImages: Plugin<[], Root> = () => (tree) => {
   });
 };
 
+const iconSvg = (inner: string, cls: string): ElementContent[] =>
+  fromHtml(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${cls}" aria-hidden="true">${inner}</svg>`,
+    { fragment: true },
+  ).children.filter((child): child is ElementContent => child.type !== "doctype");
+
+// Adds a copy button to every code block. The button is generated markup
+// (post-sanitize, icon-only so nothing leaks into RSS/search text); the
+// click handler is one delegated listener on the post page.
+const rehypeCodeCopy: Plugin<[], Root> = () => (tree) => {
+  visit(tree, "element", (node) => {
+    if (node.tagName !== "pre") return;
+    node.children.push({
+      type: "element",
+      tagName: "button",
+      properties: {
+        type: "button",
+        className: ["code-copy"],
+        ariaLabel: "コードをコピー",
+      },
+      children: [
+        ...iconSvg(
+          '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+          "icon-copy",
+        ),
+        ...iconSvg('<path d="M20 6 9 17l-5-5"/>', "icon-check"),
+      ],
+    });
+  });
+};
+
 // Collects the text a reader actually reads, for reading-time estimation.
 // Runs on the final tree so generated noise is excluded: code blocks,
 // rendered math, heading permalinks, and diagram SVGs. This replaces the
@@ -246,6 +277,7 @@ const createProcessor = (resolveImage: (src: string) => string) =>
     })
     .use(rehypeKatex)
     .use(rehypeLazyImages)
+    .use(rehypeCodeCopy)
     .use(rehypeCollectReadingText)
     .use(rehypeStringify);
 

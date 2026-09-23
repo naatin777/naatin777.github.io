@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import LangText from "$lib/components/LangText.svelte";
   import PostNav from "$lib/components/PostNav.svelte";
   import Seo from "$lib/components/Seo.svelte";
@@ -29,6 +30,31 @@
       mainEntityOfPage: `${site.url}/posts/${post.slug}/`,
     }),
   );
+
+  let articleEl: HTMLElement;
+
+  const onCodeCopyClick = async (event: MouseEvent) => {
+    const button = (event.target as Element | null)?.closest<HTMLButtonElement>(".code-copy");
+    if (!button) return;
+    const code = button.parentElement?.querySelector("code")?.textContent;
+    if (!code) return;
+    try {
+      await navigator.clipboard.writeText(code.replace(/\n$/, ""));
+      button.classList.add("copied");
+      button.setAttribute("aria-label", "コピーしました");
+      setTimeout(() => {
+        button.classList.remove("copied");
+        button.setAttribute("aria-label", "コードをコピー");
+      }, 1500);
+    } catch {
+      // clipboard unavailable (permissions, insecure context) — no-op
+    }
+  };
+
+  onMount(() => {
+    articleEl.addEventListener("click", onCodeCopyClick);
+    return () => articleEl.removeEventListener("click", onCodeCopyClick);
+  });
 </script>
 
 <Seo
@@ -42,7 +68,7 @@
   {jsonLd}
 />
 
-<article>
+<article bind:this={articleEl}>
   <header class="border-border mb-8 flex flex-col gap-2 border-b pb-6">
     <h1 class="text-2xl font-bold tracking-tight">{post.title}</h1>
     <div class="text-muted flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
