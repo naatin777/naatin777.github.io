@@ -32,9 +32,6 @@
   const safeJsonLd = $derived(jsonLd?.replace(/</g, "\\u003c"));
   const imageUrl = $derived(image.startsWith("http") ? image : `${site.url}${image}`);
   const imageAlt = $derived(`${title} — ${site.title}`);
-  // Per-post /og/*.png renders at deviceScaleFactor 2 (see scripts/generate-og.mjs);
-  // the static fallback /og-image.png stays 1200x630.
-  const imageSize = $derived(image.startsWith("/og/") ? { width: 2400, height: 1260 } : { width: 1200, height: 630 });
 </script>
 
 <svelte:head>
@@ -53,8 +50,8 @@
   <meta property="og:locale:alternate" content="en_US" />
   <meta property="og:image" content={imageUrl} />
   <meta property="og:image:type" content="image/png" />
-  <meta property="og:image:width" content={String(imageSize.width)} />
-  <meta property="og:image:height" content={String(imageSize.height)} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content={imageAlt} />
   {#if type === "article" && publishedTime}
     <meta property="article:published_time" content={publishedTime.toISOString()} />

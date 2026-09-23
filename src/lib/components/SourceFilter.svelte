@@ -8,9 +8,11 @@
   }
 
   let { sources, value = $bindable() }: Props = $props();
+  const groupLabelId = $props.id();
 </script>
 
-<div role="radiogroup" aria-label="ソースで絞り込む / Filter by source" class="flex flex-wrap gap-2">
+<div role="radiogroup" aria-labelledby={groupLabelId} class="flex flex-wrap gap-2">
+  <span id={groupLabelId} class="sr-only"><LangText texts={{ ja: "ソースで絞り込む", en: "Filter by source" }} /></span>
   <button
     type="button"
     role="radio"

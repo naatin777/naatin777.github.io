@@ -2,8 +2,10 @@
   import { browser } from "$app/environment";
   import { defaultLang, langNames, langs, type Lang } from "$lib/config/i18n";
   import { hydrated } from "$lib/hydrated.svelte";
+  import LangText from "./LangText.svelte";
 
   const ready = hydrated();
+  const groupLabelId = $props.id();
 
   let lang = $state<Lang>(
     browser ? (langs.find((l) => l === document.documentElement.lang) ?? defaultLang) : defaultLang,
@@ -20,9 +22,10 @@
 
 <div
   role="radiogroup"
-  aria-label="言語 / Language"
+  aria-labelledby={groupLabelId}
   class="flex items-center gap-0.5 text-xs transition-opacity {ready.value ? 'opacity-100' : 'invisible opacity-0'}"
 >
+  <span id={groupLabelId} class="sr-only"><LangText texts={{ ja: "言語", en: "Language" }} /></span>
   {#each langs as option (option)}
     <button
       type="button"

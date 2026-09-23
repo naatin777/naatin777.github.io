@@ -9,10 +9,11 @@
   }
 
   let { name, posts, currentSlug }: Props = $props();
+  const navLabelId = $props.id();
 </script>
 
-<nav class="card mb-8" aria-label="シリーズ / Series">
-  <p class="mb-2 text-sm font-bold"><LangText texts={{ ja: "シリーズ", en: "Series" }} />: {name}</p>
+<nav class="card mb-8" aria-labelledby={navLabelId}>
+  <p id={navLabelId} class="mb-2 text-sm font-bold"><LangText texts={{ ja: "シリーズ", en: "Series" }} />: {name}</p>
   <ol class="flex list-decimal flex-col gap-1 pl-5 text-sm">
     {#each posts as seriesPost (seriesPost.slug)}
       <li class:font-semibold={seriesPost.slug === currentSlug}>

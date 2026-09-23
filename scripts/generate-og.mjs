@@ -22,11 +22,7 @@ let browser;
 let failures = 0;
 try {
   browser = await chromium.launch();
-  const page = await browser.newPage({
-    viewport: { width: 1280, height: 800 },
-    // 2400x1260 output — OG cards stay readable when scaled down
-    deviceScaleFactor: 2,
-  });
+  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
   const card = page.locator(".og-card");
 
   mkdirSync(OUT_DIR, { recursive: true });

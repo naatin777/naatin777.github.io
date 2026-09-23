@@ -77,7 +77,7 @@ Instructions for coding agents working in this repository.
 
 - Write meaningful `alt` text for informative images; decorative images use `alt=""`.
 - Single-select filter groups use `role="radiogroup"` + `role="radio"` + `aria-checked`; multi-select chips use `aria-pressed`. Both are styled by the `.chip` rule in `src/app.css`.
-- `aria-label`s on landmark/nav elements use `日本語 / English` bilingual form.
+- Landmark/nav labels are localized via `aria-labelledby` → an element containing `LangText` (the inactive language is `display:none`, so screen readers announce only the active one). Use `$props.id()` for the id; never write bilingual `aria-label`s.
 - Heading anchors injected by the Markdown pipeline are real focusable links with `aria-label` — do not nest anchors inside them.
 
 ## Validation

@@ -25,6 +25,7 @@
   let results = $state<PagefindResult[]>([]);
   let searching = $state(false);
   let pagefind: PagefindApi | null = null;
+  const inputLabelId = $props.id();
   // Render the (disabled) input during SSR so hydration doesn't shift layout;
   // the whole block hides only when pagefind is actually absent.
   let status = $state<"loading" | "ready" | "unavailable">("loading");
@@ -79,9 +80,9 @@
       disabled={status !== "ready"}
       class="border-border bg-surface w-full rounded-md border px-3 py-2 text-sm disabled:opacity-60"
       placeholder="記事を検索 / Search"
-      aria-label="記事を検索 / Search"
+      aria-labelledby={inputLabelId}
     />
-    <span class="sr-only"><LangText texts={{ ja: "記事を検索", en: "Search" }} /></span>
+    <span id={inputLabelId} class="sr-only"><LangText texts={{ ja: "記事を検索", en: "Search" }} /></span>
     {#if results.length > 0}
       <ul class="flex flex-col gap-2" aria-live="polite">
         {#each results as result (result.url)}

@@ -24,7 +24,6 @@
       dateModified: (post.updatedAt ?? post.publishedAt).toISOString(),
       inLanguage: "ja",
       author: { "@type": "Person", name: author.displayName, url: site.url },
-      publisher: { "@type": "Person", name: author.displayName, url: site.url },
       image: `${site.url}/og/${post.slug}.png`,
       keywords: post.tags.join(", "),
       mainEntityOfPage: `${site.url}/posts/${post.slug}/`,
