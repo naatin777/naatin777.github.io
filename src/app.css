@@ -373,7 +373,7 @@
     content: counter(line);
     display: inline-block;
     width: 3ch;
-    margin-right: 1.25em;
+    margin-right: 0.75em;
     text-align: right;
     color: var(--muted);
     opacity: 0.5;
@@ -519,10 +519,10 @@
 }
 
 /* The plugin's 1.14em side padding is roomy; tighten it. The diff accent
-   bar sits inside the left padding, so keep ~12px minimum. */
+   bar sits inside the left padding, so keep ~8px minimum (bar is 3px). */
 .prose pre {
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 /* Heading anchors compete with the plugin's `a` styles (color/underline). */
