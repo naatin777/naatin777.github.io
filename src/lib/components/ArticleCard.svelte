@@ -28,7 +28,12 @@
     >
       {title}
     </a>
-    <span class="badge badge-{source}">
+    <span
+      class="badge"
+      class:badge-blog={source === "blog"}
+      class:badge-zenn={source === "zenn"}
+      class:badge-qiita={source === "qiita"}
+    >
       {sourceLabels[source]}
     </span>
   </div>
