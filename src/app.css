@@ -327,9 +327,23 @@
     user-select: none;
   }
 
+  /* Accent bar lives in pre's left padding (outside the line box) so it
+     never overlaps the gutter or code text. */
+  .prose .shiki .line.diff {
+    position: relative;
+  }
+
+  .prose .shiki .line.diff::after {
+    content: "";
+    position: absolute;
+    left: -9px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+  }
+
   .prose .shiki .line.diff.remove {
     background-color: color-mix(in srgb, #f85149 15%, transparent);
-    box-shadow: inset 3px 0 0 #f85149;
   }
 
   .prose .shiki .line.diff.remove::before {
@@ -338,15 +352,22 @@
     opacity: 1;
   }
 
+  .prose .shiki .line.diff.remove::after {
+    background-color: #f85149;
+  }
+
   .prose .shiki .line.diff.add {
     background-color: color-mix(in srgb, #2ea043 15%, transparent);
-    box-shadow: inset 3px 0 0 #2ea043;
   }
 
   .prose .shiki .line.diff.add::before {
     content: "+" counter(line);
     color: #2ea043;
     opacity: 1;
+  }
+
+  .prose .shiki .line.diff.add::after {
+    background-color: #2ea043;
   }
 
   /* Revealed on hover/focus like .heading-anchor; always faintly visible
