@@ -32,12 +32,12 @@
   });
 </script>
 
-<Seo title="{author.displayName}'s Portfolio" {jsonLd} />
+<Seo title={site.title} {jsonLd} />
 
 <section class="flex flex-col items-center justify-center gap-6 text-center">
   <enhanced:img src={icon} alt={`${author.displayName}'s icon`} class="size-30 rounded-full" />
   <h1 class="text-3xl font-bold tracking-tight">
-    <LangText texts={{ ja: "Naatinです 👋", en: "Hey, I'm Naatin 👋" }} />
+    <LangText texts={{ ja: `${author.displayName}です 👋`, en: `Hey, I'm ${author.displayName} 👋` }} />
   </h1>
   <p class="text-muted max-w-xl">
     <LangText

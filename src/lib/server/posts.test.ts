@@ -65,4 +65,17 @@ describe("renderMarkdown", () => {
     const { html } = await renderMarkdown("text[^1]\n\n[^1]: note body");
     expect(html).toContain("footnotes");
   });
+
+  it("escapes quotes inside heading permalink aria-labels", async () => {
+    const { html } = await renderMarkdown('## He said "hi"');
+    expect(html).not.toContain('aria-label="He said "hi""');
+    expect(html).toMatch(/aria-label="He said (&#x22;|&quot;)hi\1 へのリンク"/);
+  });
+
+  it("deduplicates ids when headings repeat", async () => {
+    const { html, toc } = await renderMarkdown("## Dup\n\n## Dup");
+    expect(html).toContain('id="dup"');
+    expect(html).toContain('id="dup-1"');
+    expect(toc.map((t) => t.id)).toEqual(["dup", "dup-1"]);
+  });
 });

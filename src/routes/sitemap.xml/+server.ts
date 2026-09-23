@@ -8,7 +8,7 @@ export const prerender = true;
 // static pages derive from the shared nav config — add new routes there
 const staticPages = ["/", ...navItems.map((item) => item.href)];
 
-const toDate = (date: Date) => date.toISOString().split("T")[0];
+const toDate = (date: Date) => date.toISOString().slice(0, 10);
 
 export const GET: RequestHandler = async () => {
   const posts = await getPosts();

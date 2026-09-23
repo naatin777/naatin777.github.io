@@ -1,9 +1,9 @@
-import type { Lang } from "./i18n";
+import type { LocalizedText } from "./i18n";
 
 export interface NavItem {
   href: string;
   match: string[];
-  texts: Record<Lang, string>;
+  texts: LocalizedText;
 }
 
 // Header navigation and sitemap.xml both derive from this list.

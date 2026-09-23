@@ -5,7 +5,8 @@
   import Seo from "$lib/components/Seo.svelte";
   import SourceFilter from "$lib/components/SourceFilter.svelte";
   import TagFilter from "$lib/components/TagFilter.svelte";
-  import { sourceOrder, type ArticleSource } from "$lib/source";
+  import { sourceOrder, type ArticleSource } from "$lib/config/article-source";
+  import { site } from "$lib/config/site";
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
@@ -55,7 +56,7 @@
 </script>
 
 <Seo
-  title="Articles · Naatin's Portfolio"
+  title={`Articles · ${site.title}`}
   description="ブログ・Qiita・Zennの記事をまとめて一覧。タグやソースで絞り込めます。"
 />
 

@@ -210,14 +210,14 @@ async function loadPosts(): Promise<Post[]> {
     Object.entries(postFiles).map(async ([path, raw]): Promise<Post | null> => {
       // matter() throws YAMLException on malformed frontmatter — a single
       // bad file must not fail the whole build.
-      let mattered: ReturnType<typeof matter>;
+      let matterResult: ReturnType<typeof matter>;
       try {
-        mattered = matter(raw);
+        matterResult = matter(raw);
       } catch (error) {
         console.warn(`[posts] skipping ${path}: frontmatter parse failed`, error);
         return null;
       }
-      const { data, content } = mattered;
+      const { data, content } = matterResult;
       const parsed = postFrontmatter.safeParse(data);
       if (!parsed.success) {
         console.warn(`[posts] skipping ${path}:`, parsed.error.issues);

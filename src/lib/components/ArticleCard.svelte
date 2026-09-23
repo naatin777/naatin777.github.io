@@ -1,6 +1,6 @@
 <script lang="ts">
   import { formatDate } from "$lib/date";
-  import { sourceLabels, sourceStyles, type ArticleSource } from "$lib/source";
+  import { sourceLabels, sourceStyles, type ArticleSource } from "$lib/config/article-source";
 
   interface Props {
     title: string;

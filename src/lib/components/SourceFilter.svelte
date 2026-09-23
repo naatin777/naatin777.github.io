@@ -1,6 +1,6 @@
 <script lang="ts">
   import LangText from "$lib/components/LangText.svelte";
-  import { sourceLabels, type ArticleSource } from "$lib/source";
+  import { sourceLabels, type ArticleSource } from "$lib/config/article-source";
 
   interface Props {
     sources: ArticleSource[];

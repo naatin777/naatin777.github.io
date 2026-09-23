@@ -2,12 +2,13 @@
   import LangText from "$lib/components/LangText.svelte";
   import Seo from "$lib/components/Seo.svelte";
   import type { LocalizedText } from "$lib/config/i18n";
+  import { site } from "$lib/config/site";
 
   // add entries here — newest first
   const projects: { name: string; url: string; texts: LocalizedText }[] = [];
 </script>
 
-<Seo title="Projects · Naatin's Portfolio" description="作ったものをひとまとめに。" />
+<Seo title={`Projects · ${site.title}`} description="作ったものをひとまとめに。" />
 
 <section class="flex flex-col gap-6">
   <h1 class="text-2xl font-bold tracking-tight">

@@ -1,8 +1,9 @@
 import { error } from "@sveltejs/kit";
 import { getPosts, type Post } from "$lib/server/posts";
+import type { PostLink } from "$lib/types";
 import type { EntryGenerator, PageServerLoad } from "./$types";
 
-const toNavItem = (item?: Post) => (item ? { slug: item.slug, title: item.title } : null);
+const toPostLink = (item?: Post): PostLink | null => (item ? { slug: item.slug, title: item.title } : null);
 
 export const entries: EntryGenerator = async () => {
   return (await getPosts()).map((post) => ({ slug: post.slug }));
@@ -24,8 +25,8 @@ export const load: PageServerLoad = async ({ params }) => {
     : null;
   return {
     post,
-    prev: toNavItem(posts[index - 1]), // newer
-    next: toNavItem(posts[index + 1]), // older
+    prev: toPostLink(posts[index - 1]), // newer
+    next: toPostLink(posts[index + 1]), // older
     series,
   };
 };

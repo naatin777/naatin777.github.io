@@ -4,7 +4,7 @@
   import { hydrated } from "$lib/hydrated.svelte";
   import LangText from "./LangText.svelte";
 
-  const ready = hydrated();
+  const isHydrated = hydrated();
   const groupLabelId = $props.id();
 
   let lang = $state<Lang>(
@@ -23,7 +23,9 @@
 <div
   role="radiogroup"
   aria-labelledby={groupLabelId}
-  class="flex items-center gap-0.5 text-xs transition-opacity {ready.value ? 'opacity-100' : 'invisible opacity-0'}"
+  class="flex items-center gap-0.5 text-xs transition-opacity {isHydrated.value
+    ? 'opacity-100'
+    : 'invisible opacity-0'}"
 >
   <span id={groupLabelId} class="sr-only"><LangText texts={{ ja: "言語", en: "Language" }} /></span>
   {#each langs as option (option)}

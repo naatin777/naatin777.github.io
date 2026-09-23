@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { langs, type Lang } from "$lib/config/i18n";
+  import { langs, type LocalizedText } from "$lib/config/i18n";
 
   interface Props {
-    texts: Record<Lang, string>;
+    texts: LocalizedText;
   }
 
   let { texts }: Props = $props();

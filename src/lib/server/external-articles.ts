@@ -1,7 +1,7 @@
 import matter from "gray-matter";
 import { z } from "zod";
 import { author } from "$lib/config/site";
-import type { ArticleSource } from "$lib/source";
+import type { ArticleSource } from "$lib/config/article-source";
 
 // gray-matter parses unquoted YAML timestamps into Date objects
 const dateField = z.union([z.string(), z.date().transform((d) => d.toISOString())]);

@@ -9,8 +9,8 @@ const toTimestamp = (value: string | null): number => {
 
 // Blog posts + external articles merged into one list, newest first.
 export async function getAllArticles(): Promise<ArticleItem[]> {
-  const external = await getExternalArticles();
-  const posts: ArticleItem[] = (await getPosts()).map((post) => ({
+  const [external, postsRaw] = await Promise.all([getExternalArticles(), getPosts()]);
+  const posts: ArticleItem[] = postsRaw.map((post) => ({
     title: post.title,
     url: `/posts/${post.slug}/`,
     tags: post.tags,

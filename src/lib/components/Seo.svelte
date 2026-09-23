@@ -31,7 +31,6 @@
   // so a title containing it could close the ld+json tag early.
   const safeJsonLd = $derived(jsonLd?.replace(/</g, "\\u003c"));
   const imageUrl = $derived(image.startsWith("http") ? image : `${site.url}${image}`);
-  const imageAlt = $derived(`${title} — ${site.title}`);
 </script>
 
 <svelte:head>
@@ -52,7 +51,7 @@
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content={imageAlt} />
+  <meta property="og:image:alt" content={title} />
   {#if type === "article" && publishedTime}
     <meta property="article:published_time" content={publishedTime.toISOString()} />
     {#if modifiedTime}
@@ -66,7 +65,7 @@
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={imageUrl} />
-  <meta name="twitter:image:alt" content={imageAlt} />
+  <meta name="twitter:image:alt" content={title} />
   {#if safeJsonLd}
     {@html `<script type="application/ld+json">${safeJsonLd}<\/script>`}
   {/if}

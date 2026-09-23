@@ -4,7 +4,7 @@
   import Seo from "$lib/components/Seo.svelte";
   import SocialIcon from "$lib/components/SocialIcon.svelte";
   import type { LocalizedText } from "$lib/config/i18n";
-  import { author } from "$lib/config/site";
+  import { author, site } from "$lib/config/site";
   import { socialLinks } from "$lib/config/social";
 
   // edit freely — tools, hardware, apps, anything you use
@@ -20,7 +20,7 @@
   ];
 </script>
 
-<Seo title="About · Naatin's Portfolio" description="Naatinについて — プロフィール、連絡先、使っているツールや機材。" />
+<Seo title={`About · ${site.title}`} description="Naatinについて — プロフィール、連絡先、使っているツールや機材。" />
 
 <section class="flex flex-col gap-10">
   <h1 class="text-2xl font-bold tracking-tight"><LangText texts={{ ja: "自己紹介", en: "About" }} /></h1>

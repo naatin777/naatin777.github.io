@@ -2,6 +2,7 @@
   import LangText from "$lib/components/LangText.svelte";
   import Seo from "$lib/components/Seo.svelte";
   import type { LocalizedText } from "$lib/config/i18n";
+  import { site } from "$lib/config/site";
   import { formatDate } from "$lib/date";
 
   // newest first
@@ -16,7 +17,7 @@
   ];
 </script>
 
-<Seo title="Activity · Naatin's Portfolio" description="このサイトの更新と活動のログ。" />
+<Seo title={`Activity · ${site.title}`} description="このサイトの更新と活動のログ。" />
 
 <section class="flex flex-col gap-6">
   <h1 class="text-2xl font-bold tracking-tight"><LangText texts={{ ja: "アクティビティ", en: "Activity" }} /></h1>
