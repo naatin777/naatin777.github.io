@@ -423,10 +423,12 @@
     background-color: #2ea043;
   }
 
-  /* Lives inside the .code-block-title bar (right end, flex layout). */
+  /* Lives inside the .code-block-title bar; margin-left:auto keeps it at
+     the right end even when the bar has no title text. */
   .code-copy {
     display: flex;
     align-items: center;
+    margin-left: auto;
     justify-content: center;
     width: 1.5rem;
     height: 1.5rem;

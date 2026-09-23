@@ -195,11 +195,12 @@ const rehypeCodeFilename: Plugin<[], Root> = () => (tree) => {
     const code = node.children[0];
     if (code?.type !== "element" || code.tagName !== "code") return;
     const classes = code.properties?.className;
-    if (!Array.isArray(classes)) return;
     // remark-math emits math nodes as pre>code.language-math — rehype-katex
     // renders those (both $$ and ```math), so don't frame them as code.
-    if (classes.includes("language-math")) return;
-    const langClass = classes.find((c): c is string => typeof c === "string" && c.startsWith("language-"));
+    if (Array.isArray(classes) && classes.includes("language-math")) return;
+    const langClass = Array.isArray(classes)
+      ? classes.find((c): c is string => typeof c === "string" && c.startsWith("language-"))
+      : undefined;
     let title = "";
     if (langClass) {
       const body = langClass.slice("language-".length);
@@ -329,7 +330,15 @@ const rehypeCodeCopy: Plugin<[], Root> = () => (tree) => {
       type: "element",
       tagName: "div",
       properties: { className: ["code-block"] },
-      children: [node, copyButton()],
+      children: [
+        {
+          type: "element",
+          tagName: "div",
+          properties: { className: ["code-block-title"] },
+          children: [copyButton()],
+        },
+        node,
+      ],
     };
   });
 };
