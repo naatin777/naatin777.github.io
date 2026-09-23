@@ -2,14 +2,15 @@
 
 Personal portfolio site. Built with SvelteKit + Tailwind CSS, statically exported to GitHub Pages.
 
-- Articles from Zenn/Qiita are imported via git subtree under `content/` (title/URL/tags only).
 - Site-native posts live in `content/posts/`.
+- Zenn/Qiita article metadata (title/URL/tags/dates) is synced from official feeds into `content/generated/external-posts.json` — committed, so builds never hit the network.
 
 ## Commands
 
 ```sh
 pnpm install
 pnpm dev      # dev server
+pnpm sync:external-posts  # refresh external article metadata (Zenn RSS + Qiita API)
 pnpm build    # vite build → pagefind index → OG images → build/
 pnpm preview  # serve build/ like GitHub Pages (vite preview misses post-build assets)
 pnpm run check   # svelte-check
@@ -18,10 +19,9 @@ pnpm format      # oxfmt
 pnpm run test    # vitest
 ```
 
-Deploys automatically on push to `main` via GitHub Actions → GitHub Pages.
+Deploys automatically on push to `main` via GitHub Actions → GitHub Pages. The deploy workflow runs `pnpm sync:external-posts` before building (falls back to the committed JSON if the sync fails).
 
 ## License
 
 - Source code: [MIT](LICENSE)
 - Articles in `content/posts/`: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) © Naatin
-- Imported articles (`content/zenn/`, `content/qiita/`): article text is [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), the rest MIT — per each upstream repo's README

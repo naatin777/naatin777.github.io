@@ -46,6 +46,12 @@ jobs:
       - name: Check and lint
         run: pnpm run validate
 
+      # Refresh external article metadata; on failure fall back to the
+      # committed JSON so Zenn/Qiita outages can't block a deploy.
+      - name: Sync external posts
+        run: pnpm sync:external-posts
+        continue-on-error: true
+
       - name: Build
         run: pnpm run build
 

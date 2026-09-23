@@ -2,7 +2,7 @@ name: Link check
 
 on:
   workflow_dispatch:
-  # weekly — catches dead links in posts and subtree content
+  # weekly — catches dead links in posts
   schedule:
     - cron: "0 0 * * 1"
 

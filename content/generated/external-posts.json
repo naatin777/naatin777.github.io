@@ -1,0 +1,52 @@
+[
+  {
+    "title": "iPadでPWAするときに左上の信号機を回避する",
+    "tags": [
+      "iPad",
+      "PWA"
+    ],
+    "publishedAt": "2026-09-15T16:28:10.000Z",
+    "url": "https://qiita.com/naatin777/items/0f83cfa40493b68647a4",
+    "source": "qiita",
+    "updatedAt": "2026-09-15T16:28:10.000Z"
+  },
+  {
+    "title": "Cursorの設定ファイルまとめ",
+    "tags": [],
+    "publishedAt": "2026-06-13T10:15:39.000Z",
+    "url": "https://zenn.dev/naatin777/articles/cursor-setting-files",
+    "source": "zenn"
+  },
+  {
+    "title": "SwiftUI×Core Dataの初期プロジェクトを解析してSwiftUIを入門する",
+    "tags": [
+      "Swift",
+      "SwiftUI"
+    ],
+    "publishedAt": "2026-05-06T13:34:09.000Z",
+    "url": "https://qiita.com/naatin777/items/08650db87c7a0b606244",
+    "source": "qiita",
+    "updatedAt": "2026-09-15T16:28:10.000Z"
+  },
+  {
+    "title": "Redux Toolkitで型安全にDIする",
+    "tags": [
+      "DI",
+      "redux-toolkit"
+    ],
+    "publishedAt": "2026-04-04T07:45:17.000Z",
+    "url": "https://qiita.com/naatin777/items/e594c079b68820940794",
+    "source": "qiita",
+    "updatedAt": "2026-09-15T16:28:10.000Z"
+  },
+  {
+    "title": "VSCodeの拡張機能を配布するときはバージョンを見直したほうがいいかもしれない",
+    "tags": [
+      "VSCode-Extension"
+    ],
+    "publishedAt": "2026-01-31T14:34:09.000Z",
+    "url": "https://qiita.com/naatin777/items/eb58397d8f7c7913cb00",
+    "source": "qiita",
+    "updatedAt": "2026-09-15T16:28:10.000Z"
+  }
+]

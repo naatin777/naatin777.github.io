@@ -8,7 +8,7 @@
     tags: string[];
     source: ArticleSource;
     series: string | null;
-    publishedAt: string | null;
+    publishedAt: string;
     selectedTags?: Set<string>;
     ontag?: (tag: string) => void;
   }

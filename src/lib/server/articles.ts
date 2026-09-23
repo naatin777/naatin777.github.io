@@ -2,8 +2,8 @@ import { parseDate } from "$lib/date";
 import { getExternalArticles, type ArticleItem } from "$lib/server/external-articles";
 import { getPosts } from "$lib/server/posts";
 
-const toTimestamp = (value: string | null): number => {
-  const parsed = value ? parseDate(value) : 0;
+const toTimestamp = (value: string): number => {
+  const parsed = parseDate(value);
   return Number.isNaN(parsed) ? 0 : parsed;
 };
 
@@ -17,6 +17,7 @@ export async function getAllArticles(): Promise<ArticleItem[]> {
     source: "blog",
     series: post.series,
     publishedAt: post.publishedAt.toISOString(),
+    updatedAt: post.updatedAt?.toISOString(),
   }));
   return [...external, ...posts].toSorted((a, b) => toTimestamp(b.publishedAt) - toTimestamp(a.publishedAt));
 }
