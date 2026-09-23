@@ -12,6 +12,9 @@ export default defineConfig({
   },
   server: {
     host: true,
+    // SvelteKit narrows fs.allow to src/kit dirs only — co-located post assets
+    // are ?url-imported from /content/ in dev, so it must be allowed too.
+    fs: { allow: ["content"] },
   },
   ssr: {
     external: ["playwright", "mermaid-isomorphic"],
