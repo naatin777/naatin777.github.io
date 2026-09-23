@@ -71,6 +71,7 @@ Instructions for coding agents working in this repository.
 - Keep global styles and component-level classes (`.card`, `.chip`, `.prose` tweaks) in `src/app.css`.
 - Theme tokens (`--background`, `--foreground`, `--muted`, `--border`, `--surface`, `--accent`) are defined under `@theme`/`:root` in `src/app.css`; light/dark switching is via `[data-theme]` and `.prose` is driven by `--tw-prose-*` mappings.
 - Markdown-generated HTML (alerts, footnotes, heading anchors, task lists) is not scanned by Tailwind — its styles must be written explicitly in `src/app.css`.
+- Rules that override the typography plugin's `.prose` element styles (margins, colors, `--tw-prose-*` vars) must stay **unlayered** in `src/app.css` — the plugin emits in the utilities layer, which silently beats `@layer components`.
 - Use `@lucide/svelte` for icons.
 
 ## Accessibility
