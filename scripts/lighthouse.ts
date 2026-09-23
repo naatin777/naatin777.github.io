@@ -10,14 +10,14 @@ import { mkdirSync, readFileSync } from "node:fs";
 const PORT = 4199;
 const PATHS = ["/", "/articles/", "/about/", "/posts/made-portfolio-site/"];
 // [level, minScore] — "warn" reports without failing, "error" fails the run
-const THRESHOLDS = {
+const THRESHOLDS: Record<string, readonly ["warn" | "error", number]> = {
   performance: ["warn", 0.9],
   accessibility: ["error", 0.95],
   "best-practices": ["warn", 0.9],
   seo: ["error", 0.95],
 };
 
-const server = spawn(process.execPath, ["scripts/serve-build.mjs"], {
+const server = spawn(process.execPath, ["scripts/serve-build.ts"], {
   env: { ...process.env, PORT: String(PORT) },
   stdio: "ignore",
 });
@@ -60,11 +60,13 @@ try {
       );
     } catch (error) {
       failures++;
-      console.error(`[lighthouse] ${path}: run failed`, error.message ?? error);
+      console.error(`[lighthouse] ${path}: run failed`, error instanceof Error ? error.message : error);
       continue;
     }
 
-    const { categories } = JSON.parse(readFileSync(reportPath, "utf8"));
+    const { categories } = JSON.parse(readFileSync(reportPath, "utf8")) as {
+      categories: Record<string, { score: number | null } | undefined>;
+    };
     const scores = Object.entries(THRESHOLDS).map(([category, [level, min]]) => {
       const score = categories[category]?.score ?? 0;
       const ok = score >= min;

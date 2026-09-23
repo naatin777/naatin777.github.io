@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build && pagefind --site build && node scripts/generate-og.mjs",
-    "preview": "node scripts/serve-build.mjs",
+    "build": "vite build && pagefind --site build && node scripts/generate-og.ts",
+    "preview": "node scripts/serve-build.ts",
     "sync:external-posts": "node scripts/sync-external-posts.ts",
     "sync:zenn": "node scripts/sync-external-posts.ts zenn",
     "sync:qiita": "node scripts/sync-external-posts.ts qiita",

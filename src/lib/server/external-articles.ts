@@ -3,7 +3,7 @@ import type { ArticleSource } from "$lib/config/article-source";
 import generatedPosts from "../../../content/generated/external-posts.json";
 
 // Shape of content/generated/external-posts.json — produced by
-// `pnpm sync:external-posts` (scripts/sync-external-posts.mjs).
+// `pnpm sync:external-posts` (scripts/sync-external-posts.ts).
 // The build reads only this file; it never hits the network.
 const externalPost = z.object({
   title: z.string(),

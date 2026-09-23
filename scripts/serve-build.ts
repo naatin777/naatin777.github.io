@@ -11,7 +11,7 @@ import { extname, join, normalize } from "node:path";
 const ROOT = "build";
 const PORT = Number(process.env.PORT ?? 4321);
 
-const contentTypes = {
+const contentTypes: Record<string, string> = {
   ".css": "text/css",
   ".html": "text/html; charset=utf-8",
   ".ico": "image/x-icon",

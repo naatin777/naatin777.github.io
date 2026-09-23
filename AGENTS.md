@@ -94,4 +94,4 @@ Instructions for coding agents working in this repository.
 
 - GitHub Actions installs dependencies with `pnpm install --frozen-lockfile` and runs `pnpm run validate` before `pnpm run build`.
 - Deployment publishes the `build/` directory via `peaceiris/actions-gh-pages` (push to `main` only; PRs run checks but do not deploy).
-- Lighthouse audits run via `scripts/lighthouse.mjs` (requires Chrome and a prior `pnpm build`) — keep its `PATHS` in sync with real routes; reports land in `output/lighthouse/`.
+- Lighthouse audits run via `scripts/lighthouse.ts` (requires Chrome and a prior `pnpm build`) — keep its `PATHS` in sync with real routes; reports land in `output/lighthouse/`.

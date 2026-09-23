@@ -1,7 +1,7 @@
 // Generates per-post OG images by screenshotting the prerendered /og/<slug>/ templates.
 // Runs after `vite build` — see the "build" script in package.json.
 import { existsSync, mkdirSync, readdirSync } from "node:fs";
-import { chromium } from "playwright";
+import { chromium, type Browser } from "playwright";
 import { preview } from "vite";
 
 const POSTS_DIR = "build/posts";
@@ -18,7 +18,7 @@ const slugs = readdirSync(POSTS_DIR, { withFileTypes: true })
   .map((d) => d.name);
 
 const server = await preview({ preview: { port: PORT, strictPort: true } });
-let browser;
+let browser: Browser | undefined;
 let failures = 0;
 try {
   browser = await chromium.launch();
@@ -44,7 +44,7 @@ try {
   /* oxlint-enable no-await-in-loop */
 } finally {
   await browser?.close();
-  server.httpServer.close();
+  server.httpServer?.close();
 }
 
 if (failures > 0) {
