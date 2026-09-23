@@ -52,7 +52,10 @@
 
     const button = target?.closest<HTMLButtonElement>(".code-copy");
     if (!button) return;
-    const code = button.closest(".code-block")?.querySelector("code")?.textContent;
+    // Code blocks copy their code; the mermaid bar button copies the
+    // diagram source (the only code inside .mermaid-block).
+    const scope = button.closest(".code-block") ?? button.closest(".mermaid-block");
+    const code = scope?.querySelector("code")?.textContent;
     if (!code) return;
     try {
       await navigator.clipboard.writeText(code.replace(/\n$/, ""));

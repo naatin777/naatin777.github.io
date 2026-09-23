@@ -169,8 +169,17 @@ const rehypeMermaid: Plugin<[], Root> = () => async (tree) => {
         {
           type: "element",
           tagName: "div",
-          properties: { className: ["mermaid-tabs"] },
-          children: [mermaidTab("プレビュー", "preview", true), mermaidTab("ソース", "source", false)],
+          properties: { className: ["code-block-title", "mermaid-bar"] },
+          children: [
+            { type: "element", tagName: "span", properties: {}, children: [{ type: "text", value: "mermaid" }] },
+            {
+              type: "element",
+              tagName: "div",
+              properties: { className: ["mermaid-tabs"] },
+              children: [mermaidTab("プレビュー", "preview", true), mermaidTab("ソース", "source", false)],
+            },
+            copyButton(),
+          ],
         },
         mermaidPane(
           "preview",
