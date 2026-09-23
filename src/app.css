@@ -344,7 +344,7 @@
   .prose .shiki .line.diff::after {
     content: "";
     position: absolute;
-    left: -9px;
+    left: -8px;
     top: 0;
     bottom: 0;
     width: 3px;
@@ -488,6 +488,13 @@
   margin: 0;
   border: 0;
   border-radius: 0;
+}
+
+/* The plugin's 1.14em side padding is roomy; tighten it. The diff accent
+   bar sits inside the left padding, so keep ~12px minimum. */
+.prose pre {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
 }
 
 /* Heading anchors compete with the plugin's `a` styles (color/underline). */
