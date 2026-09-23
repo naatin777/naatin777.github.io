@@ -198,13 +198,26 @@ function estimateReadingTime(content: string): number {
 let cache: Promise<Post[]> | null = null;
 
 export function getPosts(): Promise<Post[]> {
-  return (cache ??= loadPosts());
+  return (cache ??= loadPosts().catch((error) => {
+    // A rejected cache would poison every subsequent call — reset on failure.
+    cache = null;
+    throw error;
+  }));
 }
 
 async function loadPosts(): Promise<Post[]> {
   const posts = await Promise.all(
     Object.entries(postFiles).map(async ([path, raw]): Promise<Post | null> => {
-      const { data, content } = matter(raw);
+      // matter() throws YAMLException on malformed frontmatter — a single
+      // bad file must not fail the whole build.
+      let mattered: ReturnType<typeof matter>;
+      try {
+        mattered = matter(raw);
+      } catch (error) {
+        console.warn(`[posts] skipping ${path}: frontmatter parse failed`, error);
+        return null;
+      }
+      const { data, content } = mattered;
       const parsed = postFrontmatter.safeParse(data);
       if (!parsed.success) {
         console.warn(`[posts] skipping ${path}:`, parsed.error.issues);

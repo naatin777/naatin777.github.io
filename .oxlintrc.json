@@ -11,7 +11,8 @@
   },
   "env": {
     "builtin": true,
-    "browser": true
+    "browser": true,
+    "node": true
   },
   "ignorePatterns": ["content/**", "static/**", "build/**", "dist/**", ".svelte-kit/**", "output/**"]
 }

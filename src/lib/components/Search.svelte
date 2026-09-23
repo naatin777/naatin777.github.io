@@ -1,5 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { replaceState } from "$app/navigation";
+  import { page } from "$app/state";
   import LangText from "$lib/components/LangText.svelte";
 
   interface PagefindResult {
@@ -23,7 +25,9 @@
   let results = $state<PagefindResult[]>([]);
   let searching = $state(false);
   let pagefind: PagefindApi | null = null;
-  let available = $state(false);
+  // Render the (disabled) input during SSR so hydration doesn't shift layout;
+  // the whole block hides only when pagefind is actually absent.
+  let status = $state<"loading" | "ready" | "unavailable">("loading");
 
   onMount(async () => {
     try {
@@ -31,22 +35,24 @@
       const pagefindUrl = "/pagefind/pagefind.js";
       pagefind = (await import(/* @vite-ignore */ pagefindUrl)) as PagefindApi;
       await pagefind.init();
-      available = true;
+      status = "ready";
       const initial = new URLSearchParams(window.location.search).get("q");
       if (initial) {
         query = initial;
         onInput();
       }
     } catch {
-      available = false;
+      status = "unavailable";
     }
   });
 
   async function onInput() {
-    const url = new URL(window.location.href);
+    const url = new URL(page.url);
     if (query.trim()) url.searchParams.set("q", query.trim());
     else url.searchParams.delete("q");
-    window.history.replaceState(null, "", url);
+    // SvelteKit's replaceState preserves router state; raw history.replaceState
+    // would clobber the nav index/scroll state it stores in history.state.
+    replaceState(url, page.state);
     if (!pagefind) return;
     if (!query.trim()) {
       results = [];
@@ -56,10 +62,7 @@
     searching = true;
     const res = await pagefind.debouncedSearch(query, {}, 300);
     // null when superseded by a newer keystroke — that call owns the flag
-    if (!res) {
-      searching = false;
-      return;
-    }
+    if (!res) return;
     // /og/ pages are build-time templates for OG image generation, not content
     const hits = res.results.slice(0, 12).map((r) => r.data());
     results = (await Promise.all(hits)).filter((r) => !r.url.includes("/og/")).slice(0, 8);
@@ -67,13 +70,14 @@
   }
 </script>
 
-{#if available}
+{#if status !== "unavailable"}
   <search class="flex flex-col gap-3">
     <input
       type="search"
       bind:value={query}
       oninput={onInput}
-      class="border-border bg-surface w-full rounded-md border px-3 py-2 text-sm"
+      disabled={status !== "ready"}
+      class="border-border bg-surface w-full rounded-md border px-3 py-2 text-sm disabled:opacity-60"
       placeholder="記事を検索 / Search"
       aria-label="記事を検索 / Search"
     />

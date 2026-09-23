@@ -14,6 +14,13 @@ const escapeXml = (text: string): string =>
 
 const toRfc822 = (date: Date) => date.toUTCString();
 
+// Relative URLs in article HTML break inside RSS readers — absolutize them.
+const absolutizeUrls = (html: string): string =>
+  html.replace(/(src|href)="\//g, (_match, attr: string) => `${attr}="${site.url}/`);
+
+// Raw markdown HTML is textified upstream, so only element syntax can appear.
+const cdataSafe = (html: string): string => html.replace(/\]\]>/g, "]]]]><![CDATA[>");
+
 export const GET: RequestHandler = async () => {
   const posts = await getPosts();
   const items = posts
@@ -25,11 +32,12 @@ export const GET: RequestHandler = async () => {
       <pubDate>${toRfc822(post.publishedAt)}</pubDate>
       ${post.tags.map((tag) => `<category>${escapeXml(tag)}</category>`).join("\n      ")}
       <description>${escapeXml(post.description)}</description>
-      <content:encoded><![CDATA[${post.html.replace(/\]\]>/g, "]]]]><![CDATA[>")}]]></content:encoded>
+      <content:encoded><![CDATA[${cdataSafe(absolutizeUrls(post.html))}]]></content:encoded>
     </item>`,
     )
     .join("\n");
-  const lastBuildDate = toRfc822(posts[0]?.updatedAt ?? posts[0]?.publishedAt ?? new Date());
+  const lastUpdate = Math.max(...posts.map((p) => (p.updatedAt ?? p.publishedAt).getTime()), 0);
+  const lastBuildDate = toRfc822(lastUpdate ? new Date(lastUpdate) : new Date());
   const body = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>

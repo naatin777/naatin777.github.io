@@ -1,4 +1,5 @@
 import { browser } from "$app/environment";
+import { MediaQuery } from "svelte/reactivity";
 
 export type ThemePreference = "light" | "dark" | "system";
 
@@ -10,19 +11,27 @@ const readDomPreference = (): ThemePreference => {
   return value === "light" || value === "dark" ? value : "system";
 };
 
+// The inline script in app.html resolves data-theme before hydration;
+// `preference` mirrors it, and `resolved` stays derived — including
+// live system changes — so the two can never disagree.
+const systemDark = new MediaQuery("(prefers-color-scheme: dark)");
 let preference = $state<ThemePreference>(browser ? readDomPreference() : "system");
-let resolved = $state<"light" | "dark">("light");
+const resolved = $derived<"light" | "dark">(
+  preference === "system" ? (systemDark.current ? "dark" : "light") : preference,
+);
 
-function apply(pref: ThemePreference): void {
-  const dark = pref === "dark" || (pref === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-  resolved = dark ? "dark" : "light";
-  const root = document.documentElement;
-  root.dataset.themePreference = pref;
-  root.dataset.theme = resolved;
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta instanceof HTMLMetaElement) {
-    meta.content = THEME_COLOR[resolved];
-  }
+if (browser) {
+  $effect.root(() => {
+    $effect(() => {
+      const root = document.documentElement;
+      root.dataset.themePreference = preference;
+      root.dataset.theme = resolved;
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta instanceof HTMLMetaElement) {
+        meta.content = THEME_COLOR[resolved];
+      }
+    });
+  });
 }
 
 export function themeState() {
@@ -35,15 +44,12 @@ export function themeState() {
     },
     set(next: ThemePreference) {
       preference = next;
-      if (next === "system") {
-        localStorage.removeItem("theme");
-      } else {
-        localStorage.setItem("theme", next);
+      try {
+        if (next === "system") localStorage.removeItem("theme");
+        else localStorage.setItem("theme", next);
+      } catch {
+        // storage disabled — preference still applies for this session
       }
-      apply(next);
-    },
-    reapply() {
-      apply(preference);
     },
   };
 }

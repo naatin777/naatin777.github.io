@@ -19,16 +19,17 @@
 </script>
 
 <div
-  role="group"
+  role="radiogroup"
   aria-label="言語 / Language"
-  class="flex items-center gap-0.5 text-xs transition-opacity {ready.value ? 'opacity-100' : 'opacity-0'}"
+  class="flex items-center gap-0.5 text-xs transition-opacity {ready.value ? 'opacity-100' : 'invisible opacity-0'}"
 >
   {#each langs as option (option)}
     <button
       type="button"
+      role="radio"
       onclick={() => setLang(option)}
-      aria-pressed={lang === option}
-      class="aria-pressed:text-foreground text-muted hover:text-foreground rounded-md px-1 whitespace-nowrap transition-colors aria-pressed:font-semibold"
+      aria-checked={lang === option}
+      class="aria-checked:text-foreground text-muted hover:text-foreground rounded-md px-1 whitespace-nowrap transition-colors aria-checked:font-semibold"
     >
       {langNames[option]}
     </button>

@@ -2,7 +2,7 @@
   "ci": {
     "collect": {
       "staticDistDir": "./build",
-      "url": ["/", "/articles/", "/changelog/"]
+      "url": ["/", "/articles/", "/about/", "/posts/made-portfolio-site/"]
     },
     "assert": {
       "preset": "lighthouse:no-pwa",

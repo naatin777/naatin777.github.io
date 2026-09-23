@@ -21,7 +21,7 @@ const zennApiArticle = z.object({
 
 const zennApiPage = z.object({
   articles: z.array(z.unknown()),
-  next_page: z.number().nullable(),
+  next_page: z.number().nullable().optional(),
 });
 
 const qiitaTag = z.union([z.string(), z.object({ name: z.string() }).transform((t) => t.name)]);
@@ -86,7 +86,7 @@ async function fetchZennDates(): Promise<Map<string, { publishedAt: string; upda
           updatedAt: parsed.data.body_updated_at ?? parsed.data.published_at,
         });
       }
-      page = body.data.next_page;
+      page = body.data.next_page ?? null;
     }
     /* oxlint-enable no-await-in-loop */
   } catch (error) {
@@ -100,7 +100,16 @@ function* parseMarkdownFiles<T>(
   schema: z.ZodType<T>,
 ): Generator<{ slug: string; fm: T }> {
   for (const [path, raw] of Object.entries(files)) {
-    const parsed = schema.safeParse(matter(raw).data);
+    // matter() throws YAMLException on malformed frontmatter — a single bad
+    // file must not fail the whole build.
+    let data: unknown;
+    try {
+      data = matter(raw).data;
+    } catch (error) {
+      console.warn(`[articles] skipping ${path}: frontmatter parse failed`, error);
+      continue;
+    }
+    const parsed = schema.safeParse(data);
     if (!parsed.success) {
       console.warn(`[articles] skipping ${path}:`, parsed.error.issues);
       continue;
@@ -109,7 +118,16 @@ function* parseMarkdownFiles<T>(
   }
 }
 
-export async function getExternalArticles(): Promise<ArticleItem[]> {
+let cache: Promise<ArticleItem[]> | null = null;
+
+export function getExternalArticles(): Promise<ArticleItem[]> {
+  return (cache ??= loadExternalArticles().catch((error) => {
+    cache = null;
+    throw error;
+  }));
+}
+
+async function loadExternalArticles(): Promise<ArticleItem[]> {
   const zennDates = await fetchZennDates();
   const items: ArticleItem[] = [];
 

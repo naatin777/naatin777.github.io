@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  pull_request:
   workflow_dispatch:
   # weekly rebuild to refresh Zenn article dates fetched at build time
   schedule:
@@ -19,6 +20,7 @@ permissions:
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -36,11 +38,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # headless shell is enough for mermaid rendering and OG screenshots
       - name: Install Playwright browser
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm exec playwright install --with-deps --only-shell chromium
 
       - name: Check and lint
-        run: pnpm run check && pnpm run lint && pnpm run format:check && pnpm run test
+        run: pnpm run validate
 
       - name: Build
         run: pnpm run build
@@ -49,6 +52,7 @@ jobs:
         run: pnpm exec lhci autorun
 
       - name: Deploy
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.0.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

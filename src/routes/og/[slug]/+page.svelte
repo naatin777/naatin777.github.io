@@ -4,6 +4,7 @@
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
+  const host = new URL(site.url).host;
 </script>
 
 <svelte:head>
@@ -11,17 +12,20 @@
   <title>{data.title}</title>
 </svelte:head>
 
-<!-- keep OG template pages out of the pagefind index; the generator screenshots .og-card -->
+<!-- keep OG template pages out of the pagefind index; the generator screenshots .og-card.
+     OG cards are always dark regardless of the user's theme, so pin it here and
+     reuse the theme tokens instead of duplicating the palette. -->
 <div
+  data-theme="dark"
   data-pagefind-ignore
-  class="og-card flex h-[630px] w-[1200px] flex-col justify-between bg-[#0a0a0a] p-16 text-[#ededed]"
+  class="og-card bg-background text-foreground flex h-[630px] w-[1200px] flex-col justify-between p-16"
 >
   <h1 class="text-5xl leading-tight font-bold tracking-tight">{data.title}</h1>
   <div class="flex items-center gap-4">
     <img src={icon} alt="" width="72" height="72" class="rounded-full" />
     <div>
       <p class="text-xl font-semibold">{author.displayName}</p>
-      <p class="text-lg text-[#9ca3af]">{new URL(site.url).host}</p>
+      <p class="text-muted text-lg">{host}</p>
     </div>
   </div>
 </div>

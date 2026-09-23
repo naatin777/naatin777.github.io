@@ -12,15 +12,16 @@
 {#if prev || next}
   <nav
     class="border-border mt-10 flex items-center justify-between gap-4 border-t pt-6 text-sm"
-    aria-label="Post navigation"
+    aria-label="記事ナビゲーション / Post navigation"
   >
     {#if prev}
       <a href="/posts/{prev.slug}/" class="text-muted hover:text-foreground max-w-[45%] truncate">← {prev.title}</a>
-    {:else}
-      <span></span>
     {/if}
     {#if next}
-      <a href="/posts/{next.slug}/" class="text-muted hover:text-foreground max-w-[45%] truncate text-right">
+      <a
+        href="/posts/{next.slug}/"
+        class="text-muted hover:text-foreground max-w-[45%] truncate text-right {prev ? '' : 'ml-auto'}"
+      >
         {next.title} →
       </a>
     {/if}

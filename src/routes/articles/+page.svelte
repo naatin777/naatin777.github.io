@@ -56,7 +56,7 @@
 
 <Seo
   title="Articles · Naatin's Portfolio"
-  description="Articles from my blog, Qiita, and Zenn gathered in one place with tag-based browsing."
+  description="ブログ・Qiita・Zennの記事をまとめて一覧。タグやソースで絞り込めます。"
 />
 
 <section class="flex flex-col gap-6">
@@ -77,7 +77,7 @@
       type="button"
       onclick={clearFilters}
       disabled={!hasFilters}
-      class="chip hover:border-foreground {hasFilters ? '' : 'invisible'}"
+      class="chip hover:border-foreground disabled:invisible"
     >
       <LangText texts={{ ja: "フィルターをクリア", en: "Clear filters" }} />
     </button>

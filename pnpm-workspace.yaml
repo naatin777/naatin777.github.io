@@ -1,0 +1,6 @@
+# single-package repo — this file exists to hold pnpm settings
+packages: []
+
+# refuse to install package versions published within the last week:
+# most supply-chain attacks are caught and yanked within the first few days
+minimumReleaseAge: 10080

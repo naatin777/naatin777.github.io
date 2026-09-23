@@ -24,6 +24,8 @@
       dateModified: (post.updatedAt ?? post.publishedAt).toISOString(),
       inLanguage: "ja",
       author: { "@type": "Person", name: author.displayName, url: site.url },
+      publisher: { "@type": "Person", name: author.displayName, url: site.url },
+      image: `${site.url}/og/${post.slug}.png`,
       keywords: post.tags.join(", "),
       mainEntityOfPage: `${site.url}/posts/${post.slug}/`,
     }),
@@ -64,7 +66,7 @@
     <SeriesNav name={data.series.name} posts={data.series.posts} currentSlug={post.slug} />
   {/if}
   <Toc headings={post.toc} />
-  <div class="prose dark:prose-invert max-w-none">
+  <div class="prose max-w-none">
     {@html post.html}
   </div>
   <PostNav prev={data.prev} next={data.next} />

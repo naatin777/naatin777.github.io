@@ -14,7 +14,7 @@
       <a href="/" class="font-bold tracking-tight">naatin777.dev</a>
     </div>
 
-    <nav aria-label="Primary" class="order-last w-full sm:order-none sm:w-auto">
+    <nav aria-label="メインナビゲーション / Primary" class="order-last w-full sm:order-none sm:w-auto">
       <ul class="flex justify-center gap-4">
         {#each navItems as item (item.href)}
           <li>

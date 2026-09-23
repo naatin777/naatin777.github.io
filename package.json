@@ -8,6 +8,7 @@
     "build": "vite build && pagefind --site build && node scripts/generate-og.mjs",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "validate": "pnpm run check && pnpm run lint && pnpm run format:check && pnpm run test",
     "lint": "oxlint",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
@@ -49,10 +50,8 @@
     "@sveltejs/vite-plugin-svelte": "^7.3.0",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.3",
-    "@testing-library/svelte": "^5.4.2",
     "@types/hast": "^3.0.5",
     "@types/mdast": "^4.0.4",
-    "jsdom": "^30.1.1",
     "oxfmt": "^0.70.0",
     "oxlint": "^1.85.0",
     "pagefind": "^1.5.2",
@@ -74,10 +73,8 @@
     ],
     "overrides": {
       "cookie@<0.7.0": "0.7.2",
-      "tmp@<=0.2.3": ">=0.2.4",
-      "uuid@<11.1.1": ">=11.1.1",
       "tmp@<0.2.6": ">=0.2.6",
-      "sharp@<0.35.0": ">=0.35.0",
+      "uuid@<11.1.1": ">=11.1.1",
       "sharp@<0.35.4": ">=0.35.4"
     }
   }

@@ -1,8 +1,9 @@
+import { parseDate } from "$lib/date";
 import { getExternalArticles, type ArticleItem } from "$lib/server/external-articles";
 import { getPosts } from "$lib/server/posts";
 
 const toTimestamp = (value: string | null): number => {
-  const parsed = value ? Date.parse(value) : 0;
+  const parsed = value ? parseDate(value) : 0;
   return Number.isNaN(parsed) ? 0 : parsed;
 };
 

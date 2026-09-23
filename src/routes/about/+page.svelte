@@ -20,10 +20,7 @@
   ];
 </script>
 
-<Seo
-  title="About · Naatin's Portfolio"
-  description="About Naatin — profile, contact links, and the tools and gear I use."
-/>
+<Seo title="About · Naatin's Portfolio" description="Naatinについて — プロフィール、連絡先、使っているツールや機材。" />
 
 <section class="flex flex-col gap-10">
   <h1 class="text-2xl font-bold tracking-tight"><LangText texts={{ ja: "自己紹介", en: "About" }} /></h1>

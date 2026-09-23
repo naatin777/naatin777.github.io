@@ -16,7 +16,7 @@
   ];
 </script>
 
-<Seo title="Activity · Naatin's Portfolio" description="A running log of updates and activity across this site." />
+<Seo title="Activity · Naatin's Portfolio" description="このサイトの更新と活動のログ。" />
 
 <section class="flex flex-col gap-6">
   <h1 class="text-2xl font-bold tracking-tight"><LangText texts={{ ja: "アクティビティ", en: "Activity" }} /></h1>

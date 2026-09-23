@@ -7,7 +7,7 @@
   const projects: { name: string; url: string; texts: LocalizedText }[] = [];
 </script>
 
-<Seo title="Projects · Naatin's Portfolio" description="Things I have built, gathered in one place." />
+<Seo title="Projects · Naatin's Portfolio" description="作ったものをひとまとめに。" />
 
 <section class="flex flex-col gap-6">
   <h1 class="text-2xl font-bold tracking-tight">

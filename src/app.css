@@ -110,7 +110,9 @@
       background-color 0.15s;
   }
 
-  .chip[aria-pressed="true"] {
+  /* aria-pressed covers multi-select chips (tags); aria-checked covers
+     single-select radio-style chips (source/language). */
+  .chip:is([aria-pressed="true"], [aria-checked="true"]) {
     border-color: var(--foreground);
     background-color: var(--background);
     color: var(--foreground);
@@ -218,8 +220,26 @@
     border: 0;
   }
 
-  /* Japanese body text reads better with wider leading (recommended 1.7–1.9). */
+  /* Map the typography plugin's palette onto the site tokens — prose then
+     follows light/dark automatically and no prose-invert variant is needed.
+     Japanese body text reads better with wider leading (recommended 1.7–1.9). */
   .prose {
+    --tw-prose-body: var(--foreground);
+    --tw-prose-headings: var(--foreground);
+    --tw-prose-lead: var(--muted);
+    --tw-prose-links: var(--accent);
+    --tw-prose-bold: var(--foreground);
+    --tw-prose-counters: var(--muted);
+    --tw-prose-bullets: var(--border);
+    --tw-prose-hr: var(--border);
+    --tw-prose-quotes: var(--foreground);
+    --tw-prose-quote-borders: var(--border);
+    --tw-prose-captions: var(--muted);
+    --tw-prose-code: var(--foreground);
+    --tw-prose-pre-code: var(--foreground);
+    --tw-prose-pre-bg: var(--surface);
+    --tw-prose-th-borders: var(--border);
+    --tw-prose-td-borders: var(--border);
     line-height: 1.8;
   }
 

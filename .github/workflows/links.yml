@@ -19,6 +19,8 @@ jobs:
       - name: Check links
         uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
         with:
+          # fail the job on broken links so the weekly run notifies us
+          fail: true
           args: >-
             --verbose --no-progress --max-retries 3
             --exclude-loopback --exclude-mail

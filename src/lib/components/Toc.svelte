@@ -12,7 +12,7 @@
 </script>
 
 {#if tocHeadings.length >= 3}
-  <nav class="border-border mb-8 rounded-lg border p-4" aria-label="Table of contents">
+  <nav class="border-border mb-8 rounded-lg border p-4" aria-label="目次 / Table of contents">
     <p class="mb-2 text-sm font-bold"><LangText texts={{ ja: "目次", en: "Contents" }} /></p>
     <ul class="flex flex-col gap-1 text-sm">
       {#each tocHeadings as heading (heading.id)}
