@@ -33,7 +33,7 @@ h4以降は目次に出ません。
 
 言語指定でShikiハイライトが効きます。
 
-```ts
+```ts:src/utils/greet.ts
 interface User {
   name: string;
   age: number;

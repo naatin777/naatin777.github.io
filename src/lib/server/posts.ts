@@ -159,6 +159,39 @@ const rehypeMermaid: Plugin<[], Root> = () => async (tree) => {
   /* oxlint-enable no-await-in-loop */
 };
 
+// Zenn-style filenames: ```ts:src/app.ts splits the language, wraps the
+// block in .code-block, and shows the filename in a title bar. Must run
+// before rehypeShiki so it sees the corrected language- class.
+const rehypeCodeFilename: Plugin<[], Root> = () => (tree) => {
+  visit(tree, "element", (node, index, parent) => {
+    if (node.tagName !== "pre" || index === undefined || parent === undefined) return;
+    const code = node.children[0];
+    if (code?.type !== "element" || code.tagName !== "code") return;
+    const classes = code.properties?.className;
+    if (!Array.isArray(classes)) return;
+    const langClass = classes.find((c): c is string => typeof c === "string" && c.startsWith("language-"));
+    const colon = langClass?.indexOf(":") ?? -1;
+    if (!langClass || colon === -1) return;
+    const filename = langClass.slice(colon + 1);
+    if (!filename) return;
+    code.properties.className = [`language-${langClass.slice("language-".length, colon)}`];
+    parent.children[index] = {
+      type: "element",
+      tagName: "div",
+      properties: { className: ["code-block"] },
+      children: [
+        {
+          type: "element",
+          tagName: "div",
+          properties: { className: ["code-block-title"] },
+          children: [{ type: "text", value: filename }],
+        },
+        node,
+      ],
+    };
+  });
+};
+
 // Screen-reader-only headings (the footnotes section label) get ids but are
 // not real content headings — exclude them from toc and permalink anchors.
 const isContentHeading = (node: Element): boolean =>
@@ -269,6 +302,7 @@ const createProcessor = (resolveImage: (src: string) => string) =>
     .use(rehypeHeadingAnchors)
     .use(rehypeExternalLinks, { target: "_blank", rel: ["noopener", "noreferrer"] })
     .use(rehypeMermaid)
+    .use(rehypeCodeFilename)
     .use(rehypeShiki, {
       themes: { light: "github-light", dark: "github-dark" },
       defaultColor: "light-dark()",
