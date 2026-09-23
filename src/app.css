@@ -261,29 +261,6 @@
     border: 0;
   }
 
-  /* Map the typography plugin's palette onto the site tokens — prose then
-     follows light/dark automatically and no prose-invert variant is needed.
-     Japanese body text reads better with wider leading (recommended 1.7–1.9). */
-  .prose {
-    --tw-prose-body: var(--foreground);
-    --tw-prose-headings: var(--foreground);
-    --tw-prose-lead: var(--muted);
-    --tw-prose-links: var(--accent);
-    --tw-prose-bold: var(--foreground);
-    --tw-prose-counters: var(--muted);
-    --tw-prose-bullets: var(--border);
-    --tw-prose-hr: var(--border);
-    --tw-prose-quotes: var(--foreground);
-    --tw-prose-quote-borders: var(--border);
-    --tw-prose-captions: var(--muted);
-    --tw-prose-code: var(--foreground);
-    --tw-prose-pre-code: var(--foreground);
-    --tw-prose-pre-bg: var(--surface);
-    --tw-prose-th-borders: var(--border);
-    --tw-prose-td-borders: var(--border);
-    line-height: 1.8;
-  }
-
   .prose .heading-anchor {
     margin-left: 0.4em;
     font-weight: 400;
@@ -427,4 +404,48 @@
     display: block;
     color: #16a34a;
   }
+}
+
+/* Map the typography plugin's palette onto the site tokens — prose then
+   follows light/dark automatically and no prose-invert variant is needed.
+   IMPORTANT: this block must stay UNLAYERED. The typography plugin emits its
+   own .prose variable defaults in the utilities layer, which comes after
+   @layer components — a layered override silently loses. Unlayered author
+   styles beat all layered styles, so this is the only reliable mapping. */
+.prose {
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-lead: var(--muted);
+  --tw-prose-links: var(--accent);
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-counters: var(--muted);
+  --tw-prose-bullets: var(--muted);
+  --tw-prose-hr: var(--border);
+  --tw-prose-quotes: var(--foreground);
+  --tw-prose-quote-borders: var(--border);
+  --tw-prose-captions: var(--muted);
+  --tw-prose-code: var(--foreground);
+  --tw-prose-pre-code: var(--foreground);
+  --tw-prose-pre-bg: var(--surface);
+  --tw-prose-th-borders: var(--border);
+  --tw-prose-td-borders: var(--border);
+  /* Japanese body text reads better with wider leading (recommended 1.7–1.9);
+     also overridden by the plugin inside a layer, so it must live here. */
+  line-height: 1.8;
+}
+
+/* <kbd> is not styled by the typography plugin — plain text otherwise. */
+.prose kbd {
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 0.375rem;
+  background-color: var(--surface);
+  padding: 0.1em 0.4em;
+  font-family: ui-monospace, monospace;
+  font-size: 0.85em;
+  color: var(--foreground);
+}
+
+.prose summary {
+  cursor: pointer;
 }
