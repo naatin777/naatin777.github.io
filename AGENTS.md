@@ -8,8 +8,8 @@ Personal portfolio site (`naatin777.dev`). SvelteKit + Svelte 5, fully prerender
 
 **Never:**
 
-- Mutate the global `marked` — use the dedicated `Marked` instance in `posts.ts`.
-- Parallelize `loadPosts` (shared `getHeadingList` state) or mermaid `renderer()` calls (fails under prerender — the queue in `mermaid.ts` exists for this).
+- Bypass `rehype-sanitize` for author-derived markup — generated content only. The schema in `posts.ts` is the single trust boundary.
+- Parallelize mermaid `renderer()` calls (fails under prerender — the queue in `mermaid.ts` exists for this).
 - Edit files inside `content/zenn/` or `content/qiita/` — they are git subtrees.
 - Commit generated output (`build/`, `.svelte-kit/`) or secrets.
 
@@ -44,11 +44,11 @@ Personal portfolio site (`naatin777.dev`). SvelteKit + Svelte 5, fully prerender
 - `content/posts/*.md` → local pages at `/posts/[slug]/`. Frontmatter: `title`, `description`, `publishedAt`, `updatedAt`, `tags`, `draft`. Invalid frontmatter is skipped with a warning, never fails the build.
 - `content/zenn/` + `content/qiita/` — git subtrees; frontmatter only, rendered as external links on `/articles/`. Zenn dates come from the API (paginated via `next_page`, falls back to frontmatter).
 - A meta CSP lives in `src/app.html` (GitHub Pages cannot set headers) — when adding external resources (images, fonts, scripts, connections), update the policy or they will be blocked.
-- Markdown pipeline in `posts.ts`: `marked` + `marked-katex-extension` + `marked-shiki` + `marked-gfm-heading-id` + `marked-alert` + `marked-footnote`, all at build time. Posts may use `> [!NOTE]` alerts, `[^n]` footnotes, and shiki `// [!code highlight]`/`[!code ++]` notation.
-- ` ```mermaid ` blocks: a `walkTokens` hook converts them to `html` tokens containing light+dark SVGs (CSS toggles by `data-theme`). Failed renders stay as shiki-highlighted code blocks — no separate fallback path. Playwright must stay in `ssr.external` in `vite.config.ts`.
+- Markdown pipeline in `posts.ts` is unified-based: `remark-parse` → `remark-gfm` → `remark-math` → html-to-text + `remarkAlert` → `remark-rehype` → **`rehype-sanitize` (trust boundary — author markup ends here)** → `rehype-slug` → toc/heading anchors → `rehype-external-links` → `rehypeMermaid` → `@shikijs/rehype` → `rehype-katex` → lazy images → `rehype-stringify`. Keep generated-content plugins AFTER sanitize. Posts may use `> [!NOTE]` alerts, `[^n]` footnotes, and shiki `// [!code highlight]`/`[!code ++]` notation.
+- ` ```mermaid ` blocks: `rehypeMermaid` replaces `pre>code.language-mermaid` with light+dark SVG hast nodes (CSS toggles by `data-theme`). Failed renders stay as shiki-highlighted code blocks — no separate fallback path. Playwright must stay in `ssr.external` in `vite.config.ts`.
 - Shiki uses `defaultColor: "light-dark()"` — theme switching relies on `color-scheme` (`:root` light / `[data-theme="dark"]` dark in `app.css`). Do not remove those rules or re-add manual `.shiki` overrides.
 - `typescript` is pinned to `^6` — svelte-check does not support TS 7 (native port) yet; do not upgrade it when bumping deps.
-- TOC data comes from `getHeadingList()` right after `md.parse` — do not re-implement slugify.
+- TOC comes from `rehypeCollectToc` (hast traversal after `rehype-slug`), stored on `file.data.toc` — do not re-implement slugify. `sr-only` headings (footnote label) are excluded from toc/anchors.
 - `content/` is excluded from lint/format.
 
 ## i18n
