@@ -141,57 +141,66 @@ const mermaidPane = (name: string, hidden: boolean, children: ElementContent[]):
 // preview pane holds light/dark SVGs; the source pane keeps the original
 // <pre> so shiki highlighting, line numbers, and the copy button all still
 // apply. Runs before shiki so the source pane is highlighted normally.
-const rehypeMermaid: Plugin<[], Root> = () => async (tree) => {
-  const blocks: { parent: Parent; index: number; node: Element; source: string }[] = [];
-  visit(tree, "element", (node, index, parent) => {
-    if (node.tagName !== "pre" || index === undefined || parent === undefined) return;
-    const code = node.children[0];
-    if (code?.type !== "element" || code.tagName !== "code") return;
-    const classes = code.properties?.className;
-    if (!Array.isArray(classes) || !classes.includes("language-mermaid")) return;
-    // whitespace:"pre" keeps newlines — the default "normal" collapses them
-    // like CSS, handing mermaid a single-line source that fails to parse.
-    blocks.push({ parent, index, node, source: toText(code, { whitespace: "pre" }) });
-  });
-  /* oxlint-disable no-await-in-loop -- renderMermaid serializes work internally; one queue, sequential calls */
-  for (const block of blocks) {
-    const rendered = await renderMermaid(block.source);
-    if (!rendered) continue; // stays a code block — shiki renders it as a fallback
-    const svgs = fromHtml(
-      `<div class="mermaid-diagram mermaid-light">${rendered.light}</div><div class="mermaid-diagram mermaid-dark">${rendered.dark}</div>`,
-      { fragment: true },
-    );
-    block.parent.children[block.index] = {
-      type: "element",
-      tagName: "div",
-      properties: { className: ["mermaid-block"] },
-      children: [
-        {
-          type: "element",
-          tagName: "div",
-          properties: { className: ["code-block-title", "mermaid-bar"] },
-          children: [
-            { type: "element", tagName: "span", properties: {}, children: [{ type: "text", value: "mermaid" }] },
-            {
-              type: "element",
-              tagName: "div",
-              properties: { className: ["mermaid-tabs"] },
-              children: [mermaidTab("プレビュー", "preview", true), mermaidTab("ソース", "source", false)],
-            },
-            copyButton(),
-          ],
-        },
-        mermaidPane(
-          "preview",
-          false,
-          svgs.children.filter((child): child is ElementContent => child.type !== "doctype"),
-        ),
-        mermaidPane("source", true, [block.node]),
-      ],
-    };
-  }
-  /* oxlint-enable no-await-in-loop */
-};
+// Relative img srcs inside mermaid labels resolve against the post's
+// directory, same as normal markdown images.
+const rehypeMermaid =
+  (resolveImage: (src: string) => string): Plugin<[], Root> =>
+  () =>
+  async (tree) => {
+    const blocks: { parent: Parent; index: number; node: Element; source: string }[] = [];
+    visit(tree, "element", (node, index, parent) => {
+      if (node.tagName !== "pre" || index === undefined || parent === undefined) return;
+      const code = node.children[0];
+      if (code?.type !== "element" || code.tagName !== "code") return;
+      const classes = code.properties?.className;
+      if (!Array.isArray(classes) || !classes.includes("language-mermaid")) return;
+      // whitespace:"pre" keeps newlines — the default "normal" collapses them
+      // like CSS, handing mermaid a single-line source that fails to parse.
+      blocks.push({ parent, index, node, source: toText(code, { whitespace: "pre" }) });
+    });
+    /* oxlint-disable no-await-in-loop -- renderMermaid serializes work internally; one queue, sequential calls */
+    for (const block of blocks) {
+      const source = block.source.replace(
+        /(src=|img:\s*)(['"])(\.{0,2}\/[^'"]+)\2/g,
+        (_m, key: string, quote: string, src: string) => `${key}${quote}${resolveImage(src)}${quote}`,
+      );
+      const rendered = await renderMermaid(source);
+      if (!rendered) continue; // stays a code block — shiki renders it as a fallback
+      const svgs = fromHtml(
+        `<div class="mermaid-diagram mermaid-light">${rendered.light}</div><div class="mermaid-diagram mermaid-dark">${rendered.dark}</div>`,
+        { fragment: true },
+      );
+      block.parent.children[block.index] = {
+        type: "element",
+        tagName: "div",
+        properties: { className: ["mermaid-block"] },
+        children: [
+          {
+            type: "element",
+            tagName: "div",
+            properties: { className: ["code-block-title", "mermaid-bar"] },
+            children: [
+              { type: "element", tagName: "span", properties: {}, children: [{ type: "text", value: "mermaid" }] },
+              {
+                type: "element",
+                tagName: "div",
+                properties: { className: ["mermaid-tabs"] },
+                children: [mermaidTab("プレビュー", "preview", true), mermaidTab("ソース", "source", false)],
+              },
+              copyButton(),
+            ],
+          },
+          mermaidPane(
+            "preview",
+            false,
+            svgs.children.filter((child): child is ElementContent => child.type !== "doctype"),
+          ),
+          mermaidPane("source", true, [block.node]),
+        ],
+      };
+    }
+    /* oxlint-enable no-await-in-loop */
+  };
 
 // Every fenced block gets a .code-block frame + title bar (Zenn-style).
 // ```ts:src/app.ts splits the language: the bar shows the filename, plain
@@ -287,8 +296,17 @@ const rehypeFlattenRoots: Plugin<[], Root> = () => (tree) => {
 };
 
 const rehypeLazyImages: Plugin<[], Root> = () => (tree) => {
+  // imgs inside inline SVG (mermaid labels) are excluded: lazy-loading in
+  // foreignObject is unreliable — the browser may never fetch them.
+  const inSvg = new Set<Element>();
   visit(tree, "element", (node) => {
-    if (node.tagName === "img") node.properties.loading = "lazy";
+    if (node.tagName !== "svg") return;
+    visit(node, "element", (descendant) => {
+      if (descendant.tagName === "img") inSvg.add(descendant);
+    });
+  });
+  visit(tree, "element", (node) => {
+    if (node.tagName === "img" && !inSvg.has(node)) node.properties.loading = "lazy";
   });
 };
 
@@ -389,7 +407,7 @@ const createProcessor = (resolveImage: (src: string) => string) =>
     .use(rehypeCollectToc)
     .use(rehypeHeadingAnchors)
     .use(rehypeExternalLinks, { target: "_blank", rel: ["noopener", "noreferrer"] })
-    .use(rehypeMermaid)
+    .use(rehypeMermaid(resolveImage))
     .use(rehypeCodeFilename)
     .use(rehypeShiki, {
       themes: { light: "github-light", dark: "github-dark" },
