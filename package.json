@@ -43,7 +43,6 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@lhci/cli": "^0.15.1",
     "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/enhanced-img": "^0.11.0",
     "@sveltejs/kit": "^2.70.3",
@@ -52,6 +51,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "@types/hast": "^3.0.5",
     "@types/mdast": "^4.0.4",
+    "lighthouse": "^13.5.0",
     "oxfmt": "^0.70.0",
     "oxlint": "^1.85.0",
     "pagefind": "^1.5.2",

@@ -50,7 +50,7 @@ jobs:
         run: pnpm run build
 
       - name: Lighthouse audit
-        run: pnpm exec lhci autorun
+        run: node scripts/lighthouse.mjs
 
       - name: Deploy
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
