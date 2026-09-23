@@ -11,6 +11,7 @@ Personal portfolio site. Built with SvelteKit + Tailwind CSS, statically exporte
 pnpm install
 pnpm dev      # dev server
 pnpm sync:external-posts  # refresh external article metadata (Zenn RSS + Qiita API)
+pnpm sync:zenn            # Zenn only · pnpm sync:qiita — Qiita only
 pnpm build    # vite build → pagefind index → OG images → build/
 pnpm preview  # serve build/ like GitHub Pages (vite preview misses post-build assets)
 pnpm run check   # svelte-check
@@ -19,7 +20,7 @@ pnpm format      # oxfmt
 pnpm run test    # vitest
 ```
 
-Deploys automatically on push to `main` via GitHub Actions → GitHub Pages. The deploy workflow runs `pnpm sync:external-posts` before building (falls back to the committed JSON if the sync fails).
+Deploys automatically on push to `main` via GitHub Actions → GitHub Pages. The deploy workflow runs `pnpm sync:external-posts` before building, so a failed sync fails the deploy rather than shipping silently stale data.
 
 ## License
 

@@ -1,11 +1,12 @@
 // Syncs external article metadata into content/generated/external-posts.json.
-// Run explicitly via `pnpm sync:external-posts` — the SvelteKit build never
-// touches the network and only reads the generated file.
+// Run via `pnpm sync:external-posts` (both sources), `pnpm sync:zenn`, or
+// `pnpm sync:qiita`. The SvelteKit build never touches the network — it only
+// reads the generated file.
 //
 // Sources (both official, unauthenticated):
 //   Zenn  — RSS feed: https://zenn.dev/<user>/feed?all=1
 //   Qiita — API v2:   https://qiita.com/api/v2/users/<user>/items
-import { mkdirSync, renameSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { XMLParser } from "fast-xml-parser";
 import { z } from "zod";
 
@@ -29,37 +30,63 @@ const qiitaItem = z.object({
   tags: z.array(z.object({ name: z.string() })).default([]),
 });
 
-const fetchText = async (url) => {
+// Shape of one record in the generated file. `source` is the merge key when
+// only a subset of sources is synced.
+const externalPost = z.object({
+  title: z.string(),
+  tags: z.array(z.string()),
+  publishedAt: z.string(),
+  updatedAt: z.string().optional(),
+  url: z.string(),
+  source: z.enum(["zenn", "qiita"]),
+});
+type ExternalPost = z.infer<typeof externalPost>;
+type Source = ExternalPost["source"];
+
+const fetchText = async (url: string): Promise<string> => {
   const res = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
   if (!res.ok) throw new Error(`${url} responded ${res.status}`);
   return res.text();
 };
 
-// Required per the design: title/publishedAt/url must be present and the
-// date must parse; otherwise skip the item loudly instead of emitting
-// broken data.
-const toExternalPost = ({ title, url, publishedAt, updatedAt, tags, source }) => {
+// title/publishedAt/url must be present and the date must parse; otherwise
+// skip the item loudly instead of emitting broken data.
+const toExternalPost = (input: {
+  title: string;
+  url: string;
+  publishedAt: string;
+  updatedAt?: string | undefined;
+  tags: string[];
+  source: Source;
+}): ExternalPost | null => {
+  const { title, url, publishedAt, updatedAt, tags, source } = input;
   const timestamp = Date.parse(publishedAt);
   if (!title || !url || Number.isNaN(timestamp)) {
-    console.warn(`[sync] ${source}: skipping item with missing/invalid fields (${title ?? url ?? "?"})`);
+    console.warn(`[sync] ${source}: skipping item with missing/invalid fields (${title || url || "?"})`);
     return null;
   }
-  const post = { title, tags, publishedAt: new Date(timestamp).toISOString(), url, source };
+  const post: ExternalPost = {
+    title,
+    tags,
+    publishedAt: new Date(timestamp).toISOString(),
+    url,
+    source,
+  };
   if (updatedAt && !Number.isNaN(Date.parse(updatedAt))) {
     post.updatedAt = new Date(updatedAt).toISOString();
   }
   return post;
 };
 
-async function fetchZennPosts() {
+async function fetchZennPosts(): Promise<ExternalPost[]> {
   const xml = await fetchText(`https://zenn.dev/${USERNAME}/feed?all=1`);
   const doc = new XMLParser({
     ignoreAttributes: true,
     isArray: (name) => name === "item" || name === "category",
   }).parse(xml);
-  const items = doc?.rss?.channel?.item ?? [];
+  const items: unknown = doc?.rss?.channel?.item ?? [];
 
-  return items.flatMap((item) => {
+  return (items as unknown[]).flatMap((item) => {
     const parsed = zennItem.safeParse(item);
     if (!parsed.success) {
       console.warn("[sync] zenn: skipping malformed item", parsed.error.issues);
@@ -79,14 +106,14 @@ async function fetchZennPosts() {
   });
 }
 
-async function fetchQiitaPosts() {
+async function fetchQiitaPosts(): Promise<ExternalPost[]> {
   const PER_PAGE = 100;
   const MAX_PAGES = 10;
-  const posts = [];
+  const posts: ExternalPost[] = [];
   /* oxlint-disable no-await-in-loop -- each page depends on the previous page's item count */
   for (let page = 1; page <= MAX_PAGES; page++) {
     const body = await fetchText(`https://qiita.com/api/v2/users/${USERNAME}/items?per_page=${PER_PAGE}&page=${page}`);
-    const items = JSON.parse(body);
+    const items: unknown = JSON.parse(body);
     if (!Array.isArray(items)) throw new Error("unexpected response shape (not an array)");
     for (const raw of items) {
       const parsed = qiitaItem.safeParse(raw);
@@ -112,11 +139,24 @@ async function fetchQiitaPosts() {
   return posts;
 }
 
-const fetchers = { zenn: fetchZennPosts, qiita: fetchQiitaPosts };
-const results = await Promise.all(
-  Object.entries(fetchers).map(async ([source, run]) => {
+const fetchers: Record<Source, () => Promise<ExternalPost[]>> = {
+  zenn: fetchZennPosts,
+  qiita: fetchQiitaPosts,
+};
+
+// `pnpm sync:zenn` / `pnpm sync:qiita` sync just that source; no args = all.
+const requested = process.argv.slice(2);
+const sources = (requested.length > 0 ? requested : Object.keys(fetchers)) as Source[];
+for (const source of sources) {
+  if (!(source in fetchers)) {
+    throw new Error(`unknown source "${source}" — expected: ${Object.keys(fetchers).join(", ")}`);
+  }
+}
+
+const fresh = await Promise.all(
+  sources.map(async (source) => {
     try {
-      return await run();
+      return await fetchers[source]();
     } catch (error) {
       throw new Error(`${source}: ${error instanceof Error ? error.message : error}`, {
         cause: error,
@@ -124,13 +164,26 @@ const results = await Promise.all(
     }
   }),
 );
-const posts = results.flat().toSorted((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
 
-if (posts.length === 0) throw new Error("no posts fetched from any source — not overwriting");
+// Records of non-requested sources are kept as-is so a partial sync doesn't
+// drop data it didn't refresh.
+let existing: ExternalPost[] = [];
+if (existsSync(OUT_FILE)) {
+  const parsed = z.array(externalPost).safeParse(JSON.parse(readFileSync(OUT_FILE, "utf8")));
+  if (!parsed.success) {
+    throw new Error(`${OUT_FILE} is malformed — delete it and re-run the full sync`, {
+      cause: parsed.error,
+    });
+  }
+  existing = parsed.data.filter((post) => !sources.includes(post.source));
+}
+
+const posts = [...existing, ...fresh.flat()].toSorted((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
+if (posts.length === 0) throw new Error("no posts to write — not overwriting");
 
 // Write via temp+rename so a crash mid-write can't corrupt the existing file.
 mkdirSync("content/generated", { recursive: true });
 const tmpFile = `${OUT_FILE}.tmp`;
 writeFileSync(tmpFile, `${JSON.stringify(posts, null, 2)}\n`);
 renameSync(tmpFile, OUT_FILE);
-console.log(`[sync] wrote ${posts.length} posts (${posts.map((p) => p.source).join(", ")}) -> ${OUT_FILE}`);
+console.log(`[sync] wrote ${posts.length} posts (${sources.join(" + ")} synced) -> ${OUT_FILE}`);

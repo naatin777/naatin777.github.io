@@ -63,7 +63,7 @@ Instructions for coding agents working in this repository.
 ## Content Rules
 
 - Local posts live in `content/posts/*.md` with zod-validated frontmatter (`title`, `date`, `tags`, optional `series`, `updated`, `description`).
-- External articles (Zenn/Qiita) come from `content/generated/external-posts.json`, produced by `pnpm sync:external-posts` (Zenn official RSS + Qiita API v2, unauthenticated). The build reads only that committed file — never the network.
+- External articles (Zenn/Qiita) come from `content/generated/external-posts.json`, produced by `pnpm sync:external-posts` (or per-source `pnpm sync:zenn` / `pnpm sync:qiita`; Zenn official RSS + Qiita API v2, unauthenticated). The build reads only that committed file — never the network.
 - `src/lib/server/posts.ts` must never throw on malformed Markdown/frontmatter — skip and warn instead.
 
 ## Styling Rules

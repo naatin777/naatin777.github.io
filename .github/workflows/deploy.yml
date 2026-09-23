@@ -33,7 +33,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: "22"
+          node-version: "24"
           cache: pnpm
 
       - name: Install dependencies
@@ -46,11 +46,8 @@ jobs:
       - name: Check and lint
         run: pnpm run validate
 
-      # Refresh external article metadata; on failure fall back to the
-      # committed JSON so Zenn/Qiita outages can't block a deploy.
       - name: Sync external posts
         run: pnpm sync:external-posts
-        continue-on-error: true
 
       - name: Build
         run: pnpm run build
