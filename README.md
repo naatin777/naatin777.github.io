@@ -3,7 +3,7 @@
 Personal portfolio site. Built with SvelteKit + Tailwind CSS, statically exported to GitHub Pages.
 
 - Site-native posts live in `content/posts/`.
-- Zenn/Qiita article metadata (title/URL/tags/dates) is synced from official feeds into `content/generated/<source>.json` — committed, so builds never hit the network.
+- Zenn/Qiita article metadata (title/URL/tags/dates) is synced into `content/generated/<source>.json` — committed, so builds never hit the network. Qiita via API v2; Zenn via the official RSS joined with the vendored `content/zenn/` subtree for topics.
 
 ## Commands
 

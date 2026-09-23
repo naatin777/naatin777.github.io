@@ -1,19 +1,49 @@
 // Syncs Zenn article metadata into content/generated/zenn.json.
-// Run via `pnpm sync:zenn`. Uses the official unauthenticated RSS feed:
-// https://zenn.dev/<user>/feed?all=1
-import { mkdirSync, renameSync, writeFileSync } from "node:fs";
+// Run via `pnpm sync:zenn`. Uses only official sources — no private APIs:
+//
+//   Zenn RSS (https://zenn.dev/<user>/feed?all=1)
+//     → the list of published articles: title / pubDate / link
+//   Vendored repo (content/zenn/articles/<slug>.md, via git subtree)
+//     → frontmatter `topics`, joined on the slug from the RSS link
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { XMLParser } from "fast-xml-parser";
+import matter from "gray-matter";
 import { z } from "zod";
 
 const USERNAME = "naatin777";
+const ARTICLES_DIR = "content/zenn/articles";
 const OUT_FILE = "content/generated/zenn.json";
 
 const zennItem = z.object({
   title: z.string(),
   link: z.string(),
   pubDate: z.string(),
-  category: z.array(z.string()).optional(),
 });
+
+const zennFrontmatter = z.object({
+  topics: z.array(z.string()).default([]),
+});
+
+// Topics live only in the repo frontmatter — RSS does not carry them.
+// An article missing from the subtree still syncs, with empty tags.
+const topicsFor = (slug: string): string[] => {
+  const file = `${ARTICLES_DIR}/${slug}.md`;
+  if (!existsSync(file)) {
+    console.warn(`[sync] zenn: no vendored article "${slug}.md" — empty tags (pull the subtree?)`);
+    return [];
+  }
+  try {
+    const parsed = zennFrontmatter.safeParse(matter(readFileSync(file, "utf8")).data);
+    if (!parsed.success) {
+      console.warn(`[sync] zenn: bad frontmatter in ${file}`, parsed.error.issues);
+      return [];
+    }
+    return parsed.data.topics;
+  } catch (error) {
+    console.warn(`[sync] zenn: cannot read ${file}`, error);
+    return [];
+  }
+};
 
 const res = await fetch(`https://zenn.dev/${USERNAME}/feed?all=1`, {
   signal: AbortSignal.timeout(15_000),
@@ -22,7 +52,7 @@ if (!res.ok) throw new Error(`zenn feed responded ${res.status}`);
 
 const doc = new XMLParser({
   ignoreAttributes: true,
-  isArray: (name) => name === "item" || name === "category",
+  isArray: (name) => name === "item",
 }).parse(await res.text());
 const items = (doc?.rss?.channel?.item ?? []) as unknown[];
 
@@ -32,18 +62,17 @@ const posts = items.flatMap((item) => {
     console.warn("[sync] zenn: skipping malformed item", parsed.error.issues);
     return [];
   }
-  const { title, link, pubDate, category } = parsed.data;
+  const { title, link, pubDate } = parsed.data;
   const timestamp = Date.parse(pubDate);
-  if (!title || !link || Number.isNaN(timestamp)) {
+  const slug = link.split("/").pop() ?? "";
+  if (!title || !link || !slug || Number.isNaN(timestamp)) {
     console.warn(`[sync] zenn: skipping item with missing/invalid fields (${title || link || "?"})`);
     return [];
   }
   return [
     {
       title,
-      // Zenn is expected to emit topics as <category> — currently it emits
-      // none, so tags are [] until the feed does. Dependency is localized here.
-      tags: category ?? [],
+      tags: topicsFor(slug),
       publishedAt: new Date(timestamp).toISOString(),
       url: link,
       source: "zenn",
