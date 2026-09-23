@@ -1,5 +1,6 @@
-// Zenn frontmatter uses "YYYY-MM-DD" or "YYYY-MM-DD hh:mm" (JST), both of
-// which lack an offset — without pinning, parsing is machine-TZ dependent.
+// Bare dates like "YYYY-MM-DD" or "YYYY-MM-DD hh:mm" (used in frontmatter
+// and hardcoded data) lack an offset — without pinning, parsing is
+// machine-TZ dependent. Treat them as JST.
 const JST_DATE = /^(\d{4}-\d{2}-\d{2})(?:[ T](\d{2}:\d{2}))?$/;
 
 // The site is ja-first — pin formatting to JST so CI (UTC) and local

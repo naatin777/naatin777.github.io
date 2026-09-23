@@ -16,7 +16,11 @@
   function setLang(next: Lang): void {
     lang = next;
     document.documentElement.lang = next;
-    localStorage.setItem("lang", next);
+    try {
+      localStorage.setItem("lang", next);
+    } catch {
+      // storage disabled — preference still applies for this session
+    }
   }
 </script>
 

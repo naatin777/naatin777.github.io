@@ -17,7 +17,7 @@ import remarkMath from "remark-math";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified, type Plugin } from "unified";
-import { visit } from "unist-util-visit";
+import { SKIP, visit } from "unist-util-visit";
 import { z } from "zod";
 import type { TocItem } from "$lib/types";
 import { renderMermaid } from "./mermaid";
@@ -176,6 +176,24 @@ const rehypeLazyImages: Plugin<[], Root> = () => (tree) => {
   });
 };
 
+// Collects the text a reader actually reads, for reading-time estimation.
+// Runs on the final tree so generated noise is excluded: code blocks,
+// rendered math, heading permalinks, and diagram SVGs. This replaces the
+// old approach of stripping the same constructs from raw markdown by regex
+// (which also miscounted image/link URLs as text).
+const rehypeCollectReadingText: Plugin<[], Root> = () => (tree, file) => {
+  const parts: string[] = [];
+  visit(tree, (node) => {
+    if (node.type === "element") {
+      const classes = node.properties?.className;
+      const skipClass = Array.isArray(classes) && (classes.includes("katex") || classes.includes("heading-anchor"));
+      if (node.tagName === "pre" || node.tagName === "svg" || skipClass) return SKIP;
+    }
+    if (node.type === "text") parts.push(node.value);
+  });
+  file.data.readingText = parts.join(" ");
+};
+
 const createProcessor = (resolveImage: (src: string) => string) =>
   unified()
     .use(remarkParse)
@@ -201,25 +219,27 @@ const createProcessor = (resolveImage: (src: string) => string) =>
     })
     .use(rehypeKatex)
     .use(rehypeLazyImages)
+    .use(rehypeCollectReadingText)
     .use(rehypeStringify);
 
 export async function renderMarkdown(
   content: string,
   options: { resolveImage?: (src: string) => string } = {},
-): Promise<{ html: string; toc: TocItem[] }> {
+): Promise<{ html: string; toc: TocItem[]; plainText: string }> {
   const file = await createProcessor(options.resolveImage ?? ((src) => src)).process(content);
-  return { html: String(file), toc: (file.data.toc as TocItem[] | undefined) ?? [] };
+  return {
+    html: String(file),
+    toc: (file.data.toc as TocItem[] | undefined) ?? [],
+    plainText: (file.data.readingText as string | undefined) ?? "",
+  };
 }
 
-function estimateReadingTime(content: string): number {
-  const plain = content
-    .replace(/```[\s\S]*?```/g, " ")
-    .replace(/\$\$[\s\S]*?\$\$|\$[^$\n]+\$/g, " ")
-    .replace(/[#*_`>|[\]()-]/g, " ");
-  const words = plain.trim().split(/\s+/).filter(Boolean).length;
-  const chars = plain.replace(/\s/g, "").length;
-  const minutes = Math.max(words / 400, chars / 800);
-  return Math.max(1, Math.ceil(minutes));
+// Rough bilingual heuristic: ~400 wpm for space-delimited text, ~800
+// chars/min for Japanese (which has no spaces). Whichever is larger wins.
+function estimateReadingTime(plainText: string): number {
+  const words = plainText.trim().split(/\s+/).filter(Boolean).length;
+  const chars = plainText.replace(/\s/g, "").length;
+  return Math.max(1, Math.ceil(Math.max(words / 400, chars / 800)));
 }
 
 let cache: Promise<Post[]> | null = null;
@@ -272,7 +292,7 @@ async function loadPosts(): Promise<Post[]> {
         }
         return bundled;
       };
-      const { html, toc } = await renderMarkdown(content, { resolveImage });
+      const { html, toc, plainText } = await renderMarkdown(content, { resolveImage });
       return {
         slug,
         title: fm.title,
@@ -283,7 +303,7 @@ async function loadPosts(): Promise<Post[]> {
         series: fm.series ?? null,
         html,
         toc,
-        readingTime: estimateReadingTime(content),
+        readingTime: estimateReadingTime(plainText),
       };
     }),
   );
