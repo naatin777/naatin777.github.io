@@ -35,7 +35,7 @@
   const onCodeCopyClick = async (event: MouseEvent) => {
     const button = (event.target as Element | null)?.closest<HTMLButtonElement>(".code-copy");
     if (!button) return;
-    const code = button.parentElement?.querySelector("code")?.textContent;
+    const code = button.closest(".code-block")?.querySelector("code")?.textContent;
     if (!code) return;
     try {
       await navigator.clipboard.writeText(code.replace(/\n$/, ""));

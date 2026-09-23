@@ -219,6 +219,18 @@ const rehypeHeadingAnchors: Plugin<[], Root> = () => (tree) => {
   });
 };
 
+// @shikijs/rehype replaces each <pre> with a hast *fragment root* containing
+// the styled <pre>. Stringify inlines it harmlessly, but the stray root node
+// breaks parent lookups for later plugins — splice its children back in.
+const rehypeFlattenRoots: Plugin<[], Root> = () => (tree) => {
+  visit(tree, (node, index, parent) => {
+    if (node.type === "root" && node !== tree && index !== undefined && parent) {
+      parent.children.splice(index, 1, ...node.children);
+      return index;
+    }
+  });
+};
+
 const rehypeLazyImages: Plugin<[], Root> = () => (tree) => {
   visit(tree, "element", (node) => {
     if (node.tagName === "img") node.properties.loading = "lazy";
@@ -231,28 +243,48 @@ const iconSvg = (inner: string, cls: string): ElementContent[] =>
     { fragment: true },
   ).children.filter((child): child is ElementContent => child.type !== "doctype");
 
-// Adds a copy button to every code block. The button is generated markup
-// (post-sanitize, icon-only so nothing leaks into RSS/search text); the
+// Adds a copy button to every code block and wraps bare <pre> in
+// .code-block (rehypeCodeFilename already wraps titled ones). The button
+// anchors to the wrapper, not pre — pre scrolls horizontally, which would
+// drag an absolutely positioned child along. Generated markup is
+// post-sanitize and icon-only so nothing leaks into RSS/search text; the
 // click handler is one delegated listener on the post page.
 const rehypeCodeCopy: Plugin<[], Root> = () => (tree) => {
-  visit(tree, "element", (node) => {
-    if (node.tagName !== "pre") return;
-    node.children.push({
+  const copyButton = (): Element => ({
+    type: "element",
+    tagName: "button",
+    properties: {
+      type: "button",
+      className: ["code-copy"],
+      ariaLabel: "コードをコピー",
+    },
+    children: [
+      ...iconSvg(
+        '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+        "icon-copy",
+      ),
+      ...iconSvg('<path d="M20 6 9 17l-5-5"/>', "icon-check"),
+    ],
+  });
+  visit(tree, "element", (node, index, parent) => {
+    if (node.tagName !== "pre" || index === undefined || parent === undefined) return;
+    const parentClasses = parent.properties?.className;
+    if (Array.isArray(parentClasses) && parentClasses.includes("code-block")) {
+      // Titled block: put the button in the filename bar.
+      const title = parent.children.find(
+        (c): c is Element =>
+          c.type === "element" &&
+          (c.properties?.className as string[] | undefined)?.includes("code-block-title") === true,
+      );
+      (title ?? parent).children.push(copyButton());
+      return;
+    }
+    parent.children[index] = {
       type: "element",
-      tagName: "button",
-      properties: {
-        type: "button",
-        className: ["code-copy"],
-        ariaLabel: "コードをコピー",
-      },
-      children: [
-        ...iconSvg(
-          '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
-          "icon-copy",
-        ),
-        ...iconSvg('<path d="M20 6 9 17l-5-5"/>', "icon-check"),
-      ],
-    });
+      tagName: "div",
+      properties: { className: ["code-block"] },
+      children: [node, copyButton()],
+    };
   });
 };
 
@@ -301,6 +333,7 @@ const createProcessor = (resolveImage: (src: string) => string) =>
       cssVariablePrefix: "--shiki-",
       transformers: [transformerNotationHighlight(), transformerNotationDiff()],
     })
+    .use(rehypeFlattenRoots)
     .use(rehypeKatex)
     .use(rehypeLazyImages)
     .use(rehypeCodeCopy)
