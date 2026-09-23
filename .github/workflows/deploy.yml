@@ -10,8 +10,9 @@ on:
   schedule:
     - cron: "0 0 * * 0"
 
+# scope per ref so a PR run can't cancel an in-flight main deploy
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:

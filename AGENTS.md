@@ -36,7 +36,7 @@ Instructions for coding agents working in this repository.
 - Lint: `pnpm run lint` (oxlint), format: `pnpm run format` / `pnpm run format:check` (oxfmt)
 - Tests: `pnpm run test` (vitest)
 - Full pre-CI validation: `pnpm run validate` (check + lint + format:check + test)
-- Preview build output: `pnpm preview`
+- Preview build output: `pnpm preview` (serves `build/` like GitHub Pages — `vite preview` serves `.svelte-kit/output` instead and would miss post-build assets like the pagefind index and OG images)
 
 ## Editing Workflow
 
@@ -78,6 +78,7 @@ Instructions for coding agents working in this repository.
 - Write meaningful `alt` text for informative images; decorative images use `alt=""`.
 - Single-select filter groups use `role="radiogroup"` + `role="radio"` + `aria-checked`; multi-select chips use `aria-pressed`. Both are styled by the `.chip` rule in `src/app.css`.
 - Landmark/nav labels are localized via `aria-labelledby` → an element containing `LangText` (the inactive language is `display:none`, so screen readers announce only the active one). Use `$props.id()` for the id; never write bilingual `aria-label`s.
+- `LangText` renders both languages into the DOM and marks the non-default one `data-pagefind-ignore` — keep that attribute so the search index doesn't index both variants.
 - Heading anchors injected by the Markdown pipeline are real focusable links with `aria-label` — do not nest anchors inside them.
 
 ## Validation

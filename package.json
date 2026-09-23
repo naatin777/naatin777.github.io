@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build && pagefind --site build && node scripts/generate-og.mjs",
-    "preview": "vite preview",
+    "preview": "node scripts/serve-build.mjs",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "validate": "pnpm run check && pnpm run lint && pnpm run format:check && pnpm run test",
     "lint": "oxlint",
