@@ -11,13 +11,6 @@
     "updatedAt": "2026-09-15T16:28:10.000Z"
   },
   {
-    "title": "Cursorの設定ファイルまとめ",
-    "tags": [],
-    "publishedAt": "2026-06-13T10:15:39.000Z",
-    "url": "https://zenn.dev/naatin777/articles/cursor-setting-files",
-    "source": "zenn"
-  },
-  {
     "title": "SwiftUI×Core Dataの初期プロジェクトを解析してSwiftUIを入門する",
     "tags": [
       "Swift",

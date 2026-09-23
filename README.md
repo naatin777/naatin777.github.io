@@ -3,7 +3,7 @@
 Personal portfolio site. Built with SvelteKit + Tailwind CSS, statically exported to GitHub Pages.
 
 - Site-native posts live in `content/posts/`.
-- Zenn/Qiita article metadata (title/URL/tags/dates) is synced from official feeds into `content/generated/external-posts.json` — committed, so builds never hit the network.
+- Zenn/Qiita article metadata (title/URL/tags/dates) is synced from official feeds into `content/generated/<source>.json` — committed, so builds never hit the network.
 
 ## Commands
 
@@ -11,7 +11,7 @@ Personal portfolio site. Built with SvelteKit + Tailwind CSS, statically exporte
 pnpm install
 pnpm dev      # dev server
 pnpm sync:external-posts  # refresh external article metadata (Zenn RSS + Qiita API)
-pnpm sync:zenn            # Zenn only · pnpm sync:qiita — Qiita only
+pnpm sync:zenn            # or sync a single source · pnpm sync:qiita
 pnpm build    # vite build → pagefind index → OG images → build/
 pnpm preview  # serve build/ like GitHub Pages (vite preview misses post-build assets)
 pnpm run check   # svelte-check
