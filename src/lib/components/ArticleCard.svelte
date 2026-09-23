@@ -8,12 +8,12 @@
     tags: string[];
     source: ArticleSource;
     series: string | null;
-    updatedAt: string | null;
+    publishedAt: string | null;
     selectedTags?: Set<string>;
     ontag?: (tag: string) => void;
   }
 
-  let { title, url, tags, source, series, updatedAt, selectedTags, ontag }: Props = $props();
+  let { title, url, tags, source, series, publishedAt, selectedTags, ontag }: Props = $props();
 
   const external = $derived(source !== "blog");
 </script>
@@ -33,8 +33,8 @@
     </span>
   </div>
   <div class="text-muted mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-    {#if updatedAt}
-      <time datetime={updatedAt}>{formatDate(updatedAt)}</time>
+    {#if publishedAt}
+      <time datetime={publishedAt}>{formatDate(publishedAt)}</time>
     {/if}
     {#if series}
       <span class="chip bg-foreground/10 text-foreground border-transparent">{series}</span>

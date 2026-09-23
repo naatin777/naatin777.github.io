@@ -1,11 +1,15 @@
 import matter from "gray-matter";
 import { z } from "zod";
 import { author } from "$lib/config/site";
+import { parseDate } from "$lib/date";
 import type { ArticleSource } from "$lib/config/article-source";
 
 // gray-matter parses unquoted YAML timestamps into Date objects
 const dateField = z.union([z.string(), z.date().transform((d) => d.toISOString())]);
 
+// Zenn articles come from the GitHub-linked repo (content/zenn/). Dates are
+// authored in frontmatter — `published_at` is Zenn's official field for the
+// display publication date (JST). No API call is needed at build time.
 const zennFrontmatter = z.object({
   title: z.string(),
   topics: z.array(z.string()).default([]),
@@ -13,17 +17,8 @@ const zennFrontmatter = z.object({
   published_at: dateField.optional(),
 });
 
-const zennApiArticle = z.object({
-  slug: z.string(),
-  published_at: z.string().nullable(),
-  body_updated_at: z.string().nullable().optional(),
-});
-
-const zennApiPage = z.object({
-  articles: z.array(z.unknown()),
-  next_page: z.number().nullable().optional(),
-});
-
+// Qiita articles come from qiita-cli-managed files — the CLI's publish
+// action writes id/created_at/updated_at back into frontmatter.
 const qiitaTag = z.union([z.string(), z.object({ name: z.string() }).transform((t) => t.name)]);
 
 const qiitaFrontmatter = z.object({
@@ -43,7 +38,6 @@ export interface ArticleItem {
   source: ArticleSource;
   series: string | null;
   publishedAt: string | null;
-  updatedAt: string | null;
 }
 
 const zennFiles = import.meta.glob<string>("/content/zenn/articles/*.md", {
@@ -57,43 +51,6 @@ const qiitaFiles = import.meta.glob<string>("/content/qiita/public/*.md", {
   import: "default",
   eager: true,
 });
-
-async function fetchZennDates(): Promise<Map<string, { publishedAt: string; updatedAt: string }>> {
-  const dates = new Map<string, { publishedAt: string; updatedAt: string }>();
-  const MAX_PAGES = 20;
-
-  try {
-    let page: number | null = 1;
-    /* oxlint-disable no-await-in-loop -- pages depend on the previous response's next_page cursor */
-    while (page !== null && page <= MAX_PAGES) {
-      const res = await fetch(`https://zenn.dev/api/articles?username=${author.name}&page=${page}`, {
-        signal: AbortSignal.timeout(10_000),
-      });
-      if (!res.ok) {
-        console.warn(`[articles] Zenn API responded ${res.status} on page ${page}`);
-        break;
-      }
-      const body = zennApiPage.safeParse(await res.json());
-      if (!body.success) {
-        console.warn("[articles] Zenn API response shape changed; stopping pagination");
-        break;
-      }
-      for (const entry of body.data.articles) {
-        const parsed = zennApiArticle.safeParse(entry);
-        if (!parsed.success || !parsed.data.published_at) continue;
-        dates.set(parsed.data.slug, {
-          publishedAt: parsed.data.published_at,
-          updatedAt: parsed.data.body_updated_at ?? parsed.data.published_at,
-        });
-      }
-      page = body.data.next_page ?? null;
-    }
-    /* oxlint-enable no-await-in-loop */
-  } catch (error) {
-    console.warn("[articles] Zenn API fetch failed; using frontmatter dates only:", error);
-  }
-  return dates;
-}
 
 function* parseMarkdownFiles<T>(
   files: Record<string, string>,
@@ -118,30 +75,34 @@ function* parseMarkdownFiles<T>(
   }
 }
 
-let cache: Promise<ArticleItem[]> | null = null;
+let cache: ArticleItem[] | null = null;
 
-export function getExternalArticles(): Promise<ArticleItem[]> {
-  return (cache ??= loadExternalArticles().catch((error) => {
-    cache = null;
-    throw error;
-  }));
+export function getExternalArticles(): ArticleItem[] {
+  return (cache ??= loadExternalArticles());
 }
 
-async function loadExternalArticles(): Promise<ArticleItem[]> {
-  const zennDates = await fetchZennDates();
+// Frontmatter dates arrive in mixed formats (Zenn "YYYY-MM-DD hh:mm" JST,
+// Qiita ISO). Normalize to ISO so <time datetime> is unambiguous.
+const toIso = (value: string | undefined): string | null => {
+  const timestamp = value ? parseDate(value) : Number.NaN;
+  return Number.isNaN(timestamp) ? null : new Date(timestamp).toISOString();
+};
+
+function loadExternalArticles(): ArticleItem[] {
   const items: ArticleItem[] = [];
 
   for (const { slug, fm } of parseMarkdownFiles(zennFiles, zennFrontmatter)) {
     if (!fm.published) continue;
-    const dates = zennDates.get(slug);
+    if (!fm.published_at) {
+      console.warn(`[articles] ${slug}: published Zenn article has no published_at — date will be blank`);
+    }
     items.push({
       title: fm.title,
       url: `https://zenn.dev/${author.name}/articles/${slug}`,
       tags: fm.topics,
       source: "zenn",
       series: null,
-      publishedAt: dates?.publishedAt ?? fm.published_at ?? null,
-      updatedAt: dates?.updatedAt ?? fm.published_at ?? null,
+      publishedAt: toIso(fm.published_at),
     });
   }
 
@@ -153,8 +114,7 @@ async function loadExternalArticles(): Promise<ArticleItem[]> {
       tags: fm.tags,
       source: "qiita",
       series: null,
-      publishedAt: fm.created_at ?? fm.updated_at ?? null,
-      updatedAt: fm.updated_at ?? fm.created_at ?? null,
+      publishedAt: toIso(fm.created_at ?? fm.updated_at),
     });
   }
 

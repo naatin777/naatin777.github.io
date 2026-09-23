@@ -4,6 +4,7 @@ emoji: "🌊"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["cursor"]
 published: true
+published_at: 2026-06-13 19:15
 ---
 
 # はじめに

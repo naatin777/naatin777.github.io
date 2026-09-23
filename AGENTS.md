@@ -63,7 +63,7 @@ Instructions for coding agents working in this repository.
 ## Content Rules
 
 - Local posts live in `content/posts/*.md` with zod-validated frontmatter (`title`, `date`, `tags`, optional `series`, `updated`, `description`).
-- External articles (Zenn/Qiita) are fetched at build time in `src/lib/server/external-articles.ts`; parsing failures must never fail the build.
+- External articles (Zenn/Qiita) are read from vendored `content/` subtrees in `src/lib/server/external-articles.ts`; parsing failures must never fail the build. Zenn dates come from the frontmatter `published_at` field — published articles missing it log a build warning. No external API calls at build time.
 - `src/lib/server/posts.ts` must never throw on malformed Markdown/frontmatter — skip and warn instead.
 
 ## Styling Rules
