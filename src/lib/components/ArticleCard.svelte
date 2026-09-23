@@ -1,6 +1,6 @@
 <script lang="ts">
   import { formatDate } from "$lib/date";
-  import { sourceLabels, sourceStyles, type ArticleSource } from "$lib/config/article-source";
+  import { sourceLabels, type ArticleSource } from "$lib/config/article-source";
 
   interface Props {
     title: string;
@@ -28,7 +28,7 @@
     >
       {title}
     </a>
-    <span class="shrink-0 rounded border px-1.5 py-0.5 text-[10px] font-medium tracking-wide {sourceStyles[source]}">
+    <span class="badge badge-{source}">
       {sourceLabels[source]}
     </span>
   </div>
