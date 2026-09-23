@@ -345,6 +345,31 @@
     border-top-right-radius: 0;
   }
 
+  /* Shiki notation transformers ([!code highlight] / [!code --]/[++])
+     only add classes — these rules make them visible. The .line span is
+     inline by default, so inline-block + min-width stretches the tint
+     across the full row; the newline lives outside the span, so this
+     does not double-space. */
+  .prose .shiki .line.highlighted,
+  .prose .shiki .line.diff {
+    display: inline-block;
+    min-width: 100%;
+  }
+
+  .prose .shiki .line.highlighted {
+    background-color: color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+
+  .prose .shiki .line.diff.remove {
+    background-color: color-mix(in srgb, #f85149 15%, transparent);
+    box-shadow: inset 3px 0 0 #f85149;
+  }
+
+  .prose .shiki .line.diff.add {
+    background-color: color-mix(in srgb, #2ea043 15%, transparent);
+    box-shadow: inset 3px 0 0 #2ea043;
+  }
+
   /* Revealed on hover/focus like .heading-anchor; always faintly visible
      on touch devices where hover doesn't exist. */
   .code-copy {
