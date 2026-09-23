@@ -118,10 +118,31 @@ const remarkResolveImages =
     });
   };
 
-// ```mermaid blocks -> light/dark SVGs. Runs before shiki so the block is
-// replaced rather than syntax-highlighted.
+const mermaidTab = (label: string, pane: string, pressed: boolean): Element => ({
+  type: "element",
+  tagName: "button",
+  properties: {
+    type: "button",
+    className: ["mermaid-tab"],
+    dataTab: pane,
+    ariaPressed: pressed ? "true" : "false",
+  },
+  children: [{ type: "text", value: label }],
+});
+
+const mermaidPane = (name: string, hidden: boolean, children: ElementContent[]): Element => ({
+  type: "element",
+  tagName: "div",
+  properties: { className: ["mermaid-pane"], dataPane: name, hidden },
+  children,
+});
+
+// ```mermaid blocks -> a .mermaid-block with プレビュー/ソース tabs. The
+// preview pane holds light/dark SVGs; the source pane keeps the original
+// <pre> so shiki highlighting, line numbers, and the copy button all still
+// apply. Runs before shiki so the source pane is highlighted normally.
 const rehypeMermaid: Plugin<[], Root> = () => async (tree) => {
-  const blocks: { parent: Parent; index: number; source: string }[] = [];
+  const blocks: { parent: Parent; index: number; node: Element; source: string }[] = [];
   visit(tree, "element", (node, index, parent) => {
     if (node.tagName !== "pre" || index === undefined || parent === undefined) return;
     const code = node.children[0];
@@ -130,29 +151,44 @@ const rehypeMermaid: Plugin<[], Root> = () => async (tree) => {
     if (!Array.isArray(classes) || !classes.includes("language-mermaid")) return;
     // whitespace:"pre" keeps newlines — the default "normal" collapses them
     // like CSS, handing mermaid a single-line source that fails to parse.
-    blocks.push({ parent, index, source: toText(code, { whitespace: "pre" }) });
+    blocks.push({ parent, index, node, source: toText(code, { whitespace: "pre" }) });
   });
   /* oxlint-disable no-await-in-loop -- renderMermaid serializes work internally; one queue, sequential calls */
   for (const block of blocks) {
     const rendered = await renderMermaid(block.source);
     if (!rendered) continue; // stays a code block — shiki renders it as a fallback
-    const fragment = fromHtml(
+    const svgs = fromHtml(
       `<div class="mermaid-diagram mermaid-light">${rendered.light}</div><div class="mermaid-diagram mermaid-dark">${rendered.dark}</div>`,
       { fragment: true },
     );
     block.parent.children[block.index] = {
       type: "element",
       tagName: "div",
-      properties: {},
-      children: fragment.children.filter((child): child is ElementContent => child.type !== "doctype"),
+      properties: { className: ["mermaid-block"] },
+      children: [
+        {
+          type: "element",
+          tagName: "div",
+          properties: { className: ["mermaid-tabs"] },
+          children: [mermaidTab("プレビュー", "preview", true), mermaidTab("ソース", "source", false)],
+        },
+        mermaidPane(
+          "preview",
+          false,
+          svgs.children.filter((child): child is ElementContent => child.type !== "doctype"),
+        ),
+        mermaidPane("source", true, [block.node]),
+      ],
     };
   }
   /* oxlint-enable no-await-in-loop */
 };
 
-// Zenn-style filenames: ```ts:src/app.ts splits the language, wraps the
-// block in .code-block, and shows the filename in a title bar. Must run
-// before rehypeShiki so it sees the corrected language- class.
+// Every fenced block gets a .code-block frame + title bar (Zenn-style).
+// ```ts:src/app.ts splits the language: the bar shows the filename, plain
+// ```ts shows the language name, and no language leaves the bar empty —
+// the copy button always sits at the right end of the bar. Must run
+// before rehypeShiki so it sees the raw language- class.
 const rehypeCodeFilename: Plugin<[], Root> = () => (tree) => {
   visit(tree, "element", (node, index, parent) => {
     if (node.tagName !== "pre" || index === undefined || parent === undefined) return;
@@ -160,12 +196,21 @@ const rehypeCodeFilename: Plugin<[], Root> = () => (tree) => {
     if (code?.type !== "element" || code.tagName !== "code") return;
     const classes = code.properties?.className;
     if (!Array.isArray(classes)) return;
+    // remark-math emits math nodes as pre>code.language-math — rehype-katex
+    // renders those (both $$ and ```math), so don't frame them as code.
+    if (classes.includes("language-math")) return;
     const langClass = classes.find((c): c is string => typeof c === "string" && c.startsWith("language-"));
-    const colon = langClass?.indexOf(":") ?? -1;
-    if (!langClass || colon === -1) return;
-    const filename = langClass.slice(colon + 1);
-    if (!filename) return;
-    code.properties.className = [`language-${langClass.slice("language-".length, colon)}`];
+    let title = "";
+    if (langClass) {
+      const body = langClass.slice("language-".length);
+      const colon = body.indexOf(":");
+      if (colon === -1) {
+        title = body;
+      } else {
+        title = body.slice(colon + 1);
+        code.properties.className = [`language-${body.slice(0, colon)}`];
+      }
+    }
     parent.children[index] = {
       type: "element",
       tagName: "div",
@@ -175,7 +220,7 @@ const rehypeCodeFilename: Plugin<[], Root> = () => (tree) => {
           type: "element",
           tagName: "div",
           properties: { className: ["code-block-title"] },
-          children: [{ type: "text", value: filename }],
+          children: [{ type: "text", value: title }],
         },
         node,
       ],
@@ -243,33 +288,34 @@ const iconSvg = (inner: string, cls: string): ElementContent[] =>
     { fragment: true },
   ).children.filter((child): child is ElementContent => child.type !== "doctype");
 
-// Adds a copy button to every code block and wraps bare <pre> in
-// .code-block (rehypeCodeFilename already wraps titled ones). The button
-// anchors to the wrapper, not pre — pre scrolls horizontally, which would
-// drag an absolutely positioned child along. Generated markup is
-// post-sanitize and icon-only so nothing leaks into RSS/search text; the
-// click handler is one delegated listener on the post page.
+const copyButton = (): Element => ({
+  type: "element",
+  tagName: "button",
+  properties: {
+    type: "button",
+    className: ["code-copy"],
+    ariaLabel: "コードをコピー",
+  },
+  children: [
+    ...iconSvg(
+      '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+      "icon-copy",
+    ),
+    ...iconSvg('<path d="M20 6 9 17l-5-5"/>', "icon-check"),
+  ],
+});
+
+// Adds a copy button to every code block's title bar (rehypeCodeFilename
+// already wrapped every pre). Generated markup is post-sanitize and
+// icon-only so nothing leaks into RSS/search text; the click handler is
+// one delegated listener on the post page.
 const rehypeCodeCopy: Plugin<[], Root> = () => (tree) => {
-  const copyButton = (): Element => ({
-    type: "element",
-    tagName: "button",
-    properties: {
-      type: "button",
-      className: ["code-copy"],
-      ariaLabel: "コードをコピー",
-    },
-    children: [
-      ...iconSvg(
-        '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
-        "icon-copy",
-      ),
-      ...iconSvg('<path d="M20 6 9 17l-5-5"/>', "icon-check"),
-    ],
-  });
   visit(tree, "element", (node, index, parent) => {
     if (node.tagName !== "pre" || index === undefined || parent === undefined) return;
-    const parentClasses = parent.properties?.className;
-    if (Array.isArray(parentClasses) && parentClasses.includes("code-block")) {
+    if (
+      parent.type === "element" &&
+      (parent.properties?.className as string[] | undefined)?.includes("code-block") === true
+    ) {
       // Titled block: put the button in the filename bar.
       const title = parent.children.find(
         (c): c is Element =>
@@ -301,7 +347,7 @@ const rehypeCollectReadingText: Plugin<[], Root> = () => (tree, file) => {
       const skipClass =
         Array.isArray(classes) &&
         (classes.includes("katex") || classes.includes("heading-anchor") || classes.includes("footnotes"));
-      if (node.tagName === "pre" || node.tagName === "svg" || skipClass) return SKIP;
+      if (node.tagName === "pre" || node.tagName === "svg" || node.tagName === "button" || skipClass) return SKIP;
     }
     if (node.type === "text") parts.push(node.value);
   });

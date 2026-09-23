@@ -33,7 +33,24 @@
   let articleEl: HTMLElement;
 
   const onCodeCopyClick = async (event: MouseEvent) => {
-    const button = (event.target as Element | null)?.closest<HTMLButtonElement>(".code-copy");
+    const target = event.target as Element | null;
+
+    // mermaid preview/source tabs
+    const tab = target?.closest<HTMLButtonElement>(".mermaid-tab");
+    if (tab) {
+      const block = tab.closest(".mermaid-block");
+      if (!block) return;
+      const pane = tab.dataset.tab;
+      block.querySelectorAll<HTMLButtonElement>(".mermaid-tab").forEach((t) => {
+        t.setAttribute("aria-pressed", String(t === tab));
+      });
+      block.querySelectorAll<HTMLElement>(".mermaid-pane").forEach((p) => {
+        p.hidden = p.dataset.pane !== pane;
+      });
+      return;
+    }
+
+    const button = target?.closest<HTMLButtonElement>(".code-copy");
     if (!button) return;
     const code = button.closest(".code-block")?.querySelector("code")?.textContent;
     if (!code) return;

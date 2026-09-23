@@ -182,6 +182,59 @@
     height: auto;
   }
 
+  .mermaid-block {
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
+    overflow: hidden;
+    margin-top: 1.7142857em;
+    margin-bottom: 1.7142857em;
+  }
+
+  .mermaid-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background-color: var(--surface);
+  }
+
+  .mermaid-tab {
+    padding: 0.4rem 0.875rem;
+    font-size: 0.75rem;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+
+  .mermaid-tab:hover {
+    color: var(--foreground);
+  }
+
+  .mermaid-tab[aria-pressed="true"] {
+    color: var(--foreground);
+    border-bottom-color: var(--accent);
+  }
+
+  .mermaid-pane {
+    padding: 0.75rem 1rem;
+  }
+
+  .mermaid-pane[hidden] {
+    display: none;
+  }
+
+  /* The source pane hosts a nested .code-block — flatten its frame so it
+     doesn't double-border inside the mermaid block. */
+  .mermaid-pane .code-block {
+    border: 0;
+    border-radius: 0;
+    margin: 0;
+  }
+
+  .mermaid-pane .code-block-title {
+    border-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
   .mermaid-dark {
     display: none;
   }
@@ -268,13 +321,11 @@
     color: var(--muted);
   }
 
-
   /* Zenn-style filename bar, injected by rehypeCodeFilename for
      ```lang:file fences. The whole .code-block is one bordered unit —
      the bar is just a divider inside it (Shiki's pre has its own theme
      background, so matching colors is impossible; framing instead). */
   .code-block {
-    position: relative;
     border: 1px solid var(--border);
     border-radius: 0.375rem;
     overflow: hidden;
@@ -293,12 +344,6 @@
     font-family: ui-monospace, monospace;
     font-size: 0.75rem;
     color: var(--muted);
-  }
-
-  /* In the title bar the button is a static flex item, always visible. */
-  .code-block-title .code-copy {
-    position: static;
-    opacity: 0.6;
   }
 
   /* Shiki notation transformers ([!code highlight] / [!code --]/[++])
@@ -378,44 +423,27 @@
     background-color: #2ea043;
   }
 
-  /* Revealed on hover/focus like .heading-anchor; always faintly visible
-     on touch devices where hover doesn't exist. */
+  /* Lives inside the .code-block-title bar (right end, flex layout). */
   .code-copy {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    border: 1px solid var(--border);
-    border-radius: 0.375rem;
-    background-color: var(--background);
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 0.25rem;
     color: var(--muted);
     cursor: pointer;
-    opacity: 0;
+    opacity: 0.55;
     transition:
       opacity 0.15s,
-      color 0.15s,
-      border-color 0.15s;
+      color 0.15s;
   }
 
-  .code-block:hover .code-copy,
+  .code-copy:hover,
   .code-copy:focus-visible,
   .code-copy.copied {
     opacity: 1;
-  }
-
-  @media (hover: none) {
-    .code-copy {
-      opacity: 0.6;
-    }
-  }
-
-  .code-copy:hover {
     color: var(--foreground);
-    border-color: var(--foreground);
   }
 
   .code-copy svg {
