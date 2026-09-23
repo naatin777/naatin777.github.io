@@ -77,6 +77,152 @@ flowchart LR
     D --> E[HTML]
 ```
 
+複雑なフローチャート(サブグラフ・複数経路):
+
+```mermaid
+flowchart TB
+    subgraph Client["クライアント"]
+        Browser["ブラウザ"]
+        Cache[("Service Worker\nキャッシュ")]
+    end
+    subgraph Build["ビルド時"]
+        MD["content/posts/**/index.md"] --> Unified["unified パイプライン"]
+        Unified -->|"sanitize → slug → toc"| HTML["HTML AST"]
+        Zenn["Zenn API"] --> JSON["generated/zenn.json"]
+        Qiita["Qiita API"] --> JSON2["generated/qiita.json"]
+    end
+    subgraph Output["静的出力"]
+        Pages["HTML pages"]
+        Feed["feed.xml"]
+        Index["Pagefind index"]
+    end
+    Unified --> Pages
+    JSON --> Pages
+    JSON2 --> Pages
+    Pages --> Feed & Index
+    Browser -->|request| Pages
+    Cache -.->|offline| Browser
+    Pages -.->|deploy| GH[("GitHub Pages")]
+```
+
+シーケンス図(参加者・ループ・条件分岐):
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as 読者
+    participant Page as 記事ページ
+    participant PF as Pagefind
+    participant SW as ブラウザ
+
+    User->>Page: 検索語を入力
+    activate Page
+    Page->>PF: debouncedSearch(query, 300ms)
+    activate PF
+    PF-->>Page: results[](title, excerpt)
+    deactivate PF
+    alt 結果あり
+        Page-->>User: 上位8件を表示
+    else 0件
+        Page-->>User: 「見つかりませんでした」
+    end
+    User->>Page: 結果をクリック
+    Page->>SW: SPA遷移
+    deactivate Page
+    SW-->>User: 記事を表示
+```
+
+状態遷移図(複合状態・分岐):
+
+```mermaid
+stateDiagram-v2
+    [*] --> Draft: 記事を書き始める
+    state Draft {
+        [*] --> Writing
+        Writing --> Reviewing: セルフレビュー
+        Reviewing --> Writing: 修正点あり
+    }
+    Draft --> Published: draft: false でコミット
+    Published --> Updated: updatedAt を更新
+    Updated --> Published: 再ビルド
+    Published --> Archived: 古くなった
+    Archived --> [*]
+```
+
+クラス図(継承・関連・多重度):
+
+```mermaid
+classDiagram
+    class Post {
+        +string slug
+        +string title
+        +Date publishedAt
+        +string[] tags
+        +Series? series
+        +render() Promise~Html~
+    }
+    class ExternalArticle {
+        +string url
+        +string source
+        +Date publishedAt
+    }
+    class Article {
+        <<interface>>
+        +string title
+        +Date publishedAt
+    }
+    Post ..|> Article : implements
+    ExternalArticle ..|> Article : implements
+    Post "1" *-- "0..*" Tag : has
+    Post "0..1" --> "1" Series : belongs to
+    ArticlesPage ..> Article : aggregates
+```
+
+ER図(リレーションと属性):
+
+```mermaid
+erDiagram
+    POST ||--o{ TAGGING : "has"
+    POST {
+        string slug PK
+        string title
+        date publishedAt
+        string series FK
+    }
+    TAG ||--o{ TAGGING : "is tagged by"
+    TAG {
+        string name PK
+    }
+    SERIES ||--o{ POST : "contains"
+    SERIES {
+        string name PK
+        string description
+    }
+    EXTERNAL_ARTICLE ||--|| SOURCE : "belongs to"
+    SOURCE {
+        string name PK
+        string baseUrl
+    }
+```
+
+Gitグラフ(ブランチ・マージ):
+
+```mermaid
+gitGraph
+    commit id: "init"
+    branch develop
+    checkout develop
+    commit id: "feat: posts pipeline"
+    branch feature/mermaid
+    checkout feature/mermaid
+    commit id: "feat: mermaid"
+    commit id: "fix: newline"
+    checkout develop
+    merge feature/mermaid id: "merge mermaid"
+    checkout main
+    merge develop id: "release" tag: "v1.0"
+```
+
 ## アラート
 
 > [!NOTE]
