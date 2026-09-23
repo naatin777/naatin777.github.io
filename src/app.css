@@ -307,6 +307,21 @@
     padding-bottom: 0.3em;
   }
 
+  /* The typography plugin only styles h1–h4; h5/h6 would otherwise fall
+     back to unreadably small browser defaults. GitHub-style: keep them
+     near body size and express depth via color instead of shrinking. */
+  .prose h5 {
+    font-size: 0.875em;
+    font-weight: 600;
+    color: var(--foreground);
+  }
+
+  .prose h6 {
+    font-size: 0.8em;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
   .prose pre {
     position: relative;
   }
