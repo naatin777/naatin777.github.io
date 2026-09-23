@@ -308,17 +308,23 @@
     background-color: color-mix(in srgb, var(--accent) 12%, transparent);
   }
 
-  /* +/- gutter sign sits in pre's left padding, so code doesn't shift. */
-  .prose .shiki .line.diff {
-    position: relative;
+  /* Line numbers via CSS counters — pseudo-element content never enters
+     textContent, so copy buttons, search, and reading-time stay clean.
+     Diff lines fold their +/- sign into the same gutter column. */
+  .prose .shiki code {
+    counter-reset: line;
   }
 
-  .prose .shiki .line.diff::before {
-    position: absolute;
-    left: -0.9em;
-    width: 0.9em;
-    text-align: center;
-    font-weight: 600;
+  .prose .shiki .line::before {
+    counter-increment: line;
+    content: counter(line);
+    display: inline-block;
+    width: 3ch;
+    margin-right: 1.25em;
+    text-align: right;
+    color: var(--muted);
+    opacity: 0.5;
+    user-select: none;
   }
 
   .prose .shiki .line.diff.remove {
@@ -327,8 +333,9 @@
   }
 
   .prose .shiki .line.diff.remove::before {
-    content: "−";
+    content: "−" counter(line);
     color: #f85149;
+    opacity: 1;
   }
 
   .prose .shiki .line.diff.add {
@@ -337,8 +344,9 @@
   }
 
   .prose .shiki .line.diff.add::before {
-    content: "+";
+    content: "+" counter(line);
     color: #2ea043;
+    opacity: 1;
   }
 
   /* Revealed on hover/focus like .heading-anchor; always faintly visible
