@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import LangText from "$lib/components/LangText.svelte";
-  import PostNav from "$lib/components/PostNav.svelte";
   import Seo from "$lib/components/Seo.svelte";
   import SeriesNav from "$lib/components/SeriesNav.svelte";
   import Toc from "$lib/components/Toc.svelte";
@@ -94,5 +93,4 @@
   <div class="prose max-w-none">
     {@html post.html}
   </div>
-  <PostNav prev={data.prev} next={data.next} />
 </article>
