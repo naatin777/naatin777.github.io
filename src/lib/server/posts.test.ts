@@ -78,4 +78,15 @@ describe("renderMarkdown", () => {
     expect(html).toContain('id="dup-1"');
     expect(toc.map((t) => t.id)).toEqual(["dup", "dup-1"]);
   });
+
+  it("resolves relative image srcs via resolveImage", async () => {
+    const { html } = await renderMarkdown("![x](./a.png) ![y](b.png) ![z](/static.png) ![w](https://e.com/i.png)", {
+      resolveImage: (src) =>
+        /^[a-z]+:/i.test(src) || src.startsWith("/") ? src : `/bundled/${src.replace(/^\.\//, "")}`,
+    });
+    expect(html).toContain('src="/bundled/a.png"');
+    expect(html).toContain('src="/bundled/b.png"');
+    expect(html).toContain('src="/static.png"');
+    expect(html).toContain('src="https://e.com/i.png"');
+  });
 });

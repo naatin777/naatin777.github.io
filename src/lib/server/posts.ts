@@ -5,7 +5,7 @@ import type { Element, ElementContent, Parent, Root } from "hast";
 import { fromHtml } from "hast-util-from-html";
 import { defaultSchema, type Schema } from "hast-util-sanitize";
 import { toText } from "hast-util-to-text";
-import type { Html, Parents, Root as MdastRoot } from "mdast";
+import type { Html, Image, Parents, Root as MdastRoot } from "mdast";
 import rehypeExternalLinks from "rehype-external-links";
 import rehypeKatex from "rehype-katex";
 import rehypeSanitize from "rehype-sanitize";
@@ -47,8 +47,19 @@ export interface Post {
   readingTime: number;
 }
 
-const postFiles = import.meta.glob<string>("/content/posts/*.md", {
+// Posts live at content/posts/<year>/<slug>/index.md — the year folder is
+// organizational only (the URL stays /posts/<slug>/).
+const postFiles = import.meta.glob<string>("/content/posts/*/*/index.md", {
   query: "?raw",
+  import: "default",
+  eager: true,
+});
+
+// Assets co-located with a post (images etc.) are bundled by vite; markdown
+// references them relatively (./image.png) and remarkResolveImages swaps in
+// the emitted URL.
+const postAssets = import.meta.glob<string>("/content/posts/*/**/*.{png,jpg,jpeg,gif,svg,webp,avif}", {
+  query: "?url",
   import: "default",
   eager: true,
 });
@@ -81,6 +92,17 @@ const remarkTextifyHtml: Plugin<[], MdastRoot> = () => (tree) => {
     }
   });
 };
+
+// Relative image srcs resolve against the post's own directory via the
+// bundled-asset map, so each post folder is self-contained.
+const remarkResolveImages =
+  (resolveImage: (src: string) => string): Plugin<[], MdastRoot> =>
+  () =>
+  (tree) => {
+    visit(tree, "image", (node: Image) => {
+      node.url = resolveImage(node.url);
+    });
+  };
 
 // ```mermaid blocks -> light/dark SVGs. Runs before shiki so the block is
 // replaced rather than syntax-highlighted.
@@ -154,33 +176,38 @@ const rehypeLazyImages: Plugin<[], Root> = () => (tree) => {
   });
 };
 
-const processor = unified()
-  .use(remarkParse)
-  .use(remarkGfm)
-  .use(remarkMath)
-  .use(remarkTextifyHtml)
-  .use(remarkAlert)
-  .use(remarkRehype)
-  // Trust boundary: author-derived markup is sanitized here; everything
-  // below only adds generated markup on top of the sanitized tree.
-  .use(rehypeSanitize, schema)
-  .use(rehypeSlug)
-  .use(rehypeCollectToc)
-  .use(rehypeHeadingAnchors)
-  .use(rehypeExternalLinks, { target: "_blank", rel: ["noopener", "noreferrer"] })
-  .use(rehypeMermaid)
-  .use(rehypeShiki, {
-    themes: { light: "github-light", dark: "github-dark" },
-    defaultColor: "light-dark()",
-    cssVariablePrefix: "--shiki-",
-    transformers: [transformerNotationHighlight(), transformerNotationDiff()],
-  })
-  .use(rehypeKatex)
-  .use(rehypeLazyImages)
-  .use(rehypeStringify);
+const createProcessor = (resolveImage: (src: string) => string) =>
+  unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkMath)
+    .use(remarkTextifyHtml)
+    .use(remarkAlert)
+    .use(remarkResolveImages(resolveImage))
+    .use(remarkRehype)
+    // Trust boundary: author-derived markup is sanitized here; everything
+    // below only adds generated markup on top of the sanitized tree.
+    .use(rehypeSanitize, schema)
+    .use(rehypeSlug)
+    .use(rehypeCollectToc)
+    .use(rehypeHeadingAnchors)
+    .use(rehypeExternalLinks, { target: "_blank", rel: ["noopener", "noreferrer"] })
+    .use(rehypeMermaid)
+    .use(rehypeShiki, {
+      themes: { light: "github-light", dark: "github-dark" },
+      defaultColor: "light-dark()",
+      cssVariablePrefix: "--shiki-",
+      transformers: [transformerNotationHighlight(), transformerNotationDiff()],
+    })
+    .use(rehypeKatex)
+    .use(rehypeLazyImages)
+    .use(rehypeStringify);
 
-export async function renderMarkdown(content: string): Promise<{ html: string; toc: TocItem[] }> {
-  const file = await processor.process(content);
+export async function renderMarkdown(
+  content: string,
+  options: { resolveImage?: (src: string) => string } = {},
+): Promise<{ html: string; toc: TocItem[] }> {
+  const file = await createProcessor(options.resolveImage ?? ((src) => src)).process(content);
   return { html: String(file), toc: (file.data.toc as TocItem[] | undefined) ?? [] };
 }
 
@@ -206,6 +233,7 @@ export function getPosts(): Promise<Post[]> {
 }
 
 async function loadPosts(): Promise<Post[]> {
+  const slugs = new Set<string>();
   const posts = await Promise.all(
     Object.entries(postFiles).map(async ([path, raw]): Promise<Post | null> => {
       // matter() throws YAMLException on malformed frontmatter — a single
@@ -225,9 +253,28 @@ async function loadPosts(): Promise<Post[]> {
       }
       const fm = parsed.data;
       if (fm.draft) return null;
-      const { html, toc } = await renderMarkdown(content);
+      // /content/posts/<year>/<slug>/index.md — slug is the folder name and
+      // must be unique since it is the URL segment.
+      const dir = path.slice(0, path.lastIndexOf("/"));
+      const slug = dir.split("/").pop() ?? "";
+      if (!slug || slugs.has(slug)) {
+        console.warn(`[posts] skipping ${path}: duplicate or missing slug "${slug}"`);
+        return null;
+      }
+      slugs.add(slug);
+      const resolveImage = (src: string): string => {
+        // Absolute URLs, site-root paths, and anchors pass through untouched.
+        if (/^[a-z]+:/i.test(src) || src.startsWith("/") || src.startsWith("#")) return src;
+        const bundled = postAssets[`${dir}/${src.replace(/^\.\//, "")}`];
+        if (!bundled) {
+          console.warn(`[posts] ${path}: image "${src}" not found beside the post`);
+          return src;
+        }
+        return bundled;
+      };
+      const { html, toc } = await renderMarkdown(content, { resolveImage });
       return {
-        slug: path.split("/").pop()?.replace(/\.md$/, "") ?? "",
+        slug,
         title: fm.title,
         description: fm.description,
         publishedAt: fm.publishedAt,
