@@ -7,12 +7,25 @@ import type { ArticleSource } from "$lib/config/article-source";
 // committed files; it never hits the network.
 const SOURCES = ["zenn", "qiita"] as const;
 
+// Only web URLs are linkable from article cards — anything else (javascript:,
+// data:, hand-edited junk) fails the build here rather than shipping.
+const externalUrl = z.string().refine(
+  (value) => {
+    try {
+      return ["http:", "https:"].includes(new URL(value).protocol);
+    } catch {
+      return false;
+    }
+  },
+  { message: "url must be an absolute http(s) URL" },
+);
+
 const externalPost = z.object({
   title: z.string(),
   tags: z.array(z.string()),
   publishedAt: z.iso.datetime(),
   updatedAt: z.iso.datetime().optional(),
-  url: z.string(),
+  url: externalUrl,
   source: z.enum(SOURCES),
 });
 

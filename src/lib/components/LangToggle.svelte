@@ -2,6 +2,7 @@
   import { browser } from "$app/environment";
   import { defaultLang, langNames, langs, type Lang } from "$lib/config/i18n";
   import { hydrated } from "$lib/hydrated.svelte";
+  import { radioGroupKeydown } from "$lib/radio-group";
   import LangText from "./LangText.svelte";
 
   const isHydrated = hydrated();
@@ -27,6 +28,8 @@
 <div
   role="radiogroup"
   aria-labelledby={groupLabelId}
+  tabindex="-1"
+  onkeydown={radioGroupKeydown}
   class="flex items-center gap-0.5 text-xs transition-opacity {isHydrated.value
     ? 'opacity-100'
     : 'invisible opacity-0'}"
@@ -36,6 +39,7 @@
     <button
       type="button"
       role="radio"
+      tabindex={lang === option ? 0 : -1}
       onclick={() => setLang(option)}
       aria-checked={lang === option}
       class="aria-checked:text-foreground text-muted hover:text-foreground rounded-md px-1 whitespace-nowrap transition-colors aria-checked:font-semibold"

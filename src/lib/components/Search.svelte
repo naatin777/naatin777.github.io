@@ -37,13 +37,21 @@
       pagefind = (await import(/* @vite-ignore */ pagefindUrl)) as PagefindApi;
       await pagefind.init();
       status = "ready";
-      const initial = new URLSearchParams(window.location.search).get("q");
-      if (initial) {
-        query = initial;
-        onInput();
-      }
+      // A ?q= applied before init skipped the search — run it now.
+      if (query.trim()) void onInput();
     } catch {
       status = "unavailable";
+    }
+  });
+
+  // ?q= can also change via SPA navigation after mount (shared search links).
+  // Compare against the trimmed query so a trailing space being typed isn't
+  // eaten by our own replaceState round-trip.
+  $effect(() => {
+    const q = page.url.searchParams.get("q");
+    if (q && q !== query.trim()) {
+      query = q;
+      void onInput();
     }
   });
 

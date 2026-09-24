@@ -559,6 +559,14 @@
   color: var(--foreground);
 }
 
+/* No hover on touch devices — keep permalinks discoverable instead of
+   leaving an invisible tappable area. */
+@media (hover: none) {
+  .prose .heading-anchor {
+    opacity: 0.55;
+  }
+}
+
 /* <kbd> is not styled by the typography plugin — plain text otherwise. */
 .prose kbd {
   border: 1px solid var(--border);

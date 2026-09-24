@@ -112,6 +112,21 @@ describe("renderMarkdown", () => {
     expect(html).toContain('src="https://e.com/i.png"');
   });
 
+  it("resolves reference-style image definitions but not link definitions", async () => {
+    const { html } = await renderMarkdown("![x][img] and [a link][pg]\n\n[img]: ./i.png\n[pg]: ./p", {
+      resolveImage: (src) => `/bundled/${src.replace(/^\.\//, "")}`,
+    });
+    expect(html).toContain('src="/bundled/i.png"');
+    // link definitions keep their raw relative target
+    expect(html).toContain('href="./p"');
+  });
+
+  it("strips author-supplied ids but keeps user-content-* footnote ids", async () => {
+    const { html } = await renderMarkdown('<div id="main">clobber</div>\n\ntext[^1]\n\n[^1]: note');
+    expect(html).not.toContain('id="main"');
+    expect(html).toContain("user-content-fn-1");
+  });
+
   it("collects reading text without code, math, links' hrefs, or permalinks", async () => {
     const { plainText } = await renderMarkdown(
       "## Hi\n\nsome [a link](https://e.com/long-url) text\n\n```js\ncode()\n```\n\n$x^2$",
@@ -133,6 +148,7 @@ describe("loadPostsFrom", () => {
     const posts = await loadPostsFrom(
       {
         "/content/posts/2026/draft/index.md": entry("title: Draft\npublishedAt: 2026-03-01\ndraft: true"),
+        "/content/posts/2026/draftstr/index.md": entry('title: DraftStr\npublishedAt: 2026-03-01\ndraft: "true"'),
         "/content/posts/2026/broken/index.md": "---\n: bad yaml\n---\nx",
         "/content/posts/2026/notitle/index.md": entry("publishedAt: 2026-03-02"),
         "/content/posts/2026/good/index.md": entry("title: Good\npublishedAt: 2026-03-03"),
@@ -140,6 +156,18 @@ describe("loadPostsFrom", () => {
       {},
     );
     expect(posts.map((p) => p.slug)).toEqual(["good"]);
+  });
+
+  it("skips slugs that are not URL-safe", async () => {
+    const posts = await loadPostsFrom(
+      {
+        "/content/posts/2026/has space/index.md": entry("title: S\npublishedAt: 2026-03-01"),
+        "/content/posts/2026/a&b/index.md": entry("title: A\npublishedAt: 2026-03-02"),
+        "/content/posts/2026/ok-slug_1/index.md": entry("title: O\npublishedAt: 2026-03-03"),
+      },
+      {},
+    );
+    expect(posts.map((p) => p.slug)).toEqual(["ok-slug_1"]);
   });
 
   it("skips duplicate slugs across year folders", async () => {

@@ -9,7 +9,9 @@ const OUT_DIR = "build/og";
 const PORT = 4199;
 
 if (!existsSync(POSTS_DIR)) {
-  console.log("[og] no posts — skipping");
+  // Legitimate when the site has no posts, but also what a changed prerender
+  // layout looks like — say so loudly instead of skipping silently.
+  console.warn(`[og] ${POSTS_DIR} not found — no posts, or the build output layout changed; skipping`);
   process.exit(0);
 }
 

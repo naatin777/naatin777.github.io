@@ -14,7 +14,12 @@ export interface MermaidDiagrams {
 export function renderMermaid(source: string): Promise<MermaidDiagrams | null> {
   const task = queue.then(() => renderBothThemes(source));
   queue = task.catch(() => {});
-  return task;
+  // Renderer-level failures (browser crash etc.) must not fail the whole
+  // build — callers fall back to a plain code block on null.
+  return task.catch((error) => {
+    console.warn("[posts] mermaid render threw:", error);
+    return null;
+  });
 }
 
 async function renderBothThemes(source: string): Promise<MermaidDiagrams | null> {

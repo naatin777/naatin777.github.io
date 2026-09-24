@@ -65,7 +65,9 @@ const posts = items.flatMap((item) => {
   const { title, link, pubDate } = parsed.data;
   const timestamp = Date.parse(pubDate);
   const slug = link.split("/").pop() ?? "";
-  if (!title || !link || !slug || Number.isNaN(timestamp)) {
+  // The slug becomes a filesystem path segment in topicsFor() — restrict it
+  // so a hostile/malformed feed link can't traverse outside ARTICLES_DIR.
+  if (!title || !link || !/^[\w-]+$/.test(slug) || Number.isNaN(timestamp)) {
     console.warn(`[sync] zenn: skipping item with missing/invalid fields (${title || link || "?"})`);
     return [];
   }

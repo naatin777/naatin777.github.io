@@ -62,6 +62,9 @@ for (let page = 1; page <= MAX_PAGES; page++) {
     posts.push(post);
   }
   if (items.length < PER_PAGE) break;
+  if (page === MAX_PAGES) {
+    console.warn(`[sync] qiita: hit MAX_PAGES (${MAX_PAGES * PER_PAGE} items) — output may be truncated`);
+  }
 }
 /* oxlint-enable no-await-in-loop */
 

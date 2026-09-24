@@ -6,7 +6,7 @@ import { CORE_SCHEMA, load } from "js-yaml";
 import { fromHtml } from "hast-util-from-html";
 import { defaultSchema, type Schema } from "hast-util-sanitize";
 import { toText } from "hast-util-to-text";
-import type { Image, Root as MdastRoot } from "mdast";
+import type { Definition, Image, ImageReference, Root as MdastRoot } from "mdast";
 import rehypeExternalLinks from "rehype-external-links";
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
@@ -53,7 +53,12 @@ const postFrontmatter = z.object({
   updatedAt: frontmatterDate.optional(),
   tags: z.array(z.string()).default([]),
   series: z.string().optional(),
-  draft: z.boolean().default(false),
+  // "true"/"false" strings are accepted (a common frontmatter slip); other
+  // truthy-looking values like "yes" still fail validation loudly.
+  draft: z
+    .union([z.boolean(), z.enum(["true", "false"])])
+    .transform((value) => value === true || value === "true")
+    .default(false),
 });
 
 export type { TocItem };
@@ -81,7 +86,9 @@ const postFiles = import.meta.glob<string>("/content/posts/*/*/index.md", {
 
 // Assets co-located with a post (images etc.) are bundled by vite; markdown
 // references them relatively (./image.png) and remarkResolveImages swaps in
-// the emitted URL.
+// the emitted URL. Every glob match is emitted to build/ whether a post
+// references it or not — that's why drafts live in content/drafts/, outside
+// this glob, so their assets never reach the output.
 const postAssets = import.meta.glob<string>("/content/posts/*/**/*.{png,jpg,jpeg,gif,svg,webp,avif}", {
   query: "?url",
   import: "default",
@@ -99,6 +106,14 @@ const schema: Schema = {
   tagNames: [...(defaultSchema.tagNames ?? []), "svg", "path"],
   attributes: {
     ...defaultSchema.attributes,
+    // defaultSchema allows `id` on every element. Restrict it to the
+    // generated user-content-* prefix: a raw-HTML `id` could otherwise
+    // clobber landmarks (#main) or footnote anchors. Heading ids are added
+    // by rehype-slug after this step and are unaffected.
+    "*": [
+      ...(defaultSchema.attributes?.["*"] ?? []).filter((attr) => !(typeof attr === "string" && attr === "id")),
+      ["id", /^user-content-/],
+    ],
     div: [...(defaultSchema.attributes?.div ?? []), ["className", /^markdown-alert/]],
     p: [...(defaultSchema.attributes?.p ?? []), ["className", "markdown-alert-title"]],
     section: [...(defaultSchema.attributes?.section ?? []), "ariaLabelledBy"],
@@ -108,13 +123,23 @@ const schema: Schema = {
 };
 
 // Relative image srcs resolve against the post's own directory via the
-// bundled-asset map, so each post folder is self-contained.
+// bundled-asset map, so each post folder is self-contained. Reference-style
+// images (![alt][id]) store the URL on the `definition` node — only rewrite
+// definitions that an imageReference actually uses, so link definitions
+// like [id]: ./page keep their semantics.
 const remarkResolveImages =
   (resolveImage: (src: string) => string): Plugin<[], MdastRoot> =>
   () =>
   (tree) => {
+    const imageRefs = new Set<string>();
+    visit(tree, "imageReference", (node: ImageReference) => {
+      imageRefs.add(node.identifier);
+    });
     visit(tree, "image", (node: Image) => {
       node.url = resolveImage(node.url);
+    });
+    visit(tree, "definition", (node: Definition) => {
+      if (imageRefs.has(node.identifier)) node.url = resolveImage(node.url);
     });
   };
 
@@ -296,8 +321,16 @@ const rehypeLazyImages: Plugin<[], Root> = () => (tree) => {
       if (descendant.tagName === "img") inSvg.add(descendant);
     });
   });
+  // The first image in document order is a plausible LCP candidate — keep it
+  // eager so lazy-loading doesn't delay the largest paint.
+  let first = true;
   visit(tree, "element", (node) => {
-    if (node.tagName === "img" && !inSvg.has(node)) node.properties.loading = "lazy";
+    if (node.tagName !== "img" || inSvg.has(node)) return;
+    if (first) {
+      first = false;
+      return;
+    }
+    node.properties.loading = "lazy";
   });
 };
 
@@ -373,7 +406,10 @@ const rehypeCollectReadingText: Plugin<[], Root> = () => (tree, file) => {
       const classes = node.properties?.className;
       const skipClass =
         Array.isArray(classes) &&
-        (classes.includes("katex") || classes.includes("heading-anchor") || classes.includes("footnotes"));
+        (classes.includes("katex") ||
+          classes.includes("heading-anchor") ||
+          classes.includes("footnotes") ||
+          classes.includes("code-block-title"));
       if (node.tagName === "pre" || node.tagName === "svg" || node.tagName === "button" || skipClass) return SKIP;
     }
     if (node.type === "text") parts.push(node.value);
@@ -469,13 +505,20 @@ export async function loadPostsFrom(files: Record<string, string>, assets: Recor
         return null;
       }
       const fm = parsed.data;
-      if (fm.draft) return null;
+      if (fm.draft) {
+        // The page is skipped, but every asset in this folder still ships —
+        // drafts belong in content/drafts/ where the glob can't see them.
+        console.warn(`[posts] skipping ${path}: draft post inside content/posts/ (assets still ship)`);
+        return null;
+      }
       // /content/posts/<year>/<slug>/index.md — slug is the folder name and
       // must be unique since it is the URL segment.
       const dir = path.slice(0, path.lastIndexOf("/"));
       const slug = dir.split("/").pop() ?? "";
-      if (!slug || slugs.has(slug)) {
-        console.warn(`[posts] skipping ${path}: duplicate or missing slug "${slug}"`);
+      // The slug is a URL segment that also lands unescaped in sitemap.xml /
+      // feed.xml / OG paths — restrict it to URL-safe characters.
+      if (!/^[\w-]+$/.test(slug) || slugs.has(slug)) {
+        console.warn(`[posts] skipping ${path}: invalid or duplicate slug "${slug}"`);
         return null;
       }
       slugs.add(slug);

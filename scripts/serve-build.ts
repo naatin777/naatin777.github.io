@@ -12,16 +12,24 @@ const ROOT = "build";
 const PORT = Number(process.env.PORT ?? 4321);
 
 const contentTypes: Record<string, string> = {
+  ".avif": "image/avif",
   ".css": "text/css",
+  ".gif": "image/gif",
   ".html": "text/html; charset=utf-8",
   ".ico": "image/x-icon",
+  ".jpeg": "image/jpeg",
+  ".jpg": "image/jpeg",
   ".js": "text/javascript",
   ".json": "application/json",
+  ".mp4": "video/mp4",
   ".pagefind": "application/wasm",
   ".png": "image/png",
   ".svg": "image/svg+xml",
   ".txt": "text/plain; charset=utf-8",
   ".webmanifest": "application/manifest+json",
+  ".webm": "video/webm",
+  ".webp": "image/webp",
+  ".woff": "font/woff",
   ".woff2": "font/woff2",
   ".xml": "application/xml; charset=utf-8",
 };

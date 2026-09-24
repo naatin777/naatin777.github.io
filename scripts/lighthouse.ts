@@ -5,10 +5,18 @@
 // Requires `pnpm build` first and a local Chrome install (present on
 // GitHub-hosted runners). Reports land in output/lighthouse/.
 import { execFileSync, spawn } from "node:child_process";
-import { mkdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
 
 const PORT = 4199;
-const PATHS = ["/", "/articles/", "/about/", "/posts/made-portfolio-site/"];
+// Audit one real post page (richest markup: prose, code, images) without
+// hardcoding a slug that rots when the post is renamed or deleted.
+const firstPost = existsSync("build/posts")
+  ? readdirSync("build/posts", { withFileTypes: true })
+      .filter((d) => d.isDirectory() && existsSync(`build/posts/${d.name}/index.html`))
+      .map((d) => `/posts/${d.name}/`)
+      .toSorted()[0]
+  : undefined;
+const PATHS = ["/", "/articles/", "/about/", ...(firstPost ? [firstPost] : [])];
 // [level, minScore] — "warn" reports without failing, "error" fails the run
 const THRESHOLDS: Record<string, readonly ["warn" | "error", number]> = {
   performance: ["warn", 0.9],

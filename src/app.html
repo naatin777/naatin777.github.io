@@ -3,10 +3,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- GitHub Pages cannot set response headers, so CSP is delivered via meta. ws: keeps Vite HMR working in dev. -->
+    <!-- GitHub Pages cannot set response headers, so CSP is delivered via meta.
+         The ws:// localhost entries keep Vite HMR working in dev without
+         opening production to arbitrary websocket origins. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' ws:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' ws://localhost:* ws://127.0.0.1:*; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#fafafa" />
@@ -27,12 +29,13 @@
           const meta = document.querySelector('meta[name="theme-color"]');
           if (meta) meta.content = dark ? "#0a0a0a" : "#fafafa";
 
-          // keep the lang whitelist in sync with `langs` in src/lib/config/i18n.ts
+          // keep the lang whitelist in sync with `langs` in src/lib/config/i18n.ts.
+          // ?lang= applies to this view only — it must NOT be persisted, or a
+          // shared link would silently rewrite the recipient's preference.
           const param = new URLSearchParams(location.search).get("lang");
           const saved = localStorage.getItem("lang");
           const lang = param === "en" || param === "ja" ? param : saved === "en" || saved === "ja" ? saved : "ja";
           root.lang = lang;
-          if (param === "en" || param === "ja") localStorage.setItem("lang", lang);
         } catch {
           // storage disabled etc. — fall through to defaults
         }

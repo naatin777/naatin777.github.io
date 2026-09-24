@@ -91,7 +91,7 @@ JSON:
 {
   "name": "naatin777-dev",
   "scripts": {
-    "build": "vite build && pagefind && node scripts/generate-og.mjs"
+    "build": "vite build && pagefind && node scripts/generate-og.ts"
   }
 }
 ```
@@ -237,7 +237,7 @@ stateDiagram-v2
         Writing --> Reviewing: セルフレビュー
         Reviewing --> Writing: 修正点あり
     }
-    Draft --> Published: draft: false でコミット
+    Draft --> Published: posts/ へ移動
     Published --> Updated: updatedAt を更新
     Updated --> Published: 再ビルド
     Published --> Archived: 古くなった
@@ -523,7 +523,7 @@ unified()
 外部記事(ZennやQiita)はビルド時にAPIから取ってきて一覧に混ぜます。ローカル記事と外部記事を同じインターフェースで扱うので、一覧ページやフィルタリングのコードは分岐なしで済みます。
 
 > [!TIP]
-> 記事のdraftフラグを`true`にしておくと、ビルドに含まれません。書きかけの記事をリポジトリに置いておけるので便利です。
+> 書きかけの記事は`content/drafts/`に置いておくとビルドに含まれません。`draft: true`でも記事ページは作られませんが、同じフォルダの画像は出力されてしまうので、未公開の記事は`content/drafts/`に置くのが安全です。
 
 ## 細かい確認事項
 
