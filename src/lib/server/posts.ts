@@ -54,7 +54,6 @@ export interface Post {
   series: string | null;
   html: string;
   toc: TocItem[];
-  readingTime: number;
 }
 
 // Posts live at content/posts/<year>/<slug>/index.md — the year folder is
@@ -75,14 +74,6 @@ const postAssets = import.meta.glob<string>("/content/posts/*/**/*.{png,jpg,jpeg
   import: "default",
   eager: true,
 });
-
-// Rough bilingual heuristic: ~400 wpm for space-delimited text, ~800
-// chars/min for Japanese (which has no spaces). Whichever is larger wins.
-function estimateReadingTime(plainText: string): number {
-  const words = plainText.trim().split(/\s+/).filter(Boolean).length;
-  const chars = plainText.replace(/\s/g, "").length;
-  return Math.max(1, Math.ceil(Math.max(words / 400, chars / 800)));
-}
 
 let cache: Promise<Post[]> | null = null;
 
@@ -147,14 +138,14 @@ export async function loadPostsFrom(files: Record<string, string>, assets: Recor
         }
         return bundled;
       };
-      let rendered: { html: string; toc: TocItem[]; plainText: string };
+      let rendered: { html: string; toc: TocItem[] };
       try {
         rendered = await renderMarkdown(content, { resolveImage });
       } catch (error) {
         console.warn(`[posts] skipping ${path}: markdown render failed`, error);
         return null;
       }
-      const { html, toc, plainText } = rendered;
+      const { html, toc } = rendered;
       return {
         slug,
         title: fm.title,
@@ -165,7 +156,6 @@ export async function loadPostsFrom(files: Record<string, string>, assets: Recor
         series: fm.series ?? null,
         html,
         toc,
-        readingTime: estimateReadingTime(plainText),
       };
     }),
   );

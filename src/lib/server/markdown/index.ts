@@ -23,7 +23,6 @@ import { rehypeAvoidPageIds, rehypeCollectToc, rehypeHeadingAnchors } from "./he
 import { rehypeResolveImages } from "./images";
 import { rehypeLazyImages } from "./lazy-images";
 import { rehypeMermaid } from "./mermaid";
-import { rehypeCollectReadingText } from "./reading-text";
 import { sanitizeSchema } from "./schema";
 
 const createProcessor = (resolveImage: (src: string) => string) =>
@@ -55,19 +54,16 @@ const createProcessor = (resolveImage: (src: string) => string) =>
     .use(rehypeFlattenRoots)
     .use(rehypeKatex)
     .use(rehypeLazyImages)
-    .use(rehypeCollectReadingText)
     .use(rehypeStringify);
 
 export async function renderMarkdown(
   content: string,
   options: { resolveImage?: (src: string) => string } = {},
-): Promise<{ html: string; toc: TocItem[]; plainText: string }> {
+): Promise<{ html: string; toc: TocItem[] }> {
   const file = await createProcessor(options.resolveImage ?? ((src) => src)).process(content);
   return {
     html: String(file),
     // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- written by rehypeCollectToc in this pipeline
     toc: (file.data.toc as TocItem[] | undefined) ?? [],
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- written by rehypeCollectReadingText in this pipeline
-    plainText: (file.data.readingText as string | undefined) ?? "",
   };
 }

@@ -99,9 +99,6 @@
           <time datetime={post.updatedAt.toISOString()}>{formatDate(post.updatedAt)}</time>
         </span>
       {/if}
-      <span>
-        <LangText texts={{ ja: `${post.readingTime}分で読めます`, en: `${post.readingTime} min read` }} />
-      </span>
       {#each post.tags as tag (tag)}
         <span class="chip bg-surface">{tag}</span>
       {/each}
