@@ -9,22 +9,22 @@
     {
       source: "blog",
       texts: {
-        ja: "自分自身の活動や過程の記録。開発記録、勉強記録、振り返りなど",
-        en: "My own activity and process — dev logs, study notes, retrospectives",
+        ja: "自分の活動や過程の記録",
+        en: "Notes on what I'm doing and learning",
       },
     },
     {
       source: "zenn",
       texts: {
-        ja: "あるテーマを調べて整理した記事。俯瞰・まとめ・比較・体系化",
-        en: "Researched and organized pieces on a theme — overviews, roundups, comparisons",
+        ja: "調べて整理した記事",
+        en: "Researched and organized write-ups",
       },
     },
     {
       source: "qiita",
       texts: {
-        ja: "具体的な技術知見。「これをやったらこうなった」「こう実装できる」",
-        en: "Concrete technical findings — tried-this-got-that notes and how-tos",
+        ja: "具体的な技術の知見や手順",
+        en: "Concrete technical notes and how-tos",
       },
     },
   ];
