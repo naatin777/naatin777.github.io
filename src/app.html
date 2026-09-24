@@ -11,36 +11,14 @@
       content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' ws://localhost:* ws://127.0.0.1:*; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#fafafa" />
     <link rel="icon" href="%sveltekit.assets%/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="%sveltekit.assets%/apple-touch-icon.png" />
     <link rel="manifest" href="%sveltekit.assets%/site.webmanifest" />
     <link rel="alternate" type="application/rss+xml" title="RSS" href="%sveltekit.assets%/feed.xml" />
-    <script>
-      (() => {
-        try {
-          const stored = localStorage.getItem("theme");
-          const preference = stored === "light" || stored === "dark" ? stored : "system";
-          const dark =
-            preference === "dark" || (preference === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
-          const root = document.documentElement;
-          root.dataset.themePreference = preference;
-          root.dataset.theme = dark ? "dark" : "light";
-          const meta = document.querySelector('meta[name="theme-color"]');
-          if (meta) meta.content = dark ? "#0a0a0a" : "#fafafa";
-
-          // keep the lang whitelist in sync with `langs` in src/lib/config/i18n.ts.
-          // ?lang= applies to this view only — it must NOT be persisted, or a
-          // shared link would silently rewrite the recipient's preference.
-          const param = new URLSearchParams(location.search).get("lang");
-          const saved = localStorage.getItem("lang");
-          const lang = param === "en" || param === "ja" ? param : saved === "en" || saved === "ja" ? saved : "ja";
-          root.lang = lang;
-        } catch {
-          // storage disabled etc. — fall through to defaults
-        }
-      })();
-    </script>
+    <!-- meta theme-color and the theme/lang init script are appended to
+         <head> by src/hooks.server.ts (generated from shared constants).
+         Do not write a literal closing head tag in this file — the injector
+         matches on it. -->
     %sveltekit.head%
   </head>
   <body data-sveltekit-preload-data="hover">

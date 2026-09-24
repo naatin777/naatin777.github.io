@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { replaceState } from "$app/navigation";
+  import { page } from "$app/state";
+  import { untrack } from "svelte";
   import ArticleCard from "$lib/components/ArticleCard.svelte";
   import LangText from "$lib/components/LangText.svelte";
   import Search from "$lib/components/Search.svelte";
@@ -28,6 +31,7 @@
   const clearFilters = () => {
     selected = new Set();
     selectedSource = null;
+    syncUrl();
   };
 
   const toggleTag = (tag: string) => {
@@ -39,11 +43,61 @@
       next.add(canonical);
     }
     selected = next;
+    syncUrl();
   };
 
   const presentSources = $derived(
     sourceOrder.filter((source) => data.articles.some((article) => article.source === source)),
   );
+
+  // Filters live in the URL (?tag= repeatable, ?source=) so filtered views
+  // are shareable. The effect adopts incoming/shared links and back/forward
+  // navigation; user actions publish via replaceState — never pushState,
+  // filtering shouldn't stack history entries. URL writes stay out of the
+  // effect: replaceState during the hydration flush races router init —
+  // page.url never updates and the adopted state gets reverted.
+  const syncUrl = (): void => {
+    const url = new URL(page.url);
+    url.searchParams.delete("tag");
+    for (const tag of selected) url.searchParams.append("tag", tag);
+    if (selectedSource) url.searchParams.set("source", selectedSource);
+    else url.searchParams.delete("source");
+    if (url.href !== page.url.href) replaceState(url, page.state);
+  };
+
+  $effect(() => {
+    const tags = new Set<string>();
+    for (const raw of page.url.searchParams.getAll("tag")) {
+      const canonical = allTags.find((t) => t.toLowerCase() === raw.toLowerCase());
+      if (canonical) tags.add(canonical);
+    }
+    const source = sourceOrder.find((s) => s === page.url.searchParams.get("source")) ?? null;
+    // Compare untracked: re-run only on URL changes, not on our own writes.
+    untrack(() => {
+      if (tags.size !== selected.size || [...tags].some((t) => !selected.has(t))) selected = tags;
+      if (source !== selectedSource) selectedSource = source;
+    });
+  });
+
+  // Bindable children write straight through to state + URL.
+  const tagSelection = {
+    get selected(): Set<string> {
+      return selected;
+    },
+    set selected(next: Set<string>) {
+      selected = next;
+      syncUrl();
+    },
+  };
+  const sourceSelection = {
+    get value(): ArticleSource | null {
+      return selectedSource;
+    },
+    set value(next: ArticleSource | null) {
+      selectedSource = next;
+      syncUrl();
+    },
+  };
 
   const selectedKeys = $derived(new Set([...selected].map((t) => t.toLowerCase())));
   const filtered = $derived(
@@ -63,8 +117,8 @@
 <section class="flex flex-col gap-6">
   <h1 class="text-2xl font-bold tracking-tight"><LangText texts={{ ja: "記事", en: "Articles" }} /></h1>
   <Search />
-  <SourceFilter sources={presentSources} bind:value={selectedSource} />
-  <TagFilter tags={allTags} bind:selected />
+  <SourceFilter sources={presentSources} bind:value={sourceSelection.value} />
+  <TagFilter tags={allTags} bind:selected={tagSelection.selected} />
   <div class="text-muted flex items-center justify-between text-xs">
     <p>
       <LangText

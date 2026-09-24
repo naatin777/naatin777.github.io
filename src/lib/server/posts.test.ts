@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { loadPostsFrom, renderMarkdown } from "./posts";
+import { renderMarkdown } from "./markdown";
+import { loadPostsFrom } from "./posts";
 
 describe("renderMarkdown", () => {
   it("assigns heading ids and returns them as toc entries", async () => {

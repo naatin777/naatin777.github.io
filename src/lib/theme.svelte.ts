@@ -1,18 +1,16 @@
 import { browser } from "$app/environment";
+import { themeColors } from "$lib/config/theme";
 
 export type ThemePreference = "light" | "dark" | "system";
-
-// keep in sync with the inline script in src/app.html and tokens in src/app.css
-const THEME_COLOR = { light: "#fafafa", dark: "#0a0a0a" } as const;
 
 const readDomPreference = (): ThemePreference => {
   const value = document.documentElement.dataset.themePreference;
   return value === "light" || value === "dark" ? value : "system";
 };
 
-// The inline script in app.html resolves data-theme before hydration;
-// `preference` mirrors it, and `resolved` stays derived — including
-// live system changes — so the two can never disagree.
+// The init script (src/lib/server/init-script.ts) resolves data-theme
+// before hydration; `preference` mirrors it, and `resolved` stays derived —
+// including live system changes — so the two can never disagree.
 // matchMedia is used directly (not svelte's MediaQuery) because its initial
 // value must be correct at hydration, not one tick later.
 let systemDark = $state(false);
@@ -34,7 +32,7 @@ if (browser) {
       root.dataset.theme = resolved;
       const meta = document.querySelector('meta[name="theme-color"]');
       if (meta instanceof HTMLMetaElement) {
-        meta.content = THEME_COLOR[resolved];
+        meta.content = themeColors[resolved];
       }
     });
   });
