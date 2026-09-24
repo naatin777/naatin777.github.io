@@ -21,6 +21,7 @@ export const rehypeCollectReadingText: Plugin<[], Root> = () => (tree, file) => 
       if (node.tagName === "pre" || node.tagName === "svg" || node.tagName === "button" || skipClass) return SKIP;
     }
     if (node.type === "text") parts.push(node.value);
+    return undefined;
   });
   file.data.readingText = parts.join(" ");
 };

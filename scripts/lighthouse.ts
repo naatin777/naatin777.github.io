@@ -6,6 +6,11 @@
 // GitHub-hosted runners). Reports land in output/lighthouse/.
 import { execFileSync, spawn } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
+import { z } from "zod";
+
+const reportSchema = z.object({
+  categories: z.record(z.string(), z.object({ score: z.number().nullable() }).optional()),
+});
 
 const PORT = 4199;
 // Audit one real post page (richest markup: prose, code, images) without
@@ -72,9 +77,7 @@ try {
       continue;
     }
 
-    const { categories } = JSON.parse(readFileSync(reportPath, "utf8")) as {
-      categories: Record<string, { score: number | null } | undefined>;
-    };
+    const { categories } = reportSchema.parse(JSON.parse(readFileSync(reportPath, "utf8")));
     const scores = Object.entries(THRESHOLDS).map(([category, [level, min]]) => {
       const score = categories[category]?.score ?? 0;
       const ok = score >= min;

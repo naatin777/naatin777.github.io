@@ -1,15 +1,11 @@
-import { parseDate } from "$lib/date";
 import { getExternalArticles, type ArticleItem } from "$lib/server/external-articles";
 import { getPosts } from "$lib/server/posts";
 
-const toTimestamp = (value: string): number => {
-  const parsed = parseDate(value);
-  return Number.isNaN(parsed) ? 0 : parsed;
-};
-
-// Blog posts + external articles merged into one list, newest first.
+// Blog posts + external articles merged into one list, newest first. Both
+// sides carry validated ISO datetimes, so Date.parse is all we need.
 export async function getAllArticles(): Promise<ArticleItem[]> {
-  const [external, postsRaw] = await Promise.all([getExternalArticles(), getPosts()]);
+  const postsRaw = await getPosts();
+  const external = getExternalArticles();
   const posts: ArticleItem[] = postsRaw.map((post) => ({
     title: post.title,
     url: `/posts/${post.slug}/`,
@@ -19,5 +15,5 @@ export async function getAllArticles(): Promise<ArticleItem[]> {
     publishedAt: post.publishedAt.toISOString(),
     updatedAt: post.updatedAt?.toISOString(),
   }));
-  return [...external, ...posts].toSorted((a, b) => toTimestamp(b.publishedAt) - toTimestamp(a.publishedAt));
+  return [...external, ...posts].toSorted((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
 }

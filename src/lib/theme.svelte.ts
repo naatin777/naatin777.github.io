@@ -1,7 +1,7 @@
 import { browser } from "$app/environment";
 import { themeColors } from "$lib/config/theme";
 
-export type ThemePreference = "light" | "dark" | "system";
+type ThemePreference = "light" | "dark" | "system";
 
 const readDomPreference = (): ThemePreference => {
   const value = document.documentElement.dataset.themePreference;
@@ -40,9 +40,6 @@ if (browser) {
 
 export function themeState() {
   return {
-    get preference() {
-      return preference;
-    },
     get resolved() {
       return resolved;
     },

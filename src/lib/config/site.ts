@@ -1,4 +1,4 @@
-export interface Author {
+interface Author {
   name: string;
   displayName: string;
 }
@@ -8,7 +8,7 @@ export const author: Author = {
   displayName: "Naatin",
 };
 
-export interface SiteMetadata {
+interface SiteMetadata {
   url: string;
   title: string;
   description: string;

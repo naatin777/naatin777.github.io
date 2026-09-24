@@ -66,7 +66,7 @@ const postFiles = import.meta.glob<string>("/content/posts/*/*/index.md", {
 });
 
 // Assets co-located with a post (images etc.) are bundled by vite; markdown
-// references them relatively (./image.png) and remarkResolveImages swaps in
+// references them relatively (./image.png) and rehypeResolveImages swaps in
 // the emitted URL. Every glob match is emitted to build/ whether a post
 // references it or not — that's why drafts live in content/drafts/, outside
 // this glob, so their assets never reach the output.

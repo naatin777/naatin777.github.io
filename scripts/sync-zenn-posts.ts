@@ -20,6 +20,20 @@ const zennItem = z.object({
   pubDate: z.string(),
 });
 
+// Only the path to the items array is trusted — each item is validated
+// individually by zennItem below.
+const zennFeed = z.object({
+  rss: z
+    .object({
+      channel: z
+        .object({
+          item: z.array(z.unknown()).optional(),
+        })
+        .optional(),
+    })
+    .optional(),
+});
+
 const zennFrontmatter = z.object({
   topics: z.array(z.string()).default([]),
 });
@@ -54,7 +68,8 @@ const doc = new XMLParser({
   ignoreAttributes: true,
   isArray: (name) => name === "item",
 }).parse(await res.text());
-const items = (doc?.rss?.channel?.item ?? []) as unknown[];
+const feed = zennFeed.safeParse(doc);
+const items = feed.success ? (feed.data.rss?.channel?.item ?? []) : [];
 
 const posts = items.flatMap((item) => {
   const parsed = zennItem.safeParse(item);

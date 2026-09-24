@@ -33,10 +33,11 @@
   let articleEl: HTMLElement;
 
   const onCodeCopyClick = async (event: MouseEvent) => {
-    const target = event.target as Element | null;
+    if (!(event.target instanceof Element)) return;
+    const target = event.target;
 
     // mermaid preview/source tabs
-    const tab = target?.closest<HTMLButtonElement>(".mermaid-tab");
+    const tab = target.closest<HTMLButtonElement>(".mermaid-tab");
     if (tab) {
       const block = tab.closest(".mermaid-block");
       if (!block) return;
@@ -50,7 +51,7 @@
       return;
     }
 
-    const button = target?.closest<HTMLButtonElement>(".code-copy");
+    const button = target.closest<HTMLButtonElement>(".code-copy");
     if (!button) return;
     // Code blocks copy their code; the mermaid bar button copies the
     // diagram source (the only code inside .mermaid-block).

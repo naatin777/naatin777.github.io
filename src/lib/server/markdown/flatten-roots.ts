@@ -11,5 +11,6 @@ export const rehypeFlattenRoots: Plugin<[], Root> = () => (tree) => {
       parent.children.splice(index, 1, ...node.children);
       return index;
     }
+    return undefined;
   });
 };

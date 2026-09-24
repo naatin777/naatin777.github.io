@@ -1,7 +1,7 @@
 import { siBluesky, siGithub, siQiita, siX, siZenn, type SimpleIcon } from "simple-icons";
 import { author } from "./site";
 
-export interface SocialLink {
+interface SocialLink {
   name: string;
   url: string;
   icon: SimpleIcon;

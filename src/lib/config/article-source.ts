@@ -2,9 +2,9 @@
 // When adding a source, update this file — ArticleCard badges, the
 // /articles/ source filter, and ArticleItem.source all derive from it.
 // Badge styling is the `.badge-{source}` naming convention in app.css.
-export type ArticleSource = "blog" | "zenn" | "qiita";
+export const sourceOrder = ["blog", "zenn", "qiita"] as const;
 
-export const sourceOrder: ArticleSource[] = ["blog", "zenn", "qiita"];
+export type ArticleSource = (typeof sourceOrder)[number];
 
 export const sourceLabels: Record<ArticleSource, string> = {
   blog: "Blog",

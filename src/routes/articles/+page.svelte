@@ -79,24 +79,9 @@
     });
   });
 
-  // Bindable children write straight through to state + URL.
-  const tagSelection = {
-    get selected(): Set<string> {
-      return selected;
-    },
-    set selected(next: Set<string>) {
-      selected = next;
-      syncUrl();
-    },
-  };
-  const sourceSelection = {
-    get value(): ArticleSource | null {
-      return selectedSource;
-    },
-    set value(next: ArticleSource | null) {
-      selectedSource = next;
-      syncUrl();
-    },
+  const setSource = (next: ArticleSource | null): void => {
+    selectedSource = next;
+    syncUrl();
   };
 
   const selectedKeys = $derived(new Set([...selected].map((t) => t.toLowerCase())));
@@ -117,8 +102,8 @@
 <section class="flex flex-col gap-6">
   <h1 class="text-2xl font-bold tracking-tight"><LangText texts={{ ja: "記事", en: "Articles" }} /></h1>
   <Search />
-  <SourceFilter sources={presentSources} bind:value={sourceSelection.value} />
-  <TagFilter tags={allTags} bind:selected={tagSelection.selected} />
+  <SourceFilter sources={presentSources} value={selectedSource} onchange={setSource} />
+  <TagFilter tags={allTags} {selected} ontoggle={toggleTag} />
   <div class="text-muted flex items-center justify-between text-xs">
     <p>
       <LangText

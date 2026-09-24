@@ -9,8 +9,10 @@ export function radioGroupKeydown(event: KeyboardEvent): void {
         ? -1
         : 0;
   if (dir === 0) return;
-  const radios = Array.from((event.currentTarget as HTMLElement).querySelectorAll<HTMLElement>('[role="radio"]'));
-  const index = radios.indexOf(event.target as HTMLElement);
+  const { currentTarget, target } = event;
+  if (!(currentTarget instanceof HTMLElement) || !(target instanceof HTMLElement)) return;
+  const radios = Array.from(currentTarget.querySelectorAll<HTMLElement>('[role="radio"]'));
+  const index = radios.indexOf(target);
   if (index === -1) return;
   event.preventDefault();
   const next = radios[(index + dir + radios.length) % radios.length];

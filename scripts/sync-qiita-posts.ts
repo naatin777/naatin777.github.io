@@ -18,14 +18,14 @@ const qiitaItem = z.object({
   tags: z.array(z.object({ name: z.string() })).default([]),
 });
 
-type Post = {
+interface Post {
   title: string;
   tags: string[];
   publishedAt: string;
   updatedAt?: string;
   url: string;
   source: "qiita";
-};
+}
 
 const posts: Post[] = [];
 /* oxlint-disable no-await-in-loop -- each page depends on the previous page's item count */

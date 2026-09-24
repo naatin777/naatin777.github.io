@@ -335,7 +335,7 @@
     color: var(--muted);
   }
 
-  /* Zenn-style filename bar, injected by rehypeCodeFilename for
+  /* Zenn-style filename bar, injected by rehypeCodeBlocks for
      ```lang:file fences. The whole .code-block is one bordered unit —
      the bar is just a divider inside it (Shiki's pre has its own theme
      background, so matching colors is impossible; framing instead). */

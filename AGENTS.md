@@ -4,16 +4,8 @@ Instructions for coding agents working in this repository.
 
 ## Scope
 
-- Apply these rules across the repository rooted at this directory.
-- Newer conversation rules have higher priority than older wording.
-- Update this file when the user adds new rules in conversation.
-
-## Conversation Overrides (Latest)
-
-- For Playwright/UI checks, do not use `pnpm dev` because it is unreliable in this repo. Use `pnpm build` and `pnpm preview`, or reuse an existing preview server.
-- Before making file edits, first state the intended implementation direction briefly and wait for explicit user confirmation such as `Yes`. Do not start editing immediately after a new request unless the user explicitly asks to proceed without confirmation.
-- Avoid creating unnecessary constants and avoid excessive `export` additions during style/system refactors.
-- Reduced motion is handled globally in `src/app.css`. Do not add per-component `prefers-reduced-motion` transition overrides unless the user explicitly asks or a component has a proven exception that cannot be handled globally.
+- Apply these rules across the repository rooted at this directory; newer conversation rules override older wording.
+- When the user adds a new rule, record it under the matching section below — do not append a separate overrides section.
 
 ## Project Snapshot
 
@@ -30,7 +22,7 @@ Instructions for coding agents working in this repository.
 
 ## Common Commands
 
-- Start dev server: `pnpm dev`
+- Start dev server: `pnpm dev` — development only; UI checks use the preview (see Validation)
 - Build production output: `pnpm build` (Vite build → Pagefind index → OG image generation; outputs to `build/`)
 - Run type checks: `pnpm run check`
 - Lint: `pnpm run lint` (oxlint), format: `pnpm run format` / `pnpm run format:check` (oxfmt)
@@ -41,8 +33,10 @@ Instructions for coding agents working in this repository.
 ## Editing Workflow
 
 - Keep each change minimal and focused on the user request.
+- Before making file edits, state the intended implementation direction briefly and wait for explicit user confirmation such as "Yes". Do not start editing immediately after a new request unless the user explicitly asks to proceed without confirmation.
 - Keep generated output and dependencies unchanged (`build/`, `node_modules/`).
 - Keep reusable UI blocks in `src/lib/components/` when page files grow.
+- Avoid creating unnecessary constants and avoid excessive `export` additions during style/system refactors.
 - Do not use `naatin` in identifiers such as variable names, function names, or custom global keys.
 - Prefer established libraries and declarative/AST-level transforms over ad-hoc string manipulation. The Markdown pipeline (`src/lib/server/posts.ts`) is the canonical example: author markup — including embedded raw HTML, parsed by `rehype-raw` — passes `rehype-sanitize` first, and generated output (KaTeX/Shiki/Mermaid SVG/heading anchors) is injected as AST nodes after the trust boundary.
 
@@ -59,6 +53,7 @@ Instructions for coding agents working in this repository.
 - Use `unknown` with safe narrowing (zod) when type details are uncertain.
 - Use `any` only when the user explicitly allows it.
 - Use `import type` for type-only imports (`verbatimModuleSyntax`).
+- oxlint runs type-aware (`oxlint-tsgolint`): `typescript/no-unsafe-type-assertion` rejects `as` casts to narrower types. Narrow boundary data with zod/`instanceof`/type guards instead; where a cast is genuinely justified (e.g. `file.data` written by the same pipeline), suppress with a reasoned `oxlint-disable-next-line` comment.
 
 ## Content Rules
 
@@ -73,6 +68,7 @@ Instructions for coding agents working in this repository.
 - Theme tokens (`--background`, `--foreground`, `--muted`, `--border`, `--surface`, `--accent`) are defined under `@theme`/`:root` in `src/app.css`; light/dark switching is via `[data-theme]` and `.prose` is driven by `--tw-prose-*` mappings.
 - Markdown-generated HTML (alerts, footnotes, heading anchors, task lists) is not scanned by Tailwind — its styles must be written explicitly in `src/app.css`.
 - Rules that override the typography plugin's `.prose` element styles (margins, colors, `--tw-prose-*` vars) must stay **unlayered** in `src/app.css` — the plugin emits in the utilities layer, which silently beats `@layer components`.
+- Reduced motion is handled globally in `src/app.css`. Do not add per-component `prefers-reduced-motion` transition overrides unless the user explicitly asks or a component has a proven exception that cannot be handled globally.
 - Use `@lucide/svelte` for icons.
 
 ## Accessibility
@@ -88,7 +84,7 @@ Instructions for coding agents working in this repository.
 - Run `pnpm build` after functional changes.
 - Run `pnpm run check` when changing TypeScript, routes, content, or shared utilities — passing means `errors: 0, warnings: 0, hints: 0`.
 - Run `pnpm run validate` (or the individual scripts) before finishing a change set.
-- For UI checks use Playwright/agent-browser against a running preview server (`pnpm build` + `pnpm preview`). If port `4321` is already running, reuse it.
+- For UI checks use Playwright/agent-browser against a running preview server (`pnpm build` + `pnpm preview`). Do not use `pnpm dev` for UI checks — it is unreliable in this repo. If port `4321` is already running, reuse it.
 - Save screenshots in `output/` and delete them after analysis.
 - Interactive features must work in latest Chrome, Firefox, and Safari on desktop, mobile, and tablet.
 

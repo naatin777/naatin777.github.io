@@ -49,9 +49,7 @@ const posts: ArticleItem[] = SOURCES.flatMap((source) => {
     return [];
   }
   return z.array(externalPost).parse(JSON.parse(readFileSync(file, "utf8")));
-})
-  .map((post) => Object.assign(post, { series: null }))
-  .toSorted((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
+}).map((post) => Object.assign(post, { series: null }));
 
 export function getExternalArticles(): ArticleItem[] {
   return posts;

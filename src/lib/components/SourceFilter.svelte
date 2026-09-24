@@ -6,9 +6,10 @@
   interface Props {
     sources: ArticleSource[];
     value: ArticleSource | null;
+    onchange: (value: ArticleSource | null) => void;
   }
 
-  let { sources, value = $bindable() }: Props = $props();
+  let { sources, value, onchange }: Props = $props();
   const groupLabelId = $props.id();
 </script>
 
@@ -24,7 +25,7 @@
     type="button"
     role="radio"
     tabindex={value === null ? 0 : -1}
-    onclick={() => (value = null)}
+    onclick={() => onchange(null)}
     aria-checked={value === null}
     class="chip px-3 py-1"
   >
@@ -35,7 +36,7 @@
       type="button"
       role="radio"
       tabindex={value === source ? 0 : -1}
-      onclick={() => (value = source)}
+      onclick={() => onchange(source)}
       aria-checked={value === source}
       class="chip px-3 py-1"
     >
