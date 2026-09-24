@@ -277,6 +277,10 @@
     flex-shrink: 0;
   }
 
+  .markdown-alert-note {
+    --alert-color: #2563eb;
+  }
+
   .markdown-alert-tip {
     --alert-color: #16a34a;
   }
