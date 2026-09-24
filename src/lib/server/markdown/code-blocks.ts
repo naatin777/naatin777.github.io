@@ -3,57 +3,15 @@ import { fromHtml } from "hast-util-from-html";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 
-// Every fenced block gets a .code-block frame + title bar (Zenn-style).
-// ```ts:src/app.ts splits the language: the bar shows the filename, plain
-// ```ts shows the language name, and no language leaves the bar empty —
-// the copy button always sits at the right end of the bar. Must run
-// before rehypeShiki so it sees the raw language- class.
-export const rehypeCodeFilename: Plugin<[], Root> = () => (tree) => {
-  visit(tree, "element", (node, index, parent) => {
-    if (node.tagName !== "pre" || index === undefined || parent === undefined) return;
-    const code = node.children[0];
-    if (code?.type !== "element" || code.tagName !== "code") return;
-    const classes = code.properties?.className;
-    // remark-math emits math nodes as pre>code.language-math — rehype-katex
-    // renders those (both $$ and ```math), so don't frame them as code.
-    if (Array.isArray(classes) && classes.includes("language-math")) return;
-    const langClass = Array.isArray(classes)
-      ? classes.find((c): c is string => typeof c === "string" && c.startsWith("language-"))
-      : undefined;
-    let title = "";
-    if (langClass) {
-      const body = langClass.slice("language-".length);
-      const colon = body.indexOf(":");
-      if (colon === -1) {
-        title = body;
-      } else {
-        title = body.slice(colon + 1);
-        code.properties.className = [`language-${body.slice(0, colon)}`];
-      }
-    }
-    parent.children[index] = {
-      type: "element",
-      tagName: "div",
-      properties: { className: ["code-block"] },
-      children: [
-        {
-          type: "element",
-          tagName: "div",
-          properties: { className: ["code-block-title"] },
-          children: [{ type: "text", value: title }],
-        },
-        node,
-      ],
-    };
-  });
-};
-
 const iconSvg = (inner: string, cls: string): ElementContent[] =>
   fromHtml(
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${cls}" aria-hidden="true">${inner}</svg>`,
     { fragment: true },
   ).children.filter((child): child is ElementContent => child.type !== "doctype");
 
+// Generated markup is post-sanitize and icon-only so nothing leaks into
+// RSS/search text; the click handler is one delegated listener on the
+// post page.
 export const copyButton = (): Element => ({
   type: "element",
   tagName: "button",
@@ -71,25 +29,35 @@ export const copyButton = (): Element => ({
   ],
 });
 
-// Adds a copy button to every code block's title bar (rehypeCodeFilename
-// already wrapped every pre). Generated markup is post-sanitize and
-// icon-only so nothing leaks into RSS/search text; the click handler is
-// one delegated listener on the post page.
-export const rehypeCodeCopy: Plugin<[], Root> = () => (tree) => {
+// Every fenced block gets a .code-block frame + title bar (Zenn-style)
+// with a copy button at its right end. ```ts:src/app.ts splits the
+// language: the bar shows the filename, plain ```ts shows the language
+// name, and no language (or a raw-HTML <pre> without <code>) leaves the
+// bar empty. Must run before rehypeShiki so it sees the raw language-
+// class.
+export const rehypeCodeBlocks: Plugin<[], Root> = () => (tree) => {
   visit(tree, "element", (node, index, parent) => {
     if (node.tagName !== "pre" || index === undefined || parent === undefined) return;
-    if (
-      parent.type === "element" &&
-      (parent.properties?.className as string[] | undefined)?.includes("code-block") === true
-    ) {
-      // Titled block: put the button in the filename bar.
-      const title = parent.children.find(
-        (c): c is Element =>
-          c.type === "element" &&
-          (c.properties?.className as string[] | undefined)?.includes("code-block-title") === true,
-      );
-      (title ?? parent).children.push(copyButton());
-      return;
+    let title = "";
+    const code = node.children[0];
+    if (code?.type === "element" && code.tagName === "code") {
+      const classes = code.properties?.className;
+      // remark-math emits math nodes as pre>code.language-math — rehype-katex
+      // renders those (both $$ and ```math), so don't frame them as code.
+      if (Array.isArray(classes) && classes.includes("language-math")) return;
+      const langClass = Array.isArray(classes)
+        ? classes.find((c): c is string => typeof c === "string" && c.startsWith("language-"))
+        : undefined;
+      if (langClass) {
+        const body = langClass.slice("language-".length);
+        const colon = body.indexOf(":");
+        if (colon === -1) {
+          title = body;
+        } else {
+          title = body.slice(colon + 1);
+          code.properties.className = [`language-${body.slice(0, colon)}`];
+        }
+      }
     }
     parent.children[index] = {
       type: "element",
@@ -100,7 +68,7 @@ export const rehypeCodeCopy: Plugin<[], Root> = () => (tree) => {
           type: "element",
           tagName: "div",
           properties: { className: ["code-block-title"] },
-          children: [copyButton()],
+          children: [{ type: "text", value: title }, copyButton()],
         },
         node,
       ],

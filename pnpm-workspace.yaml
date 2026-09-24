@@ -4,3 +4,27 @@ packages: []
 # refuse to install package versions published within the last week:
 # most supply-chain attacks are caught and yanked within the first few days
 minimumReleaseAge: 10080
+
+# trust the committed lockfile instead of re-verifying its entries against
+# the policies above — entries locked before minimumReleaseAge was enforced
+# would fail verification until they age out. New resolutions (add/update)
+# still go through the policy.
+trustLockfile: true
+
+# sharp's install script builds/downloads libvips binaries
+allowBuilds:
+  sharp: true
+
+overrides:
+  "cookie@<0.7.0": "0.7.2"
+  "tmp@<0.2.6": ">=0.2.6"
+  "uuid@<11.1.1": ">=11.1.1"
+  "sharp@<0.35.4": ">=0.35.4"
+
+minimumReleaseAgeExclude:
+  - "@asamuzakjp/dom-selector@9.2.1"
+  - "@types/node@26.6.2"
+  - html-encoding-sniffer@7.0.0
+  - jsdom@30.1.1
+  - lru-cache@11.5.3
+  - w3c-xmlserializer@6.0.0

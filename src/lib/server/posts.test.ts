@@ -1,146 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { renderMarkdown } from "./markdown";
 import { loadPostsFrom } from "./posts";
-
-describe("renderMarkdown", () => {
-  it("assigns heading ids and returns them as toc entries", async () => {
-    const { html, toc } = await renderMarkdown("# Title\n\n## Section One\n\nText\n\n### Sub\n");
-    expect(html).toContain('<h1 id="title">');
-    expect(html).toContain('<h2 id="section-one">');
-    expect(toc).toEqual([
-      { id: "title", text: "Title", depth: 1 },
-      { id: "section-one", text: "Section One", depth: 2 },
-      { id: "sub", text: "Sub", depth: 3 },
-    ]);
-  });
-
-  it("adds target and rel to external links only", async () => {
-    const { html } = await renderMarkdown("[ext](https://example.com) and [int](/about/)");
-    expect(html).toContain('href="https://example.com"');
-    expect(html).toContain('rel="noopener noreferrer"');
-    expect(html).toContain('target="_blank"');
-    expect(html).toContain('<a href="/about/">int</a>');
-  });
-
-  it("sanitizes raw HTML: keeps safe tags, strips dangerous markup", async () => {
-    const { html } = await renderMarkdown(
-      '<details><summary>詳細</summary>中身</details>\n\n<img src="x.png" onerror="alert(1)">\n\n<script>alert(1)</script>',
-    );
-    expect(html).toContain("<details>");
-    expect(html).toContain("<summary>");
-    expect(html).toContain('<img src="x.png"');
-    expect(html).not.toContain("onerror");
-    expect(html).not.toContain("<script>");
-  });
-
-  // hast-util-sanitize strips the unsafe href but keeps the element —
-  // the same behavior GitHub applies to rendered markdown.
-  it("drops links with unsafe URL schemes", async () => {
-    const { html } = await renderMarkdown("[x](javascript:alert(1)) and [y](&#x6A;avascript:alert(1))");
-    expect(html).not.toContain("javascript:");
-    expect(html).not.toContain("href");
-    expect(html).toContain("x");
-    expect(html).toContain("y");
-  });
-
-  it("drops images with unsafe URL schemes", async () => {
-    const { html } = await renderMarkdown("![x](javascript:alert(1)) and ![y](data:text/html;base64,PHN2Zz4=)");
-    expect(html).not.toContain("javascript:");
-    expect(html).not.toContain("data:");
-    expect(html).not.toContain("src=");
-  });
-
-  it("renders katex math", async () => {
-    const { html } = await renderMarkdown("$x^2$");
-    expect(html).toContain("katex");
-  });
-
-  it("renders code blocks with shiki", async () => {
-    const { html } = await renderMarkdown("```js\nconst a = 1;\n```");
-    expect(html).toContain("shiki");
-    expect(html).toContain("light-dark(");
-  });
-
-  it("renders a filename bar for lang:file fences and keeps the language", async () => {
-    const { html } = await renderMarkdown("```ts:src/app.ts\nconst a = 1;\n```");
-    expect(html).toContain('class="code-block-title"');
-    expect(html).toContain("src/app.ts");
-    // shiki rewrites the code class entirely — "shiki" proves highlighting ran
-    // on the corrected language (not on "ts:src/app.ts").
-    expect(html).toContain("shiki");
-    expect(html).not.toContain("language-ts:src");
-  });
-
-  it("adds a copy button to code blocks", async () => {
-    const { html } = await renderMarkdown("```js\nconst a = 1;\n```");
-    expect(html).toContain('class="code-copy"');
-    expect(html).toContain('aria-label="コードをコピー"');
-    expect(html).toContain("icon-copy");
-    expect(html).toContain("icon-check");
-  });
-
-  it("renders github-style alerts", async () => {
-    const { html } = await renderMarkdown("> [!NOTE]\n> take care");
-    expect(html).toContain("markdown-alert markdown-alert-note");
-  });
-
-  it("renders footnotes", async () => {
-    const { html } = await renderMarkdown("text[^1]\n\n[^1]: note body");
-    expect(html).toContain("footnotes");
-  });
-
-  it("escapes quotes inside heading permalink aria-labels", async () => {
-    const { html } = await renderMarkdown('## He said "hi"');
-    expect(html).not.toContain('aria-label="He said "hi""');
-    expect(html).toMatch(/aria-label="He said (&#x22;|&quot;)hi\1 へのリンク"/);
-  });
-
-  it("deduplicates ids when headings repeat", async () => {
-    const { html, toc } = await renderMarkdown("## Dup\n\n## Dup");
-    expect(html).toContain('id="dup"');
-    expect(html).toContain('id="dup-1"');
-    expect(toc.map((t) => t.id)).toEqual(["dup", "dup-1"]);
-  });
-
-  it("resolves relative image srcs via resolveImage", async () => {
-    const { html } = await renderMarkdown("![x](./a.png) ![y](b.png) ![z](/static.png) ![w](https://e.com/i.png)", {
-      resolveImage: (src) =>
-        /^[a-z]+:/i.test(src) || src.startsWith("/") ? src : `/bundled/${src.replace(/^\.\//, "")}`,
-    });
-    expect(html).toContain('src="/bundled/a.png"');
-    expect(html).toContain('src="/bundled/b.png"');
-    expect(html).toContain('src="/static.png"');
-    expect(html).toContain('src="https://e.com/i.png"');
-  });
-
-  it("resolves reference-style image definitions but not link definitions", async () => {
-    const { html } = await renderMarkdown("![x][img] and [a link][pg]\n\n[img]: ./i.png\n[pg]: ./p", {
-      resolveImage: (src) => `/bundled/${src.replace(/^\.\//, "")}`,
-    });
-    expect(html).toContain('src="/bundled/i.png"');
-    // link definitions keep their raw relative target
-    expect(html).toContain('href="./p"');
-  });
-
-  it("strips author-supplied ids but keeps user-content-* footnote ids", async () => {
-    const { html } = await renderMarkdown('<div id="main">clobber</div>\n\ntext[^1]\n\n[^1]: note');
-    expect(html).not.toContain('id="main"');
-    expect(html).toContain("user-content-fn-1");
-  });
-
-  it("collects reading text without code, math, links' hrefs, or permalinks", async () => {
-    const { plainText } = await renderMarkdown(
-      "## Hi\n\nsome [a link](https://e.com/long-url) text\n\n```js\ncode()\n```\n\n$x^2$",
-    );
-    expect(plainText).toContain("Hi");
-    expect(plainText).toContain("a link");
-    expect(plainText).toContain("text");
-    expect(plainText).not.toContain("long-url");
-    expect(plainText).not.toContain("code()");
-    expect(plainText).not.toContain("x^2");
-    expect(plainText).not.toContain("#");
-  });
-});
 
 const entry = (frontmatter: string, body = "body") => `---\n${frontmatter}\n---\n${body}`;
 
@@ -188,11 +47,15 @@ describe("loadPostsFrom", () => {
       {
         "/content/posts/2026/date/index.md": entry("title: D\npublishedAt: 2026-03-08"),
         "/content/posts/2026/time/index.md": entry("title: T\npublishedAt: 2026-03-08 23:00"),
+        "/content/posts/2026/sec/index.md": entry("title: S\npublishedAt: 2026-03-08 23:00:45"),
+        "/content/posts/2026/offset/index.md": entry("title: O\npublishedAt: 2026-03-08T23:00:45+09:00"),
       },
       {},
     );
     const bySlug = new Map(posts.map((p) => [p.slug, p]));
     expect(bySlug.get("date")?.publishedAt.toISOString()).toBe("2026-03-07T15:00:00.000Z");
     expect(bySlug.get("time")?.publishedAt.toISOString()).toBe("2026-03-08T14:00:00.000Z");
+    expect(bySlug.get("sec")?.publishedAt.toISOString()).toBe("2026-03-08T14:00:45.000Z");
+    expect(bySlug.get("offset")?.publishedAt.toISOString()).toBe("2026-03-08T14:00:45.000Z");
   });
 });

@@ -11,7 +11,10 @@ import { renderMarkdown } from "./markdown";
 const matterOptions = {
   engines: {
     yaml: {
-      parse: (input: string) => load(input, { schema: CORE_SCHEMA }) as Record<string, unknown>,
+      parse: (input: string) => {
+        const data: unknown = load(input, { schema: CORE_SCHEMA });
+        return typeof data === "object" && data !== null ? data : {};
+      },
       stringify: (data: unknown) => String(data),
     },
   },
@@ -144,7 +147,14 @@ export async function loadPostsFrom(files: Record<string, string>, assets: Recor
         }
         return bundled;
       };
-      const { html, toc, plainText } = await renderMarkdown(content, { resolveImage });
+      let rendered: { html: string; toc: TocItem[]; plainText: string };
+      try {
+        rendered = await renderMarkdown(content, { resolveImage });
+      } catch (error) {
+        console.warn(`[posts] skipping ${path}: markdown render failed`, error);
+        return null;
+      }
+      const { html, toc, plainText } = rendered;
       return {
         slug,
         title: fm.title,

@@ -14,7 +14,9 @@ const formatter = new Intl.DateTimeFormat("ja-JP", {
 
 const toJstAware = (value: string): string => {
   const bare = JST_DATE.exec(value);
-  return bare ? `${bare[1]}T${bare[2] ?? "00:00"}:00+09:00` : value;
+  if (!bare) return value;
+  const time = bare[2] ?? "00:00:00";
+  return `${bare[1]}T${time.length === 5 ? `${time}:00` : time}+09:00`;
 };
 
 export const parseDate = (value: string): number => Date.parse(toJstAware(value));

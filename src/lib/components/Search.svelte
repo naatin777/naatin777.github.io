@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, untrack } from "svelte";
   import { replaceState } from "$app/navigation";
   import { page } from "$app/state";
   import LangText from "$lib/components/LangText.svelte";
@@ -25,6 +25,9 @@
   let results = $state<PagefindResult[]>([]);
   let searching = $state(false);
   let pagefind: PagefindApi | null = null;
+  // Bumped on every query change — stale async results check it before
+  // touching state, so a cleared or superseded search can't resurrect.
+  let requestId = 0;
   const inputLabelId = $props.id();
   // Render the (disabled) input during SSR so hydration doesn't shift layout;
   // the whole block hides only when pagefind is actually absent.
@@ -38,44 +41,65 @@
       await pagefind.init();
       status = "ready";
       // A ?q= applied before init skipped the search — run it now.
-      if (query.trim()) void onInput();
+      if (query.trim()) void search();
     } catch {
       status = "unavailable";
     }
   });
 
   // ?q= can also change via SPA navigation after mount (shared search links).
-  // Compare against the trimmed query so a trailing space being typed isn't
-  // eaten by our own replaceState round-trip.
+  // An absent param means "no filter" — adopt it as an empty query.
   $effect(() => {
-    const q = page.url.searchParams.get("q");
-    if (q && q !== query.trim()) {
-      query = q;
-      void onInput();
-    }
+    const q = page.url.searchParams.get("q") ?? "";
+    // Compare untracked: re-run only on URL changes, not on our own writes or
+    // on keystrokes. Trim so a trailing space being typed isn't eaten by our
+    // own replaceState round-trip.
+    untrack(() => {
+      if (q !== query.trim()) {
+        query = q;
+        void search();
+      }
+    });
   });
 
-  async function onInput() {
+  // Runs a search for the current query — no URL writes here; those belong
+  // to the input handler, so this stays safe to call from the effect above.
+  async function search() {
+    const id = ++requestId;
+    const q = query.trim();
+    if (!pagefind || !q) {
+      results = [];
+      searching = false;
+      return;
+    }
+    searching = true;
+    try {
+      const res = await pagefind.debouncedSearch(q, {}, 300);
+      // null (superseded keystroke) or a newer request — that call owns state
+      if (!res || id !== requestId) return;
+      const hits = res.results.slice(0, 12).map((r) => r.data());
+      const data = await Promise.all(hits);
+      if (id !== requestId) return;
+      // /og/ pages are build-time templates for OG image generation, not content
+      results = data.filter((r) => !r.url.includes("/og/")).slice(0, 8);
+    } catch (error) {
+      if (id === requestId) {
+        console.error("[search] pagefind query failed", error);
+        results = [];
+      }
+    } finally {
+      if (id === requestId) searching = false;
+    }
+  }
+
+  function onInput() {
     const url = new URL(page.url);
     if (query.trim()) url.searchParams.set("q", query.trim());
     else url.searchParams.delete("q");
     // SvelteKit's replaceState preserves router state; raw history.replaceState
     // would clobber the nav index/scroll state it stores in history.state.
     replaceState(url, page.state);
-    if (!pagefind) return;
-    if (!query.trim()) {
-      results = [];
-      searching = false;
-      return;
-    }
-    searching = true;
-    const res = await pagefind.debouncedSearch(query, {}, 300);
-    // null when superseded by a newer keystroke — that call owns the flag
-    if (!res) return;
-    // /og/ pages are build-time templates for OG image generation, not content
-    const hits = res.results.slice(0, 12).map((r) => r.data());
-    results = (await Promise.all(hits)).filter((r) => !r.url.includes("/og/")).slice(0, 8);
-    searching = false;
+    void search();
   }
 </script>
 

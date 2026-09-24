@@ -1,4 +1,5 @@
 import { site } from "$lib/config/site";
+import { absolutizeUrls } from "$lib/server/absolutize-urls";
 import { getPosts } from "$lib/server/posts";
 import type { RequestHandler } from "./$types";
 
@@ -14,11 +15,8 @@ const escapeXml = (text: string): string =>
 
 const toPubDate = (date: Date) => date.toUTCString();
 
-// Relative URLs in article HTML break inside RSS readers — absolutize them.
-const absolutizeUrls = (html: string): string =>
-  html.replace(/(src|href)="\//g, (_match, attr: string) => `${attr}="${site.url}/`);
-
-// Raw markdown HTML is textified upstream, so only element syntax can appear.
+// Article HTML can contain a literal "]]>" (e.g. inside code samples), which
+// would terminate the CDATA section early — split it across two sections.
 const escapeCdata = (html: string): string => html.replace(/\]\]>/g, "]]]]><![CDATA[>");
 
 export const GET: RequestHandler = async () => {
@@ -32,7 +30,7 @@ export const GET: RequestHandler = async () => {
       <pubDate>${toPubDate(post.publishedAt)}</pubDate>
       ${post.tags.map((tag) => `<category>${escapeXml(tag)}</category>`).join("\n      ")}
       <description>${escapeXml(post.description)}</description>
-      <content:encoded><![CDATA[${escapeCdata(absolutizeUrls(post.html))}]]></content:encoded>
+      <content:encoded><![CDATA[${escapeCdata(absolutizeUrls(post.html, `${site.url}/posts/${post.slug}/`))}]]></content:encoded>
     </item>`,
     )
     .join("\n");

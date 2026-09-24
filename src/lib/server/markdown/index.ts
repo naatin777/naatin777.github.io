@@ -17,10 +17,10 @@ import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 import type { TocItem } from "$lib/types";
-import { rehypeCodeCopy, rehypeCodeFilename } from "./code-blocks";
+import { rehypeCodeBlocks } from "./code-blocks";
 import { rehypeFlattenRoots } from "./flatten-roots";
-import { rehypeCollectToc, rehypeHeadingAnchors } from "./headings";
-import { remarkResolveImages } from "./images";
+import { rehypeAvoidPageIds, rehypeCollectToc, rehypeHeadingAnchors } from "./headings";
+import { rehypeResolveImages } from "./images";
 import { rehypeLazyImages } from "./lazy-images";
 import { rehypeMermaid } from "./mermaid";
 import { rehypeCollectReadingText } from "./reading-text";
@@ -32,19 +32,20 @@ const createProcessor = (resolveImage: (src: string) => string) =>
     .use(remarkGfm)
     .use(remarkMath)
     .use(remarkAlert)
-    .use(remarkResolveImages(resolveImage))
     .use(remarkRehype, { allowDangerousHtml: true })
     // Trust boundary: author markup (including embedded raw HTML parsed by
     // rehype-raw) is sanitized here; everything below only adds generated
     // markup on top of the sanitized tree.
     .use(rehypeRaw)
+    .use(rehypeResolveImages(resolveImage))
     .use(rehypeSanitize, sanitizeSchema)
     .use(rehypeSlug)
+    .use(rehypeAvoidPageIds)
     .use(rehypeCollectToc)
     .use(rehypeHeadingAnchors)
     .use(rehypeExternalLinks, { target: "_blank", rel: ["noopener", "noreferrer"] })
     .use(rehypeMermaid)
-    .use(rehypeCodeFilename)
+    .use(rehypeCodeBlocks)
     .use(rehypeShiki, {
       themes: { light: "github-light", dark: "github-dark" },
       defaultColor: "light-dark()",
@@ -54,7 +55,6 @@ const createProcessor = (resolveImage: (src: string) => string) =>
     .use(rehypeFlattenRoots)
     .use(rehypeKatex)
     .use(rehypeLazyImages)
-    .use(rehypeCodeCopy)
     .use(rehypeCollectReadingText)
     .use(rehypeStringify);
 
@@ -65,7 +65,9 @@ export async function renderMarkdown(
   const file = await createProcessor(options.resolveImage ?? ((src) => src)).process(content);
   return {
     html: String(file),
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- written by rehypeCollectToc in this pipeline
     toc: (file.data.toc as TocItem[] | undefined) ?? [],
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- written by rehypeCollectReadingText in this pipeline
     plainText: (file.data.readingText as string | undefined) ?? "",
   };
 }
