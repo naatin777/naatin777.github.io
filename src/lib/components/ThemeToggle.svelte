@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Moon, Sun } from "@lucide/svelte";
+  import { Moon, Sun, SunMoon } from "@lucide/svelte";
   import { hydrated } from "$lib/hydrated.svelte";
   import { themeState } from "$lib/theme.svelte";
   import LangText from "./LangText.svelte";
@@ -8,13 +8,21 @@
   const isHydrated = hydrated();
   const labelId = $props.id();
 
-  // Two-state flip: the button toggles light ↔ dark. "System" remains
-  // the implicit default until the user picks a side explicitly.
+  // Three-state cycle: light → dark → system. The icon shows the current
+  // preference rather than the resolved theme, so "system" is visible.
+  const order = { light: "dark", dark: "system", system: "light" } as const;
   function toggle(): void {
-    theme.set(theme.resolved === "dark" ? "light" : "dark");
+    theme.set(order[theme.preference]);
   }
 
-  const Icon = $derived(theme.resolved === "dark" ? Sun : Moon);
+  const icons = { light: Sun, dark: Moon, system: SunMoon } as const;
+  const Icon = $derived(icons[theme.preference]);
+
+  const labels = {
+    light: { ja: "テーマ: ライト", en: "Theme: light" },
+    dark: { ja: "テーマ: ダーク", en: "Theme: dark" },
+    system: { ja: "テーマ: システム", en: "Theme: system" },
+  } as const;
 </script>
 
 <button
@@ -26,6 +34,6 @@
     ? 'opacity-100'
     : 'invisible opacity-0'}"
 >
-  <span id={labelId} class="sr-only"><LangText texts={{ ja: "テーマ切替", en: "Toggle theme" }} /></span>
+  <span id={labelId} class="sr-only"><LangText texts={labels[theme.preference]} /></span>
   <Icon class="size-5" aria-hidden="true" />
 </button>

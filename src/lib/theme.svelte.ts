@@ -8,7 +8,7 @@ const readDomPreference = (): ThemePreference => {
   return value === "light" || value === "dark" ? value : "system";
 };
 
-// The init script (src/lib/server/init-script.ts) resolves data-theme
+// The init script (in app.html) resolves data-theme
 // before hydration; `preference` mirrors it, and `resolved` stays derived —
 // including live system changes — so the two can never disagree.
 // matchMedia is used directly (not svelte's MediaQuery) because its initial
@@ -40,6 +40,9 @@ if (browser) {
 
 export function themeState() {
   return {
+    get preference() {
+      return preference;
+    },
     get resolved() {
       return resolved;
     },
