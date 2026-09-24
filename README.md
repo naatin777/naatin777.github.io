@@ -1,28 +1,28 @@
 # naatin777.dev
 
-Personal portfolio site. Built with SvelteKit + Tailwind CSS, statically exported to GitHub Pages.
+個人ポートフォリオサイト。SvelteKit + Tailwind CSS で構築し、GitHub Pages へ静的エクスポートしている。
 
-- Site-native posts live in `content/posts/`.
-- Zenn/Qiita article metadata (title/URL/tags/dates) is synced into `content/generated/<source>.json` — committed, so builds never hit the network. Qiita via API v2; Zenn via the official RSS joined with the vendored `content/zenn/` subtree for topics.
+- サイト内記事は `content/posts/` に置く。
+- Zenn/Qiita の記事メタデータ（タイトル/URL/タグ/日付）は `content/generated/<source>.json` に同期される — コミット済みなので、ビルド時にネットワークへアクセスしない。Qiita は API v2、Zenn は公式 RSS と vendored `content/zenn/` subtree の結合で topics を取得する。
 
-## Commands
+## コマンド
 
 ```sh
 pnpm install
-pnpm dev      # dev server
-pnpm sync:external-posts  # refresh external article metadata (Zenn RSS + Qiita API)
-pnpm sync:zenn            # or sync a single source · pnpm sync:qiita
-pnpm build    # vite build → pagefind index → OG images → build/
-pnpm preview  # serve build/ like GitHub Pages (vite preview misses post-build assets)
+pnpm dev      # 開発サーバー
+pnpm sync:external-posts  # 外部記事メタデータを更新（Zenn RSS + Qiita API）
+pnpm sync:zenn            # 単一ソースのみ同期 · pnpm sync:qiita
+pnpm build    # vite build → pagefind インデックス → OG 画像 → build/
+pnpm preview  # build/ を GitHub Pages 同様に配信（vite preview ではビルド後アセットが欠ける）
 pnpm run check   # svelte-check
 pnpm run lint    # oxlint
 pnpm format      # oxfmt
 pnpm run test    # vitest
 ```
 
-Deploys automatically on push to `main` via GitHub Actions → GitHub Pages. The deploy workflow runs `pnpm sync:external-posts` before building, so a failed sync fails the deploy rather than shipping silently stale data.
+`main` への push で GitHub Actions → GitHub Pages へ自動デプロイされる。デプロイワークフローはビルド前に `pnpm sync:external-posts` を実行するため、同期が失敗した場合は古いデータを黙って配信するのではなくデプロイ自体が失敗する。
 
-## License
+## ライセンス
 
-- Source code: [MIT](LICENSE)
-- Articles in `content/posts/`: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) © Naatin
+- ソースコード: [MIT](LICENSE)
+- `content/posts/` 内の記事: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) © Naatin

@@ -1,95 +1,95 @@
 # AGENTS.md
 
-Instructions for coding agents working in this repository.
+このリポジトリで作業するコーディングエージェント向けの指示。
 
-## Scope
+## 適用範囲
 
-- Apply these rules across the repository rooted at this directory; newer conversation rules override older wording.
-- When the user adds a new rule, record it under the matching section below — do not append a separate overrides section.
+- このディレクトリをルートとするリポジトリ全体にこれらのルールを適用する。会話中の新しいルールは古い記述より優先される。
+- ユーザーが新しいルールを追加した場合、対応するセクションに記録すること — 独立した上書きセクションを追加しない。
 
-## Project Snapshot
+## プロジェクト概要
 
-- Build this site with SvelteKit + `@sveltejs/adapter-static`, deployed to GitHub Pages.
-- Use `pnpm` with `pnpm-lock.yaml` and `pnpm-workspace.yaml` (pnpm settings live there, including `minimumReleaseAge`).
-- Match CI runtime with Node `24`.
-- Use Tailwind CSS v4 (`@tailwindcss/vite`) + `@tailwindcss/typography`; global styles live in `src/app.css`.
-- Use Svelte 5 runes syntax (`$state`, `$derived`, `$props`, `$bindable`) — no `on:` handlers, no `createEventDispatcher`, no legacy `$:` reactivity.
+- このサイトは SvelteKit + `@sveltejs/adapter-static` でビルドし、GitHub Pages にデプロイする。
+- `pnpm` を `pnpm-lock.yaml` と `pnpm-workspace.yaml` とともに使う（`minimumReleaseAge` などの pnpm 設定はここに置く）。
+- CI のランタイムは Node `24` に合わせる。
+- Tailwind CSS v4（`@tailwindcss/vite`）+ `@tailwindcss/typography` を使用。グローバルスタイルは `src/app.css` に置く。
+- Svelte 5 の runes 構文（`$state`、`$derived`、`$props`、`$bindable`）を使う — `on:` ハンドラ、`createEventDispatcher`、レガシーな `$:` リアクティビティは使わない。
 
-## Setup
+## セットアップ
 
-1. Enable Corepack as needed: `corepack enable`
-2. Install dependencies with lockfile: `pnpm install --frozen-lockfile`
+1. 必要に応じて Corepack を有効化: `corepack enable`
+2. ロックファイルを使って依存関係をインストール: `pnpm install --frozen-lockfile`
 
-## Common Commands
+## よく使うコマンド
 
-- Start dev server: `pnpm dev` — development only; UI checks use the preview (see Validation)
-- Build production output: `pnpm build` (Vite build → Pagefind index → OG image generation; outputs to `build/`)
-- Run type checks: `pnpm run check`
-- Lint: `pnpm run lint` (oxlint), format: `pnpm run format` / `pnpm run format:check` (oxfmt)
-- Tests: `pnpm run test` (vitest)
-- Full pre-CI validation: `pnpm run validate` (check + lint + format:check + test)
-- Preview build output: `pnpm preview` (serves `build/` like GitHub Pages — `vite preview` serves `.svelte-kit/output` instead and would miss post-build assets like the pagefind index and OG images)
+- 開発サーバー起動: `pnpm dev` — 開発専用。UI チェックはプレビューを使う（「検証」参照）
+- 本番ビルド: `pnpm build`（Vite ビルド → Pagefind インデックス → OG 画像生成。`build/` に出力）
+- 型チェック: `pnpm run check`
+- Lint: `pnpm run lint`（oxlint）、フォーマット: `pnpm run format` / `pnpm run format:check`（oxfmt）
+- テスト: `pnpm run test`（vitest）
+- CI 前の全体検証: `pnpm run validate`（check + lint + format:check + test）
+- ビルド成果物のプレビュー: `pnpm preview`（GitHub Pages と同様に `build/` を配信する — `vite preview` は `.svelte-kit/output` を配信するため、Pagefind インデックスや OG 画像などのビルド後アセットが欠ける）
 
-## Editing Workflow
+## 編集ワークフロー
 
-- Keep each change minimal and focused on the user request.
-- Before making file edits, state the intended implementation direction briefly and wait for explicit user confirmation such as "Yes". Do not start editing immediately after a new request unless the user explicitly asks to proceed without confirmation.
-- Keep generated output and dependencies unchanged (`build/`, `node_modules/`).
-- Keep reusable UI blocks in `src/lib/components/` when page files grow.
-- Avoid creating unnecessary constants and avoid excessive `export` additions during style/system refactors.
-- Do not use `naatin` in identifiers such as variable names, function names, or custom global keys.
-- Prefer established libraries and declarative/AST-level transforms over ad-hoc string manipulation. The Markdown pipeline (`src/lib/server/posts.ts`) is the canonical example: author markup — including embedded raw HTML, parsed by `rehype-raw` — passes `rehype-sanitize` first, and generated output (KaTeX/Shiki/Mermaid SVG/heading anchors) is injected as AST nodes after the trust boundary.
+- 各変更は最小限に保ち、ユーザーの要求に集中させる。
+- ファイル編集の前に、実装方針を簡潔に述べ、「はい」などの明示的な確認を待つ。ユーザーが確認なしで進めるよう明示しない限り、新しい要求の直後に編集を開始しない。
+- 生成物と依存関係は変更しない（`build/`、`node_modules/`）。
+- ページファイルが大きくなったら、再利用可能な UI ブロックを `src/lib/components/` に切り出す。
+- 不要な定数の作成や、スタイル/システムのリファクタ時の過剰な `export` 追加は避ける。
+- 変数名・関数名・カスタムグローバルキーなどの識別子に `naatin` を使わない。
+- アドホックな文字列操作より、確立されたライブラリや宣言的/AST レベルの変換を優先する。Markdown パイプライン（`src/lib/server/posts.ts`）がその典型例: 著者のマークアップ（`rehype-raw` でパースされる埋め込み生 HTML を含む）は最初に `rehype-sanitize` を通し、生成される出力（KaTeX/Shiki/Mermaid SVG/見出しアンカー）は trust boundary の後に AST ノードとして注入される。
 
-## Naming and File Structure
+## 命名とファイル構成
 
-- Use `kebab-case` for route, style, and content filenames.
-- Keep component files in `src/lib/components/` as `PascalCase.svelte`.
-- Server-only code lives in `src/lib/server/` (never import it from client components).
-- Types shared between server and client live in `src/lib/types.ts` — do not re-derive them per file.
+- ルート・スタイル・コンテンツのファイル名は `kebab-case` にする。
+- コンポーネントファイルは `src/lib/components/` に `PascalCase.svelte` で置く。
+- サーバー専用コードは `src/lib/server/` に置く（クライアントコンポーネントから import しない）。
+- サーバーとクライアントで共有する型は `src/lib/types.ts` に置く — ファイルごとに再定義しない。
 
-## TypeScript Rules
+## TypeScript ルール
 
-- Use explicit types by default; `strict` + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` + `verbatimModuleSyntax` are on.
-- Use `unknown` with safe narrowing (zod) when type details are uncertain.
-- Use `any` only when the user explicitly allows it.
-- Use `import type` for type-only imports (`verbatimModuleSyntax`).
-- oxlint runs type-aware (`oxlint-tsgolint`): `typescript/no-unsafe-type-assertion` rejects `as` casts to narrower types. Narrow boundary data with zod/`instanceof`/type guards instead; where a cast is genuinely justified (e.g. `file.data` written by the same pipeline), suppress with a reasoned `oxlint-disable-next-line` comment.
+- デフォルトで明示的な型を使う。`strict` + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` + `verbatimModuleSyntax` が有効。
+- 型の詳細が不確かな場合は `unknown` と安全な絞り込み（zod）を使う。
+- `any` はユーザーが明示的に許可した場合のみ使う。
+- 型のみの import には `import type` を使う（`verbatimModuleSyntax`）。
+- oxlint は type-aware で実行される（`oxlint-tsgolint`）: `typescript/no-unsafe-type-assertion` は狭い型への `as` キャストを拒否する。境界データは zod/`instanceof`/型ガードで絞り込むこと。キャストが本当に正当化される場所（同じパイプラインが書き込む `file.data` など）では、理由付きの `oxlint-disable-next-line` コメントで抑制する。
 
-## Content Rules
+## コンテンツルール
 
-- Local posts live at `content/posts/<year>/<slug>/index.md` (the year folder is organizational; the URL is `/posts/<slug>/`) with zod-validated frontmatter (`title`, `publishedAt`, optional `description`, `updatedAt`, `tags`, `series`, `draft`). Bare dates (`YYYY-MM-DD`, optionally `HH:MM[:SS]`) are interpreted as JST — write an explicit offset for anything else. Post assets (images) sit beside `index.md` and are referenced relatively (`./image.png`) — vite bundles them and the pipeline rewrites the src.
-- Unpublished posts belong in `content/drafts/<slug>/` — the asset glob emits every file it matches, so nothing there reaches the build. `draft: true` inside `content/posts/` still skips the page for compatibility but its assets still ship, so it is not a substitute for `content/drafts/`.
-- External articles (Zenn/Qiita) come from `content/generated/<source>.json`, produced by `pnpm sync:zenn` / `pnpm sync:qiita` (`pnpm sync:external-posts` runs both). Qiita uses the unauthenticated API v2. Zenn uses the official RSS for enumeration/dates/URLs joined with `content/zenn/` (git subtree) for frontmatter `topics` — no private APIs. Each source owns one generated file — a sync never touches the other source's data. The build reads only those committed files — never the network.
-- `src/lib/server/posts.ts` must never throw on malformed Markdown/frontmatter — skip and warn instead.
+- ローカル記事は `content/posts/<year>/<slug>/index.md` に置く（year フォルダは整理用で、URL は `/posts/<slug>/`）。frontmatter は zod で検証される（`title`、`publishedAt`、任意で `description`、`updatedAt`、`tags`、`series`、`draft`）。裸の日付（`YYYY-MM-DD`、任意で `HH:MM[:SS]`）は JST として解釈される — それ以外は明示的なオフセットを書く。記事アセット（画像）は `index.md` の隣に置き、相対パス（`./image.png`）で参照する — vite がバンドルし、パイプラインが src を書き換える。
+- 未公開記事は `content/drafts/<slug>/` に置く — アセットの glob はマッチした全ファイルを出力するため、ここにあるものはビルドに到達しない。`content/posts/` 内の `draft: true` も互換性のためページをスキップするが、アセットは出力されるため、`content/drafts/` の代替にはならない。
+- 外部記事（Zenn/Qiita）は `content/generated/<source>.json` から来る。`pnpm sync:zenn` / `pnpm sync:qiita` で生成される（`pnpm sync:external-posts` で両方実行）。Qiita は非認証の API v2 を使用。Zenn は公式 RSS で列挙・日付・URL を取得し、frontmatter の `topics` は `content/zenn/`（git subtree）と結合する — 非公開 API は使わない。各ソースは1つの生成ファイルを所有し、同期が他方のソースのデータに触れることはない。ビルドはコミット済みのファイルのみを読み、ネットワークにはアクセスしない。
+- `src/lib/server/posts.ts` は不正な Markdown/frontmatter で throw してはいけない — スキップして警告する。
 
-## Styling Rules
+## スタイリングルール
 
-- Keep global styles and component-level classes (`.card`, `.chip`, `.prose` tweaks) in `src/app.css`.
-- Theme tokens (`--background`, `--foreground`, `--muted`, `--border`, `--surface`, `--accent`) are defined under `@theme`/`:root` in `src/app.css`; light/dark switching is via `[data-theme]` and `.prose` is driven by `--tw-prose-*` mappings.
-- Markdown-generated HTML (alerts, footnotes, heading anchors, task lists) is not scanned by Tailwind — its styles must be written explicitly in `src/app.css`.
-- Rules that override the typography plugin's `.prose` element styles (margins, colors, `--tw-prose-*` vars) must stay **unlayered** in `src/app.css` — the plugin emits in the utilities layer, which silently beats `@layer components`.
-- Reduced motion is handled globally in `src/app.css`. Do not add per-component `prefers-reduced-motion` transition overrides unless the user explicitly asks or a component has a proven exception that cannot be handled globally.
-- Use `@lucide/svelte` for icons.
+- グローバルスタイルとコンポーネントレベルのクラス（`.card`、`.chip`、`.prose` の調整）は `src/app.css` に置く。
+- テーマトークン（`--background`、`--foreground`、`--muted`、`--border`、`--surface`、`--accent`）は `src/app.css` の `@theme`/`:root` で定義される。ライト/ダーク切替は `[data-theme]` で、`.prose` は `--tw-prose-*` マッピングで駆動される。
+- Markdown が生成する HTML（アラート、脚注、見出しアンカー、タスクリスト）は Tailwind のスキャン対象外 — スタイルは `src/app.css` に明示的に書く。
+- typography プラグインの `.prose` 要素スタイル（マージン、色、`--tw-prose-*` 変数）を上書きするルールは `src/app.css` で**レイヤーなし**に保つ — プラグインは utilities レイヤーで出力するため、`@layer components` を黙って上回る。
+- モーション低減は `src/app.css` でグローバルに処理される。ユーザーが明示的に求めた場合か、グローバルで処理できない実証済みの例外があるコンポーネント以外では、コンポーネントごとの `prefers-reduced-motion` トランジション上書きを追加しない。
+- アイコンは `@lucide/svelte` を使う。
 
-## Accessibility
+## アクセシビリティ
 
-- Write meaningful `alt` text for informative images; decorative images use `alt=""`.
-- Single-select filter groups use `role="radiogroup"` + `role="radio"` + `aria-checked`; multi-select chips use `aria-pressed`. Both are styled by the `.chip` rule in `src/app.css`.
-- Landmark/nav labels are localized via `aria-labelledby` → an element containing `LangText` (the inactive language is `display:none`, so screen readers announce only the active one). Use `$props.id()` for the id; never write bilingual `aria-label`s.
-- `LangText` renders both languages into the DOM and marks the non-default one `data-pagefind-ignore` — keep that attribute so the search index doesn't index both variants.
-- Heading anchors injected by the Markdown pipeline are real focusable links with `aria-label` — do not nest anchors inside them.
+- 情報を持つ画像には意味のある `alt` テキストを書く。装飾的な画像は `alt=""` にする。
+- 単一選択フィルタグループは `role="radiogroup"` + `role="radio"` + `aria-checked`、複数選択チップは `aria-pressed` を使う。両方とも `src/app.css` の `.chip` ルールでスタイルされる。
+- ランドマーク/nav ラベルは `aria-labelledby` → `LangText` を含む要素でローカライズする（非アクティブな言語は `display:none` なので、スクリーンリーダーはアクティブな方だけを読み上げる）。id には `$props.id()` を使い、二言語の `aria-label` は書かない。
+- `LangText` は両言語を DOM にレンダリングし、デフォルトでない方に `data-pagefind-ignore` を付ける — 検索インデックスが両方のバリアントを拾わないよう、この属性を維持する。
+- Markdown パイプラインが注入する見出しアンカーは `aria-label` 付きの実際のフォーカス可能リンク — その中にアンカーをネストしない。
 
-## Validation
+## 検証
 
-- Run `pnpm build` after functional changes.
-- Run `pnpm run check` when changing TypeScript, routes, content, or shared utilities — passing means `errors: 0, warnings: 0, hints: 0`.
-- Run `pnpm run validate` (or the individual scripts) before finishing a change set.
-- For UI checks use Playwright/agent-browser against a running preview server (`pnpm build` + `pnpm preview`). Do not use `pnpm dev` for UI checks — it is unreliable in this repo. If port `4321` is already running, reuse it.
-- Save screenshots in `output/` and delete them after analysis.
-- Interactive features must work in latest Chrome, Firefox, and Safari on desktop, mobile, and tablet.
+- 機能変更後は `pnpm build` を実行する。
+- TypeScript、ルート、コンテンツ、共有ユーティリティを変更したら `pnpm run check` を実行する — 合格は `errors: 0, warnings: 0, hints: 0`。
+- 変更セットを終える前に `pnpm run validate`（または個別スクリプト）を実行する。
+- UI チェックは実行中のプレビューサーバー（`pnpm build` + `pnpm preview`）に対して Playwright/agent-browser を使う。UI チェックに `pnpm dev` は使わない — このリポジトリでは信頼できない。ポート `4321` がすでに動いていれば再利用する。
+- スクリーンショットは `output/` に保存し、分析後に削除する。
+- インタラクティブ機能はデスクトップ・モバイル・タブレットの最新 Chrome、Firefox、Safari で動作しなければならない。
 
-## CI / Deploy Notes
+## CI / デプロイ
 
-- GitHub Actions installs dependencies with `pnpm install --frozen-lockfile` and runs `pnpm run validate` before `pnpm run build`.
-- Deployment publishes the `build/` directory via `peaceiris/actions-gh-pages` (push to `main` only; PRs run checks but do not deploy).
-- Lighthouse audits run via `scripts/lighthouse.ts` (requires Chrome and a prior `pnpm build`) — keep its `PATHS` in sync with real routes; reports land in `output/lighthouse/`.
+- GitHub Actions は `pnpm install --frozen-lockfile` で依存関係をインストールし、`pnpm run build` の前に `pnpm run validate` を実行する。
+- デプロイは `peaceiris/actions-gh-pages` で `build/` ディレクトリを公開する（`main` への push のみ。PR はチェックのみ実行しデプロイしない）。
+- Lighthouse 監査は `scripts/lighthouse.ts` で実行される（Chrome と事前の `pnpm build` が必要）— `PATHS` は実際のルートと同期させる。レポートは `output/lighthouse/` に出力される。
