@@ -58,7 +58,7 @@
 ## コンテンツルール
 
 - ローカル記事は `content/posts/<year>/<slug>/index.md` に置く（year フォルダは整理用で、URL は `/posts/<slug>/`）。frontmatter は zod で検証される（`title`、`publishedAt`、任意で `description`、`updatedAt`、`tags`、`series`、`draft`）。裸の日付（`YYYY-MM-DD`、任意で `HH:MM[:SS]`）は JST として解釈される — それ以外は明示的なオフセットを書く。記事アセット（画像）は `index.md` の隣に置き、相対パス（`./image.png`）で参照する — vite がバンドルし、パイプラインが src を書き換える。
-- 未公開記事は `content/drafts/<slug>/` に置く — アセットの glob はマッチした全ファイルを出力するため、ここにあるものはビルドに到達しない。`content/posts/` 内の `draft: true` も互換性のためページをスキップするが、アセットは出力されるため、`content/drafts/` の代替にはならない。
+- 未公開記事は `content/posts/` の外に置く — アセットの glob は `content/posts/` 配下でマッチした全ファイルを出力するため、外にあればビルドに到達しない。`content/posts/` 内の `draft: true` も互換性のためページをスキップするが、アセットは出力されるため、外への移動の代替にはならない。
 - 外部記事（Zenn/Qiita）は `content/generated/<source>.json` から来る。`pnpm sync:zenn` / `pnpm sync:qiita` で生成される（`pnpm sync:external-posts` で両方実行）。Qiita は非認証の API v2 を使用。Zenn は公式 RSS で列挙・日付・URL を取得し、frontmatter の `topics` は `content/zenn/`（git subtree）と結合する — 非公開 API は使わない。各ソースは1つの生成ファイルを所有し、同期が他方のソースのデータに触れることはない。ビルドはコミット済みのファイルのみを読み、ネットワークにはアクセスしない。
 - `src/lib/server/posts.ts` は不正な Markdown/frontmatter で throw してはいけない — スキップして警告する。
 

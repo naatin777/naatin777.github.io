@@ -68,8 +68,8 @@ const postFiles = import.meta.glob<string>("/content/posts/*/*/index.md", {
 // Assets co-located with a post (images etc.) are bundled by vite; markdown
 // references them relatively (./image.png) and rehypeResolveImages swaps in
 // the emitted URL. Every glob match is emitted to build/ whether a post
-// references it or not — that's why drafts live in content/drafts/, outside
-// this glob, so their assets never reach the output.
+// references it or not — that's why drafts live outside content/posts/,
+// outside this glob, so their assets never reach the output.
 const postAssets = import.meta.glob<string>("/content/posts/*/**/*.{png,jpg,jpeg,gif,svg,webp,avif}", {
   query: "?url",
   import: "default",
@@ -122,7 +122,7 @@ export async function loadPostsFrom(files: Record<string, string>, assets: Recor
       const fm = parsed.data;
       if (fm.draft) {
         // The page is skipped, but every asset in this folder still ships —
-        // drafts belong in content/drafts/ where the glob can't see them.
+        // drafts belong outside content/posts/ where the glob can't see them.
         console.warn(`[posts] skipping ${path}: draft post inside content/posts/ (assets still ship)`);
         return null;
       }
