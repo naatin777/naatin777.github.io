@@ -1,7 +1,7 @@
 import { defaultLang } from "$lib/config/i18n";
 import { author, site } from "$lib/config/site";
 import { absolutizeUrls } from "$lib/server/absolutize-urls";
-import { getPosts } from "$lib/server/posts";
+import { getPosts, type Post } from "$lib/server/posts";
 import type { RequestHandler } from "./$types";
 
 export const prerender = true;
@@ -20,11 +20,7 @@ const toPubDate = (date: Date) => date.toUTCString();
 // would terminate the CDATA section early — split it across two sections.
 const escapeCdata = (html: string): string => html.replace(/\]\]>/g, "]]]]><![CDATA[>");
 
-export const GET: RequestHandler = async () => {
-  const posts = await getPosts();
-  const items = posts
-    .map(
-      (post) => `    <item>
+const itemXml = (post: Post): string => `    <item>
       <title>${escapeXml(post.title)}</title>
       <link>${site.url}/posts/${post.slug}/</link>
       <guid isPermaLink="true">${site.url}/posts/${post.slug}/</guid>
@@ -33,9 +29,11 @@ export const GET: RequestHandler = async () => {
       ${post.tags.map((tag) => `<category>${escapeXml(tag)}</category>`).join("\n      ")}
       <description>${escapeXml(post.description)}</description>
       <content:encoded><![CDATA[${escapeCdata(absolutizeUrls(post.html, `${site.url}/posts/${post.slug}/`))}]]></content:encoded>
-    </item>`,
-    )
-    .join("\n");
+    </item>`;
+
+export const GET: RequestHandler = async () => {
+  const posts = await getPosts();
+  const items = posts.map(itemXml).join("\n");
   const lastUpdate = Math.max(...posts.map((p) => (p.updatedAt ?? p.publishedAt).getTime()), 0);
   const lastBuildDate = toPubDate(lastUpdate ? new Date(lastUpdate) : new Date());
   const body = `<?xml version="1.0" encoding="UTF-8"?>

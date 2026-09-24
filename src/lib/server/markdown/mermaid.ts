@@ -3,7 +3,7 @@ import { fromHtml } from "hast-util-from-html";
 import { toText } from "hast-util-to-text";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
-import { renderMermaid } from "../mermaid";
+import { renderMermaid } from "../mermaid-renderer";
 import { copyButton } from "./code-blocks";
 
 const mermaidTab = (label: string, pane: string, pressed: boolean): Element => ({

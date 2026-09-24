@@ -44,14 +44,7 @@
     <ul class="flex flex-col gap-2">
       {#each writingPlaces as place (place.source)}
         <li class="flex items-baseline gap-2 text-sm">
-          <span
-            class="badge"
-            class:badge-blog={place.source === "blog"}
-            class:badge-zenn={place.source === "zenn"}
-            class:badge-qiita={place.source === "qiita"}
-          >
-            {sourceLabels[place.source]}
-          </span>
+          <span class="badge badge-{place.source}">{sourceLabels[place.source]}</span>
           <span class="text-muted"><LangText texts={place.texts} /></span>
         </li>
       {/each}

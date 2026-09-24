@@ -1,9 +1,9 @@
 // Serves the final build/ output the way GitHub Pages does: directories
 // resolve to index.html and misses serve 404.html with a 404 status.
 //
-// `vite preview` serves .svelte-kit/output instead of build/, so assets
-// generated post-build (OG images) 404 there — this script previews what
-// actually ships.
+// `vite preview` serves only the output vite knows about — files copied
+// into build/ after the build (OG images) 404 there. This script serves
+// the final build/ directory itself, the way GitHub Pages does.
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { extname, join, normalize } from "node:path";

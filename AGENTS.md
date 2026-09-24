@@ -28,7 +28,7 @@
 - Lint: `pnpm run lint`（oxlint）、フォーマット: `pnpm run format` / `pnpm run format:check`（oxfmt）
 - テスト: `pnpm run test`（vitest）
 - CI 前の全体検証: `pnpm run validate`（check + lint + format:check + test）
-- ビルド成果物のプレビュー: `pnpm preview`（GitHub Pages と同様に `build/` を配信する — `vite preview` は `.svelte-kit/output` を配信するため、OG 画像などのビルド後アセットが欠ける）
+- ビルド成果物のプレビュー: `pnpm preview`（`scripts/serve-build.ts` が GitHub Pages と同様に `build/` を配信する — `vite preview` は vite が把握している出力しか返さず、ビルド後に追加される OG 画像などが 404 になる）
 
 ## 編集ワークフロー
 

@@ -28,14 +28,7 @@
     >
       {title}
     </a>
-    <span
-      class="badge"
-      class:badge-blog={source === "blog"}
-      class:badge-zenn={source === "zenn"}
-      class:badge-qiita={source === "qiita"}
-    >
-      {sourceLabels[source]}
-    </span>
+    <span class="badge badge-{source}">{sourceLabels[source]}</span>
   </div>
   <div class="text-muted mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
     {#if publishedAt}
