@@ -24,6 +24,7 @@ import { rehypeResolveImages } from "./images";
 import { rehypeLazyImages } from "./lazy-images";
 import { rehypeMermaid } from "./mermaid";
 import { sanitizeSchema } from "./schema";
+import { rehypeWrapTables } from "./tables";
 
 const createProcessor = (resolveImage: (src: string) => string) =>
   unified()
@@ -54,6 +55,7 @@ const createProcessor = (resolveImage: (src: string) => string) =>
     .use(rehypeFlattenRoots)
     .use(rehypeKatex)
     .use(rehypeLazyImages)
+    .use(rehypeWrapTables)
     .use(rehypeStringify);
 
 export async function renderMarkdown(

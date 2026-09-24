@@ -26,4 +26,10 @@ describe("renderMarkdown", () => {
     const { html } = await renderMarkdown("text[^1]\n\n[^1]: note body");
     expect(html).toContain("footnotes");
   });
+
+  it("wraps tables in a scroll container", async () => {
+    const { html } = await renderMarkdown("| a | b |\n|---|---|\n| 1 | 2 |");
+    expect(html).toContain('class="table-wrap"');
+    expect(html).toMatch(/<div class="table-wrap">\s*<table>/);
+  });
 });

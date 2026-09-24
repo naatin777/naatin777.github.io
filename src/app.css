@@ -576,34 +576,41 @@
   margin-bottom: 0.25em;
 }
 
-/* Table as a bordered card — same frame language as .code-block.
-   border-spacing (rather than the preflight's collapse) keeps the
-   frame's radius intact, so row separators move onto the cells. */
-.prose table {
+/* Table as a bordered card — same frame language as .code-block. The
+   pipeline wraps every table in .table-wrap so wide tables scroll
+   horizontally inside the frame instead of breaking the page; margins
+   move from the table to the wrapper (they'd collapse oddly inside it),
+   and the wrapper's overflow clip handles the rounded corners. */
+.prose .table-wrap {
+  margin-top: 2em;
+  margin-bottom: 2em;
   border: 1px solid var(--border);
   border-radius: 0.375rem;
-  border-collapse: separate;
-  border-spacing: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.prose .table-wrap::-webkit-scrollbar {
+  display: none;
+}
+
+.prose table {
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 /* The plugin zeroes the first/last cells' inline padding so text hugs
-   the column edge — inside a frame, every cell gets real padding. */
+   the column edge — inside a frame, every cell gets real padding.
+   Cells stay on one line; overflow scrolls inside the frame instead of
+   inflating rows vertically. */
 .prose table :is(th, td) {
   padding: 0.5rem 0.75rem;
+  white-space: nowrap;
 }
 
 .prose thead th {
   background-color: var(--surface);
   border-bottom: 1px solid var(--border);
-}
-
-/* Keep the header background inside the frame's top corners. */
-.prose thead th:first-child {
-  border-top-left-radius: 0.3rem;
-}
-
-.prose thead th:last-child {
-  border-top-right-radius: 0.3rem;
 }
 
 .prose tbody td {

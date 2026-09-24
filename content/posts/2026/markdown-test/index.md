@@ -369,6 +369,14 @@ gitGraph
 | 差分 | `// [!code ++]` | 緑の帯と`+` |
 | ファイル名 | `` ```ts:path `` | バーに表示 |
 
+横幅を超える表(横スクロールの確認):
+
+| Field | Type | Default | Required | Since | Description | Example | Status | Owner | Platform | Latency | Docs | Notes |
+|-------|------|---------|----------|-------|-------------|---------|--------|-------|----------|---------|------|-------|
+| `syntaxHighlight` | `boolean` | `true` | no | v1.0.0 | Shiki でシンタックスハイライトする | `{ theme: "dual" }` | stable | core | all | low | yes | dual theme 対応 |
+| `mathRendering` | `boolean` | `true` | no | v1.0.0 | KaTeX で数式をレンダリングする | `$x^2$` | stable | core | all | low | yes | display/inline |
+| `diagramPreview` | `boolean` | `false` | no | v2.0.0 | Mermaid を SVG に変換する | ` ```mermaid ` | beta | core | all | medium | yes | preview/source |
+
 ## タスクリスト
 
 - [x] 実装済みの項目
