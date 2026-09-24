@@ -12,12 +12,10 @@
   <title>{data.title}</title>
 </svelte:head>
 
-<!-- keep OG template pages out of the pagefind index; the generator screenshots .og-card.
-     OG cards are always dark regardless of the user's theme, so pin it here and
-     reuse the theme tokens instead of duplicating the palette. -->
+<!-- OG cards are always dark regardless of the user's theme, so pin it
+     here and reuse the theme tokens instead of duplicating the palette. -->
 <div
   data-theme="dark"
-  data-pagefind-ignore
   class="og-card bg-background text-foreground flex h-[630px] w-[1200px] flex-col justify-between p-16"
 >
   <h1 class="text-5xl leading-tight font-bold tracking-tight">{data.title}</h1>

@@ -12,7 +12,7 @@ pnpm install
 pnpm dev      # 開発サーバー
 pnpm sync:external-posts  # 外部記事メタデータを更新（Zenn RSS + Qiita API）
 pnpm sync:zenn            # 単一ソースのみ同期 · pnpm sync:qiita
-pnpm build    # vite build → pagefind インデックス → OG 画像 → build/
+pnpm build    # vite build → OG 画像 → build/
 pnpm preview  # build/ を GitHub Pages 同様に配信（vite preview ではビルド後アセットが欠ける）
 pnpm run check   # svelte-check
 pnpm run lint    # oxlint

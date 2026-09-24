@@ -7,7 +7,7 @@
 
 <Seo title={`${page.status} · ${site.title}`} noindex />
 
-<section class="flex flex-col items-center gap-4 text-center" data-pagefind-ignore>
+<section class="flex flex-col items-center gap-4 text-center">
   <h1 class="text-4xl font-bold tracking-tight">{page.status}</h1>
   <p class="text-muted">
     <LangText texts={{ ja: "ページが見つかりません", en: page.error?.message ?? "Something went wrong." }} />

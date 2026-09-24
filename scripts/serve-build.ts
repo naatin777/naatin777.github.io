@@ -2,8 +2,8 @@
 // resolve to index.html and misses serve 404.html with a 404 status.
 //
 // `vite preview` serves .svelte-kit/output instead of build/, so assets
-// generated post-build (pagefind index, OG images) 404 there — making
-// e.g. Search untestable locally. This script previews what actually ships.
+// generated post-build (OG images) 404 there — this script previews what
+// actually ships.
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { extname, join, normalize } from "node:path";
@@ -22,7 +22,6 @@ const contentTypes: Record<string, string> = {
   ".js": "text/javascript",
   ".json": "application/json",
   ".mp4": "video/mp4",
-  ".pagefind": "application/wasm",
   ".png": "image/png",
   ".svg": "image/svg+xml",
   ".txt": "text/plain; charset=utf-8",

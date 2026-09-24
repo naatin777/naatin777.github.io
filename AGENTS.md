@@ -23,12 +23,12 @@
 ## よく使うコマンド
 
 - 開発サーバー起動: `pnpm dev` — 開発専用。UI チェックはプレビューを使う（「検証」参照）
-- 本番ビルド: `pnpm build`（Vite ビルド → Pagefind インデックス → OG 画像生成。`build/` に出力）
+- 本番ビルド: `pnpm build`（Vite ビルド → OG 画像生成。`build/` に出力）
 - 型チェック: `pnpm run check`
 - Lint: `pnpm run lint`（oxlint）、フォーマット: `pnpm run format` / `pnpm run format:check`（oxfmt）
 - テスト: `pnpm run test`（vitest）
 - CI 前の全体検証: `pnpm run validate`（check + lint + format:check + test）
-- ビルド成果物のプレビュー: `pnpm preview`（GitHub Pages と同様に `build/` を配信する — `vite preview` は `.svelte-kit/output` を配信するため、Pagefind インデックスや OG 画像などのビルド後アセットが欠ける）
+- ビルド成果物のプレビュー: `pnpm preview`（GitHub Pages と同様に `build/` を配信する — `vite preview` は `.svelte-kit/output` を配信するため、OG 画像などのビルド後アセットが欠ける）
 
 ## 編集ワークフロー
 
@@ -77,7 +77,7 @@
 - 情報を持つ画像には意味のある `alt` テキストを書く。装飾的な画像は `alt=""` にする。
 - 単一選択フィルタグループは `role="radiogroup"` + `role="radio"` + `aria-checked`、複数選択チップは `aria-pressed` を使う。両方とも `src/app.css` の `.chip` ルールでスタイルされる。
 - ランドマーク/nav ラベルは `aria-labelledby` → `LangText` を含む要素でローカライズする（非アクティブな言語は `display:none` なので、スクリーンリーダーはアクティブな方だけを読み上げる）。id には `$props.id()` を使い、二言語の `aria-label` は書かない。
-- `LangText` は両言語を DOM にレンダリングし、デフォルトでない方に `data-pagefind-ignore` を付ける — 検索インデックスが両方のバリアントを拾わないよう、この属性を維持する。
+- `LangText` は両言語を DOM にレンダリングする — CSS がアクティブな言語だけを表示する。
 - Markdown パイプラインが注入する見出しアンカーは `aria-label` 付きの実際のフォーカス可能リンク — その中にアンカーをネストしない。
 
 ## 検証

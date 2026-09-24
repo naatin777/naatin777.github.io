@@ -4,7 +4,6 @@
   import { untrack } from "svelte";
   import ArticleCard from "$lib/components/ArticleCard.svelte";
   import LangText from "$lib/components/LangText.svelte";
-  import Search from "$lib/components/Search.svelte";
   import Seo from "$lib/components/Seo.svelte";
   import SourceFilter from "$lib/components/SourceFilter.svelte";
   import TagFilter from "$lib/components/TagFilter.svelte";
@@ -101,7 +100,6 @@
 
 <section class="flex flex-col gap-6">
   <h1 class="text-2xl font-bold tracking-tight"><LangText texts={{ ja: "記事", en: "Articles" }} /></h1>
-  <Search />
   <SourceFilter sources={presentSources} value={selectedSource} onchange={setSource} />
   <TagFilter tags={allTags} {selected} ontoggle={toggleTag} />
   <div class="text-muted flex items-center justify-between text-xs">

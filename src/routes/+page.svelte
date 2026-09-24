@@ -22,11 +22,6 @@
         "@type": "WebSite",
         name: site.title,
         url: site.url,
-        potentialAction: {
-          "@type": "SearchAction",
-          target: { "@type": "EntryPoint", urlTemplate: `${site.url}/articles/?q={query}` },
-          "query-input": "required name=query",
-        },
       },
     ],
   });

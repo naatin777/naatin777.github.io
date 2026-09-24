@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build && pagefind --site build && node scripts/generate-og.ts",
+    "build": "vite build && node scripts/generate-og.ts",
     "preview": "node scripts/serve-build.ts",
     "sync:external-posts": "pnpm sync:zenn && pnpm sync:qiita",
     "sync:zenn": "node scripts/sync-zenn-posts.ts",
@@ -61,7 +61,6 @@
     "oxfmt": "^0.70.0",
     "oxlint": "^1.85.0",
     "oxlint-tsgolint": "7.0.2001",
-    "pagefind": "^1.5.2",
     "playwright": "^1.63.0",
     "rehype-raw": "^7.0.0",
     "svelte": "^5.57.1",
