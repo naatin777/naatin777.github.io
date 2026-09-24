@@ -25,4 +25,12 @@ describe("code blocks", () => {
     expect(html).toContain("icon-copy");
     expect(html).toContain("icon-check");
   });
+
+  it("runs bare fences through shiki as plaintext so line numbers appear", async () => {
+    const { html } = await renderMarkdown("```\nplain text\nlog line\n```");
+    // language-plaintext is injected so shiki emits .line spans — the CSS
+    // counter gutter (and its sticky pinning) depends on them.
+    expect(html).toContain("shiki");
+    expect(html).toContain('class="line"');
+  });
 });

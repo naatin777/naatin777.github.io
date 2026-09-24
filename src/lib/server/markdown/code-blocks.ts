@@ -57,6 +57,10 @@ export const rehypeCodeBlocks: Plugin<[], Root> = () => (tree) => {
           title = body.slice(colon + 1);
           code.properties.className = [`language-${body.slice(0, colon)}`];
         }
+      } else {
+        // No language: tag as plaintext so shiki still emits .line spans
+        // (line numbers, theme background) instead of skipping the block.
+        code.properties.className = [...(Array.isArray(classes) ? classes : []), "language-plaintext"];
       }
     }
     parent.children[index] = {

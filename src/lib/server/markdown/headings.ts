@@ -6,8 +6,10 @@ import type { TocItem } from "$lib/types";
 
 // Screen-reader-only headings (the footnotes section label) get ids but are
 // not real content headings — exclude them from toc and permalink anchors.
+// Heading support tops out at h4: h5/h6 keep their ids (rehype-slug still
+// runs) but render as plain styled headings with no anchor or toc entry.
 const isContentHeading = (node: Element): boolean => {
-  if (!/^h[1-6]$/.test(node.tagName)) return false;
+  if (!/^h[1-4]$/.test(node.tagName)) return false;
   const classes = node.properties?.className;
   return !Array.isArray(classes) || !classes.includes("sr-only");
 };

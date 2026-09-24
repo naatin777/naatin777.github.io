@@ -31,7 +31,8 @@
   --foreground: #171717;
   --muted: #4b5563;
   --border: #e5e7eb;
-  --accent: #2563eb;
+  /* The theme is monochrome — the accent is the foreground, not a hue. */
+  --accent: var(--foreground);
 }
 
 [data-theme="dark"] {
@@ -40,7 +41,7 @@
   --foreground: #ededed;
   --muted: #9ca3af;
   --border: #262626;
-  --accent: #60a5fa;
+  --accent: var(--foreground);
 }
 
 @layer base {
@@ -216,20 +217,21 @@
     font-size: inherit;
     color: var(--muted);
     cursor: pointer;
-    border-bottom: 1px solid transparent;
   }
 
-  .mermaid-tab:hover {
-    color: var(--foreground);
-  }
-
+  .mermaid-tab:hover,
   .mermaid-tab[aria-pressed="true"] {
     color: var(--foreground);
-    border-bottom-color: var(--accent);
   }
 
   .mermaid-pane {
     padding: 0.75rem 1rem;
+  }
+
+  /* The source pane is filled edge-to-edge by the shiki block — padding
+     would show the page background as a dark frame around it. */
+  .mermaid-pane[data-pane="source"] {
+    padding: 0;
   }
 
   .mermaid-pane[hidden] {
@@ -364,77 +366,77 @@
      only add classes — these rules make them visible. The .line span is
      inline by default, so inline-block + min-width stretches the tint
      across the full row; the newline lives outside the span, so this
-     does not double-space. */
-  .prose .shiki .line.highlighted,
-  .prose .shiki .line.diff {
-    display: inline-block;
-    min-width: 100%;
-  }
+     does not double-space. The right padding lives inside the line box
+     so the tint still reaches the edge. */
+  .prose .shiki {
+    .line {
+      padding-right: 0.5rem;
+    }
 
-  .prose .shiki .line.highlighted {
-    background-color: color-mix(in srgb, var(--accent) 12%, transparent);
-  }
+    .line.highlighted,
+    .line.diff {
+      display: inline-block;
+      min-width: 100%;
+    }
 
-  /* Line numbers via CSS counters — pseudo-element content never enters
-     textContent, so copy buttons, search, and reading-time stay clean.
-     Diff lines fold their +/- sign into the same gutter column. */
-  .prose .shiki code {
-    counter-reset: line;
-  }
+    .line.highlighted {
+      background-color: color-mix(in srgb, var(--accent) 12%, transparent);
+    }
 
-  .prose .shiki .line::before {
-    counter-increment: line;
-    content: counter(line);
-    display: inline-block;
-    width: 3ch;
-    margin-right: 0.75em;
-    text-align: right;
-    color: var(--muted);
-    opacity: 0.5;
-    user-select: none;
-  }
+    /* Line numbers via CSS counters — pseudo-element content never enters
+       textContent, so copy buttons, search, and reading-time stay clean.
+       Diff lines fold their +/- sign into the same gutter column. */
+    code {
+      counter-reset: line;
+    }
 
-  /* Accent bar lives in pre's left padding (outside the line box) so it
-     never overlaps the gutter or code text. */
-  .prose .shiki .line.diff {
-    position: relative;
-  }
+    /* The gutter is sticky so line numbers stay pinned during horizontal
+       scroll. It needs an opaque backing (scrolled code slides under it),
+       so the muted look comes from a translucent color rather than element
+       opacity, which would also see through the background. padding-right
+       (not margin) keeps the opaque area covering the gap to the code;
+       the left padding likewise sits inside the gutter so tinted rows
+       stay edge-to-edge and the inset survives when it pins. */
+    .line::before {
+      counter-increment: line;
+      content: counter(line);
+      display: inline-block;
+      position: sticky;
+      left: 0;
+      box-sizing: content-box;
+      width: 3ch;
+      padding-left: 0.25rem;
+      padding-right: 0.75em;
+      text-align: right;
+      background-color: light-dark(var(--shiki-light-bg), var(--shiki-dark-bg));
+      color: color-mix(in srgb, var(--muted) 55%, transparent);
+      user-select: none;
+    }
 
-  .prose .shiki .line.diff::after {
-    content: "";
-    position: absolute;
-    left: -8px;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-  }
+    /* Tinted rows pass their tint through to the pinned gutter. */
+    .line:is(.highlighted, .diff)::before {
+      background-color: inherit;
+    }
 
-  .prose .shiki .line.diff.remove {
-    background-color: color-mix(in srgb, #f85149 15%, transparent);
-  }
+    /* Diff rows show just the sign in the number gutter — folding it into
+       counter() ("−3") read like a negative line number. The counter still
+       increments, so following lines keep their numbers. The sign keeps the
+       same muted tone as line numbers; the row tint carries the color. */
+    .line.diff.remove {
+      background-color: color-mix(in srgb, #f85149 15%, transparent);
+    }
 
-  .prose .shiki .line.diff.remove::before {
-    content: "−" counter(line);
-    color: #f85149;
-    opacity: 1;
-  }
+    .line.diff.remove::before {
+      content: "−";
+    }
 
-  .prose .shiki .line.diff.remove::after {
-    background-color: #f85149;
-  }
+    .line.diff.add {
+      background-color: color-mix(in srgb, #2ea043 15%, transparent);
+    }
 
-  .prose .shiki .line.diff.add {
-    background-color: color-mix(in srgb, #2ea043 15%, transparent);
-  }
-
-  .prose .shiki .line.diff.add::before {
-    content: "+" counter(line);
-    color: #2ea043;
-    opacity: 1;
-  }
-
-  .prose .shiki .line.diff.add::after {
-    background-color: #2ea043;
+    .line.diff.add::before {
+      content: "+";
+    }
   }
 
   /* Lives inside the .code-block-title bar; margin-left:auto keeps it at
@@ -534,11 +536,93 @@
   border-radius: 0;
 }
 
-/* The plugin's 1.14em side padding is roomy; tighten it. The diff accent
-   bar sits inside the left padding, so keep ~8px minimum (bar is 3px). */
+/* Drop the plugin's 1.14em side padding entirely — the line-number
+   gutter already supplies the left inset. */
 .prose pre {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* The pinned gutter makes a bottom scrollbar read as "the numbers
+   scroll too" — hide it; wheel/trackpad scrolling still works. */
+.code-block pre {
+  scrollbar-width: none;
+}
+
+.code-block pre::-webkit-scrollbar {
+  display: none;
+}
+
+/* Shallower indent than the plugin's ~1.57em — still leaves room for
+   two-digit ordered markers. */
+.prose :is(ul, ol) {
+  padding-inline-start: 1.25em;
+}
+
+/* Slightly tighter item gaps than the plugin's ~0.29em. */
+.prose li {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+
+/* The plugin adds ~0.57em around nested lists on top of the li gap —
+   match the item gap so nesting reads as continuation. */
+.prose :is(ul, ol) :is(ul, ol) {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+
+/* Table as a bordered card — same frame language as .code-block.
+   border-spacing (rather than the preflight's collapse) keeps the
+   frame's radius intact, so row separators move onto the cells. */
+.prose table {
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* The plugin zeroes the first/last cells' inline padding so text hugs
+   the column edge — inside a frame, every cell gets real padding. */
+.prose table :is(th, td) {
+  padding: 0.5rem 0.75rem;
+}
+
+.prose thead th {
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Keep the header background inside the frame's top corners. */
+.prose thead th:first-child {
+  border-top-left-radius: 0.3rem;
+}
+
+.prose thead th:last-child {
+  border-top-right-radius: 0.3rem;
+}
+
+.prose tbody td {
+  border-bottom: 1px solid var(--border);
+}
+
+.prose tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* remark-gfm task items carry a checkbox — the bullet marker is
+   redundant next to it. */
+.prose .contains-task-list {
+  list-style: none;
+}
+
+.prose .contains-task-list .task-list-item {
+  padding-inline-start: 0;
+}
+
+.prose .task-list-item input[type="checkbox"] {
+  margin-right: 0.4em;
+  accent-color: var(--accent);
 }
 
 /* Heading anchors compete with the plugin's `a` styles (color/underline). */

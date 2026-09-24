@@ -32,4 +32,14 @@ describe("headings", () => {
     expect(html).toContain('href="#main-1"');
     expect(toc).toEqual([{ id: "main-1", text: "main", depth: 2 }]);
   });
+
+  it("caps permalink anchors and toc at h4", async () => {
+    const { html, toc } = await renderMarkdown("#### Four\n\n##### Five\n\n###### Six\n");
+    expect(html).toContain('href="#four"');
+    expect(html).not.toContain('href="#five"');
+    expect(html).not.toContain('href="#six"');
+    // h5/h6 still get ids — only anchors and toc entries are withheld
+    expect(html).toContain('<h5 id="five">');
+    expect(toc.map((t) => t.depth)).toEqual([4]);
+  });
 });
