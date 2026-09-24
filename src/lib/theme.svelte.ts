@@ -1,5 +1,4 @@
 import { browser } from "$app/environment";
-import { MediaQuery } from "svelte/reactivity";
 
 export type ThemePreference = "light" | "dark" | "system";
 
@@ -14,11 +13,18 @@ const readDomPreference = (): ThemePreference => {
 // The inline script in app.html resolves data-theme before hydration;
 // `preference` mirrors it, and `resolved` stays derived — including
 // live system changes — so the two can never disagree.
-const systemDark = new MediaQuery("(prefers-color-scheme: dark)");
+// matchMedia is used directly (not svelte's MediaQuery) because its initial
+// value must be correct at hydration, not one tick later.
+let systemDark = $state(false);
+if (browser) {
+  const media = matchMedia("(prefers-color-scheme: dark)");
+  systemDark = media.matches;
+  media.addEventListener("change", (event) => {
+    systemDark = event.matches;
+  });
+}
 let preference = $state<ThemePreference>(browser ? readDomPreference() : "system");
-const resolved = $derived<"light" | "dark">(
-  preference === "system" ? (systemDark.current ? "dark" : "light") : preference,
-);
+const resolved = $derived<"light" | "dark">(preference === "system" ? (systemDark ? "dark" : "light") : preference);
 
 if (browser) {
   $effect.root(() => {

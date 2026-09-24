@@ -12,11 +12,11 @@
 
 <section class="flex flex-col gap-6">
   <h1 class="text-2xl font-bold tracking-tight">
-    <LangText texts={{ ja: "プロジェクト", en: "Projects" }} />
+    <LangText texts={{ ja: "制作物", en: "Projects" }} />
   </h1>
   {#if projects.length === 0}
     <p class="text-muted text-sm">
-      <LangText texts={{ ja: "まだ公開しているものはありません", en: "Nothing published yet" }} />
+      <LangText texts={{ ja: "準備中です。", en: "Under construction." }} />
     </p>
   {:else}
     <ul class="flex flex-col gap-3">

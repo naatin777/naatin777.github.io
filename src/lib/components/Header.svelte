@@ -15,7 +15,7 @@
       <a href="/" class="font-bold tracking-tight">naatin777.dev</a>
     </div>
 
-    <nav aria-labelledby={navLabelId} class="order-last w-full sm:order-none sm:w-auto">
+    <nav aria-labelledby={navLabelId} class="order-last mx-auto w-full min-[36rem]:order-none min-[36rem]:w-auto">
       <span id={navLabelId} class="sr-only"
         ><LangText texts={{ ja: "メインナビゲーション", en: "Primary navigation" }} /></span
       >

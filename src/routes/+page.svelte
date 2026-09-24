@@ -37,13 +37,13 @@
 <section class="flex flex-col items-center justify-center gap-6 text-center">
   <enhanced:img src={icon} alt={`${author.displayName}'s icon`} class="size-30 rounded-full" />
   <h1 class="text-3xl font-bold tracking-tight">
-    <LangText texts={{ ja: `${author.displayName}です 👋`, en: `Hey, I'm ${author.displayName} 👋` }} />
+    <LangText texts={{ ja: "仮サイト", en: "Temporary site" }} />
   </h1>
   <p class="text-muted max-w-xl">
     <LangText
       texts={{
-        ja: "趣味で開発している初学者です。試したこと・作ったものを少しずつ積み上げていく場所です。",
-        en: "A hobbyist developer still learning the ropes. This is my playground — a place to try things out, tinker with whatever catches my eye, and slowly stack up what I make.",
+        ja: "準備中です。",
+        en: "Under construction.",
       }}
     />
   </p>
