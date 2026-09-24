@@ -318,16 +318,6 @@ gitGraph
     merge develop id: "release" tag: "v1.0"
 ```
 
-ノード内の画像(HTMLラベル、相対パス解決):
-
-```mermaid
-flowchart LR
-    A["<img src='./sample.png'/><br/>PNG画像"] --> B["<img src='./sample.jpg'/><br/>JPEG画像"]
-    B --> C["<img src='./sample.svg'/><br/>SVG画像"]
-```
-
-※ `<img>`はノードのラベルHTMLとして描画され、相対パスも解決されます。ビルド時に画像をロードできないためノードの高さ計算に画像が含まれず、ラベルテキストは下側がクリップされることがあります。
-
 ## アラート
 
 > [!NOTE]
