@@ -11,14 +11,37 @@
       content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' ws://localhost:* ws://127.0.0.1:*; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fafafa" />
+    <!-- Pre-paint theme/lang init so neither flashes wrong. The values
+         duplicate src/lib/config/theme.ts and src/lib/config/i18n.ts by
+         hand — keep them in sync. ?lang= applies to this view only and
+         must NOT be persisted, or a shared link would silently rewrite
+         the recipient's preference. -->
+    <script>
+      (() => {
+        try {
+          const stored = localStorage.getItem("theme");
+          const preference = stored === "light" || stored === "dark" ? stored : "system";
+          const dark =
+            preference === "dark" || (preference === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+          const root = document.documentElement;
+          root.dataset.themePreference = preference;
+          root.dataset.theme = dark ? "dark" : "light";
+          const meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.content = dark ? "#0a0a0a" : "#fafafa";
+          const langs = ["ja", "en"];
+          const pick = (value) => (langs.includes(value) ? value : null);
+          root.lang =
+            pick(new URLSearchParams(location.search).get("lang")) ?? pick(localStorage.getItem("lang")) ?? "ja";
+        } catch {
+          // fall through to markup defaults
+        }
+      })();
+    </script>
     <link rel="icon" href="%sveltekit.assets%/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="%sveltekit.assets%/apple-touch-icon.png" />
     <link rel="manifest" href="%sveltekit.assets%/site.webmanifest" />
     <link rel="alternate" type="application/rss+xml" title="RSS" href="%sveltekit.assets%/feed.xml" />
-    <!-- meta theme-color and the theme/lang init script are appended to
-         <head> by src/hooks.server.ts (generated from shared constants).
-         Do not write a literal closing head tag in this file — the injector
-         matches on it. -->
     %sveltekit.head%
   </head>
   <body data-sveltekit-preload-data="hover">

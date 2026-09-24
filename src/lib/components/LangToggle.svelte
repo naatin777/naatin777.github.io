@@ -13,8 +13,8 @@
   );
 
   // ?lang= stays honored for incoming shared links (read by the init
-  // script in src/lib/server/init-script.ts, injected via the hook),
-  // but toggling only persists to localStorage — URLs stay clean.
+  // script in app.html), but toggling only persists to
+  // localStorage — URLs stay clean.
   function setLang(next: Lang): void {
     lang = next;
     document.documentElement.lang = next;
