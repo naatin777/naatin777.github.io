@@ -52,12 +52,15 @@
     const button = target.closest<HTMLButtonElement>(".code-copy");
     if (!button) return;
     // Code blocks copy their code; the mermaid bar button copies the
-    // diagram source (the only code inside .mermaid-block).
-    const scope = button.closest(".code-block") ?? button.closest(".mermaid-block");
-    const code = scope?.querySelector("code")?.textContent;
+    // diagram source — target the source pane explicitly since the
+    // preview pane (SVG/foreignObject) could contain stray <code> too.
+    const block = button.closest(".code-block, .mermaid-block");
+    const code = block?.classList.contains("mermaid-block")
+      ? block.querySelector('[data-pane="source"] code')?.textContent
+      : block?.querySelector("code")?.textContent;
     if (!code) return;
     try {
-      await navigator.clipboard.writeText(code.replace(/\n$/, ""));
+      await navigator.clipboard.writeText(code.replace(/\n+$/, ""));
       button.classList.add("copied");
       button.setAttribute("aria-label", "コピーしました");
       setTimeout(() => {

@@ -30,7 +30,7 @@
 <Seo title={site.title} {jsonLd} />
 
 <section class="flex flex-col items-center justify-center gap-6 text-center">
-  <enhanced:img src={icon} alt={`${author.displayName}'s icon`} class="size-30 rounded-full" />
+  <enhanced:img src={icon} alt="" class="size-30 rounded-full" />
   <h1 class="text-3xl font-bold tracking-tight">
     <LangText texts={{ ja: "仮サイト", en: "Temporary site" }} />
   </h1>
@@ -49,7 +49,7 @@
     <div class="flex items-baseline justify-between">
       <h2 class="text-lg font-semibold"><LangText texts={{ ja: "最近の記事", en: "Recent articles" }} /></h2>
       <a href="/articles/" class="text-muted hover:text-foreground text-sm transition-colors">
-        <LangText texts={{ ja: "すべて見る", en: "View all" }} /> →
+        <LangText texts={{ ja: "すべて見る", en: "View all" }} /> <span aria-hidden="true">→</span>
       </a>
     </div>
     <ul class="flex flex-col gap-3">

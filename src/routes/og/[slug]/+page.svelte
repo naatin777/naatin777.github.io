@@ -42,7 +42,7 @@
           {/each}
         </div>
       {/if}
-      <time class="text-muted text-xl">{formatDate(data.publishedAt)}</time>
+      <time class="text-muted text-xl" datetime={data.publishedAt}>{formatDate(data.publishedAt)}</time>
     </div>
   </div>
 </div>

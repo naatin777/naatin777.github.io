@@ -1,6 +1,7 @@
 <script lang="ts">
   import { formatDate } from "$lib/date";
   import { sourceLabels, type ArticleSource } from "$lib/config/article-source";
+  import LangText from "./LangText.svelte";
 
   interface Props {
     title: string;
@@ -27,6 +28,9 @@
       class="text-foreground font-medium after:absolute after:inset-0 after:content-[''] hover:underline"
     >
       {title}
+      {#if external}<span class="sr-only"
+          ><LangText texts={{ ja: "（新しいタブで開く）", en: "(opens in a new tab)" }} /></span
+        >{/if}
     </a>
     <span class="badge badge-{source}">{sourceLabels[source]}</span>
   </div>

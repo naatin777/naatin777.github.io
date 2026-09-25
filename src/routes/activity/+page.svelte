@@ -19,7 +19,7 @@
     </p>
   {:else}
     <ul class="flex flex-col gap-3">
-      {#each entries as entry (entry.date)}
+      {#each entries as entry (entry)}
         <li class="card flex flex-col gap-1">
           <time datetime={entry.date} class="text-muted text-xs">{formatDate(entry.date)}</time>
           <p class="text-sm"><LangText texts={entry.texts} /></p>

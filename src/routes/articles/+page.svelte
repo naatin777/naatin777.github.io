@@ -1,7 +1,7 @@
 <script lang="ts">
   import { replaceState } from "$app/navigation";
   import { page } from "$app/state";
-  import { untrack } from "svelte";
+  import { onMount, untrack } from "svelte";
   import ArticleCard from "$lib/components/ArticleCard.svelte";
   import LangText from "$lib/components/LangText.svelte";
   import Seo from "$lib/components/Seo.svelte";
@@ -78,6 +78,23 @@
     });
   });
 
+  // A shared link can carry params matching nothing (?tag=bogus,
+  // ?source=zzz) — the effect adopts only valid values, so strip the
+  // leftovers once mounted. This stays out of the effect for the same
+  // router-init race documented above.
+  onMount(() => {
+    const url = new URL(page.url);
+    const rawTags = url.searchParams.getAll("tag");
+    const tags = rawTags.filter((raw) => allTags.some((t) => t.toLowerCase() === raw.toLowerCase()));
+    const source = url.searchParams.get("source");
+    const sourceOk = source === null || (sourceOrder as readonly string[]).includes(source);
+    if (tags.length === rawTags.length && sourceOk) return;
+    url.searchParams.delete("tag");
+    for (const tag of tags) url.searchParams.append("tag", tag);
+    if (!sourceOk) url.searchParams.delete("source");
+    replaceState(url, page.state);
+  });
+
   const setSource = (next: ArticleSource | null): void => {
     selectedSource = next;
     syncUrl();
@@ -103,7 +120,7 @@
   <SourceFilter sources={presentSources} value={selectedSource} onchange={setSource} />
   <TagFilter tags={allTags} {selected} ontoggle={toggleTag} />
   <div class="text-muted flex items-center justify-between text-xs">
-    <p>
+    <p role="status">
       <LangText
         texts={{
           ja: `${filtered.length} / ${data.articles.length} 件`,
