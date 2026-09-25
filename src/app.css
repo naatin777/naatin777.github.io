@@ -120,14 +120,6 @@
       background-color 0.15s;
   }
 
-  /* aria-pressed covers multi-select chips (tags); aria-checked covers
-     single-select radio-style chips (source/language). */
-  .chip:is([aria-pressed="true"], [aria-checked="true"]) {
-    border-color: var(--foreground);
-    background-color: var(--background);
-    color: var(--foreground);
-  }
-
   /* Source badge on article cards — used as `badge badge-{source}`; the
      brand colors are @theme tokens. An unlisted source renders unstyled. */
   .badge {
@@ -275,24 +267,26 @@
     flex-shrink: 0;
   }
 
+  /* GitHub's semantic mapping; light variants wash out on the dark
+     surface, so each hue gets a lighter dark-theme counterpart. */
   .markdown-alert-note {
-    --alert-color: #2563eb;
+    --alert-color: light-dark(#2563eb, #60a5fa);
   }
 
   .markdown-alert-tip {
-    --alert-color: #16a34a;
+    --alert-color: light-dark(#16a34a, #4ade80);
   }
 
   .markdown-alert-important {
-    --alert-color: #9333ea;
+    --alert-color: light-dark(#9333ea, #c084fc);
   }
 
   .markdown-alert-warning {
-    --alert-color: #d97706;
+    --alert-color: light-dark(#d97706, #fbbf24);
   }
 
   .markdown-alert-caution {
-    --alert-color: #dc2626;
+    --alert-color: light-dark(#dc2626, #f87171);
   }
 
   /* remark-gfm footnotes */
@@ -453,16 +447,12 @@
     border-radius: 0.25rem;
     color: var(--muted);
     cursor: pointer;
-    opacity: 0.55;
-    transition:
-      opacity 0.15s,
-      color 0.15s;
+    transition: color 0.15s;
   }
 
   .code-copy:hover,
   .code-copy:focus-visible,
   .code-copy.copied {
-    opacity: 1;
     color: var(--foreground);
   }
 
@@ -483,6 +473,16 @@
     display: block;
     color: #16a34a;
   }
+}
+
+/* aria-pressed covers multi-select chips (tags); aria-checked covers
+   single-select radio-style chips (source/language). Unlayered on
+   purpose: card chips carry border-transparent/bg-background utilities,
+   and a layered rule loses to the utilities layer. */
+.chip:is([aria-pressed="true"], [aria-checked="true"]) {
+  border-color: var(--foreground);
+  background-color: var(--background);
+  color: var(--foreground);
 }
 
 /* Map the typography plugin's palette onto the site tokens — prose then
