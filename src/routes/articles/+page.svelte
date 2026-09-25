@@ -45,10 +45,6 @@
     syncUrl();
   };
 
-  const presentSources = $derived(
-    sourceOrder.filter((source) => data.articles.some((article) => article.source === source)),
-  );
-
   // Filters live in the URL (?tag= repeatable, ?source=) so filtered views
   // are shareable. The effect adopts incoming/shared links and back/forward
   // navigation; user actions publish via replaceState — never pushState,
@@ -117,7 +113,11 @@
 
 <section class="flex flex-col gap-6">
   <h1 class="text-2xl font-bold tracking-tight"><LangText texts={{ ja: "記事", en: "Articles" }} /></h1>
-  <SourceFilter sources={presentSources} value={selectedSource} onchange={setSource} />
+  <!-- All sources stay visible even when empty — a vanishing chip is
+       confusing, and a shared ?source=blog link would otherwise select a
+       filter that doesn't exist in the UI. The each-block's empty state
+       covers the zero-result case. -->
+  <SourceFilter sources={[...sourceOrder]} value={selectedSource} onchange={setSource} />
   <TagFilter tags={allTags} {selected} ontoggle={toggleTag} />
   <div class="text-muted flex items-center justify-between text-xs">
     <p role="status">
