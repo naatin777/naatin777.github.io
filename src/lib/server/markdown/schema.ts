@@ -6,8 +6,9 @@ import { defaultSchema, type Schema } from "hast-util-sanitize";
 export const sanitizeSchema: Schema = {
   ...defaultSchema,
   // mdast-util-to-hast already emits user-content-* footnote ids; clobbering
-  // them again would desync the fnref <-> fn links.
-  clobber: [],
+  // them again would desync the fnref <-> fn links. `name` keeps its
+  // clobbering since footnotes use `id`, not `name`.
+  clobber: ["name"],
   tagNames: [...(defaultSchema.tagNames ?? []), "svg", "path"],
   attributes: {
     ...defaultSchema.attributes,
