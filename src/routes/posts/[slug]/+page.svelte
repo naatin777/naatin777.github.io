@@ -4,6 +4,7 @@
   import SeriesNav from "$lib/components/SeriesNav.svelte";
   import Toc from "$lib/components/Toc.svelte";
   import { defaultLang } from "$lib/config/i18n";
+  import { selectionGroupKeydown } from "$lib/selection-group";
   import { author, site } from "$lib/config/site";
   import { formatDate } from "$lib/date";
   import type { PageProps } from "./$types";
@@ -34,14 +35,16 @@
     if (!(event.target instanceof Element)) return;
     const target = event.target;
 
-    // mermaid preview/source tabs
+    // mermaid preview/source tabs (APG tabs: roving tabindex + aria-selected)
     const tab = target.closest<HTMLButtonElement>(".mermaid-tab");
     if (tab) {
       const block = tab.closest(".mermaid-block");
       if (!block) return;
       const pane = tab.dataset.tab;
       block.querySelectorAll<HTMLButtonElement>(".mermaid-tab").forEach((t) => {
-        t.setAttribute("aria-pressed", String(t === tab));
+        const active = t === tab;
+        t.setAttribute("aria-selected", String(active));
+        t.tabIndex = active ? 0 : -1;
       });
       block.querySelectorAll<HTMLElement>(".mermaid-pane").forEach((p) => {
         p.hidden = p.dataset.pane !== pane;
@@ -85,10 +88,10 @@
 />
 
 <!-- Delegated clicks only reach real <button>s (copy / mermaid tabs), which
-     handle their own keyboard activation — the article itself is not
-     interactive, so no key handler is needed. -->
+     handle their own activation; the delegated keydown adds arrow-key
+     navigation for the tablists. The article itself is not interactive. -->
 <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions, a11y_no_noninteractive_element_interactions -->
-<article onclick={onArticleClick}>
+<article onclick={onArticleClick} onkeydown={selectionGroupKeydown}>
   <header class="border-border mb-8 flex flex-col gap-2 border-b pb-6">
     <h1 class="text-2xl font-bold tracking-tight">{post.title}</h1>
     <div class="text-muted flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
@@ -108,7 +111,10 @@
     <SeriesNav name={data.series.name} posts={data.series.posts} currentSlug={post.slug} />
   {/if}
   <Toc headings={post.toc} />
-  <div class="prose max-w-none">
+  <!-- Post content is authored in Japanese — including pipeline-generated
+       labels (copy buttons, heading anchors, mermaid tabs). lang="ja" keeps
+       screen readers correct when the UI language is switched to English. -->
+  <div class="prose max-w-none" lang="ja">
     {@html post.html}
   </div>
 </article>

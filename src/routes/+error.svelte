@@ -13,7 +13,7 @@
     <LangText
       texts={{
         ja: page.status === 404 ? "ページが見つかりません" : "エラーが発生しました",
-        en: page.error?.message ?? "Something went wrong.",
+        en: page.status === 404 ? "Page not found." : "Something went wrong.",
       }}
     />
   </p>

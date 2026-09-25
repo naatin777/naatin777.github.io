@@ -14,10 +14,11 @@ pnpm sync:external-posts  # 外部記事メタデータを更新（Zenn RSS + Qi
 pnpm sync:zenn            # 単一ソースのみ同期 · pnpm sync:qiita
 pnpm build    # vite build → OG 画像 → build/
 pnpm preview  # build/ を GitHub Pages 同様に配信（vite preview ではビルド後アセットが欠ける）
-pnpm run check   # svelte-check
+pnpm run check   # svelte-check + tsc
 pnpm run lint    # oxlint
 pnpm format      # oxfmt
 pnpm run test    # vitest
+pnpm run validate # check + lint + format:check + test（CI 前の全体検証）
 ```
 
 `main` への push で GitHub Actions → GitHub Pages へ自動デプロイされる。デプロイワークフローはビルド前に `pnpm sync:external-posts` を実行するため、同期が失敗した場合は古いデータを黙って配信するのではなくデプロイ自体が失敗する。

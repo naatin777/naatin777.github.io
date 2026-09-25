@@ -5,6 +5,9 @@ import { mkdirSync, renameSync, writeFileSync } from "node:fs";
 import { z } from "zod";
 
 import { author } from "../src/lib/config/site.ts";
+// Type-only import: erased at runtime, so the $lib alias inside
+// external-articles never needs resolving under node's type stripping.
+import type { ExternalPost } from "../src/lib/server/external-articles.ts";
 
 const OUT_FILE = "content/generated/qiita.json";
 const PER_PAGE = 100;
@@ -19,16 +22,7 @@ const qiitaItem = z.object({
   tags: z.array(z.object({ name: z.string() })).default([]),
 });
 
-interface Post {
-  title: string;
-  tags: string[];
-  publishedAt: string;
-  updatedAt?: string;
-  url: string;
-  source: "qiita";
-}
-
-const posts: Post[] = [];
+const posts: ExternalPost[] = [];
 /* oxlint-disable no-await-in-loop -- each page depends on the previous page's item count */
 for (let page = 1; page <= MAX_PAGES; page++) {
   const res = await fetch(`https://qiita.com/api/v2/users/${author.name}/items?per_page=${PER_PAGE}&page=${page}`, {
@@ -50,7 +44,7 @@ for (let page = 1; page <= MAX_PAGES; page++) {
       console.warn(`[sync] qiita: skipping item with missing/invalid fields (${title || url || "?"})`);
       continue;
     }
-    const post: Post = {
+    const post: ExternalPost = {
       title,
       tags: tags.map((tag) => tag.name),
       publishedAt: new Date(timestamp).toISOString(),

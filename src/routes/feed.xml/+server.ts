@@ -49,7 +49,7 @@ export const GET: RequestHandler = async () => {
       <title>${escapeXml(site.title)}</title>
       <link>${site.url}/</link>
     </image>
-    <!-- sync runs daily — 12h is a reasonable polling hint for readers -->
+    <!-- sync runs weekly — 12h is a reasonable polling hint for readers -->
     <ttl>720</ttl>
     <lastBuildDate>${lastBuildDate}</lastBuildDate>
 ${items}

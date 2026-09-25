@@ -210,7 +210,7 @@
   }
 
   .mermaid-tab:hover,
-  .mermaid-tab[aria-pressed="true"] {
+  .mermaid-tab[aria-selected="true"] {
     color: var(--foreground);
   }
 

@@ -39,15 +39,15 @@ if (!existsSync(ROOT)) {
 }
 
 createServer((req, res) => {
-  let pathname = "/";
+  let pathname: string | null = null;
   try {
     pathname = decodeURIComponent(new URL(req.url ?? "/", "http://localhost").pathname);
   } catch {
-    // malformed escapes — let it fall through to the 404 path
+    // malformed escapes — pathname stays null and falls through to the 404 path
   }
   // normalize() on a root-anchored path collapses any .. segments, and the
   // startsWith guard keeps the file inside build/ regardless.
-  let file = join(ROOT, normalize(pathname));
+  let file = pathname === null ? "" : join(ROOT, normalize(pathname));
   let status = 200;
   if (file !== ROOT && !file.startsWith(`${ROOT}/`)) status = 404;
   else if (existsSync(file) && statSync(file).isDirectory()) file = join(file, "index.html");

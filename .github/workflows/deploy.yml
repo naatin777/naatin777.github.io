@@ -48,7 +48,11 @@ jobs:
       - name: Check and lint
         run: pnpm run validate
 
+      # PR builds skip this: they only need the committed generated files,
+      # and running PR-controlled code with network egress adds attack
+      # surface for no benefit.
       - name: Sync external posts
+        if: github.event_name != 'pull_request'
         run: pnpm sync:external-posts
 
       - name: Build

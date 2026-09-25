@@ -30,7 +30,7 @@
   // Escape closing-script breakouts: JSON.stringify does not escape <,
   // so a title containing it could close the ld+json tag early.
   const safeJsonLd = $derived(jsonLd?.replace(/</g, "\\u003c"));
-  const imageUrl = $derived(image.startsWith("http") ? image : `${site.url}${image}`);
+  const imageUrl = $derived(/^https?:\/\//.test(image) ? image : `${site.url}${image}`);
 </script>
 
 <svelte:head>

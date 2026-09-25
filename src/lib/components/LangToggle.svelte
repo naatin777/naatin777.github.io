@@ -2,7 +2,7 @@
   import { browser } from "$app/environment";
   import { defaultLang, langNames, langs, type Lang } from "$lib/config/i18n";
   import { hydrated } from "$lib/hydrated.svelte";
-  import { radioGroupKeydown } from "$lib/radio-group";
+  import { selectionGroupKeydown } from "$lib/selection-group";
   import LangText from "./LangText.svelte";
 
   const isHydrated = hydrated();
@@ -28,7 +28,7 @@
   role="radiogroup"
   aria-labelledby={groupLabelId}
   tabindex="-1"
-  onkeydown={radioGroupKeydown}
+  onkeydown={selectionGroupKeydown}
   class="flex items-center gap-0.5 text-xs transition-opacity {isHydrated.value
     ? 'opacity-100'
     : 'invisible opacity-0'}"

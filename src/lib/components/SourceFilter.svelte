@@ -1,7 +1,7 @@
 <script lang="ts">
   import LangText from "$lib/components/LangText.svelte";
   import { sourceLabels, type ArticleSource } from "$lib/config/article-source";
-  import { radioGroupKeydown } from "$lib/radio-group";
+  import { selectionGroupKeydown } from "$lib/selection-group";
 
   interface Props {
     sources: ArticleSource[];
@@ -17,7 +17,7 @@
   role="radiogroup"
   aria-labelledby={groupLabelId}
   tabindex="-1"
-  onkeydown={radioGroupKeydown}
+  onkeydown={selectionGroupKeydown}
   class="flex flex-wrap gap-2"
 >
   <span id={groupLabelId} class="sr-only"><LangText texts={{ ja: "ソースで絞り込む", en: "Filter by source" }} /></span>

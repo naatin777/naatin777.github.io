@@ -40,7 +40,8 @@ export const rehypeCodeBlocks: Plugin<[], Root> = () => (tree) => {
     if (node.tagName !== "pre" || index === undefined || parent === undefined) return;
     let title = "";
     const code = node.children[0];
-    if (code?.type === "element" && code.tagName === "code") {
+    const hasCode = code?.type === "element" && code.tagName === "code";
+    if (hasCode) {
       const classes = code.properties?.className;
       // remark-math emits math nodes as pre>code.language-math — rehype-katex
       // renders those (both $$ and ```math), so don't frame them as code.
@@ -72,7 +73,9 @@ export const rehypeCodeBlocks: Plugin<[], Root> = () => (tree) => {
           type: "element",
           tagName: "div",
           properties: { className: ["code-block-title"] },
-          children: [{ type: "text", value: title }, copyButton()],
+          // A raw-HTML <pre> without <code> has nothing to copy — the click
+          // handler would no-op, so don't render a dead button.
+          children: [{ type: "text", value: title }, ...(hasCode ? [copyButton()] : [])],
         },
         node,
       ],

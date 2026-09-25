@@ -6,22 +6,36 @@ import { visit } from "unist-util-visit";
 import { renderMermaid } from "../mermaid-renderer";
 import { copyButton } from "./code-blocks";
 
-const mermaidTab = (label: string, pane: string, pressed: boolean): Element => ({
+// APG tabs with automatic activation: arrow keys move focus and select
+// (handled by the delegated keydown on the post page), the selected tab is
+// the group's single tab stop.
+const mermaidTab = (blockId: string, label: string, pane: string, selected: boolean): Element => ({
   type: "element",
   tagName: "button",
   properties: {
     type: "button",
+    role: "tab",
+    id: `${blockId}-tab-${pane}`,
     className: ["mermaid-tab"],
     dataTab: pane,
-    ariaPressed: pressed ? "true" : "false",
+    ariaSelected: selected ? "true" : "false",
+    ariaControls: [`${blockId}-pane-${pane}`],
+    tabIndex: selected ? 0 : -1,
   },
   children: [{ type: "text", value: label }],
 });
 
-const mermaidPane = (name: string, hidden: boolean, children: ElementContent[]): Element => ({
+const mermaidPane = (blockId: string, name: string, hidden: boolean, children: ElementContent[]): Element => ({
   type: "element",
   tagName: "div",
-  properties: { className: ["mermaid-pane"], dataPane: name, hidden },
+  properties: {
+    role: "tabpanel",
+    id: `${blockId}-pane-${name}`,
+    ariaLabelledBy: [`${blockId}-tab-${name}`],
+    className: ["mermaid-pane"],
+    dataPane: name,
+    hidden,
+  },
   children,
 });
 
@@ -30,6 +44,7 @@ const mermaidPane = (name: string, hidden: boolean, children: ElementContent[]):
 // <pre> so shiki highlighting, line numbers, and the copy button all still
 // apply. Runs before shiki so the source pane is highlighted normally.
 export const rehypeMermaid: Plugin<[], Root> = () => async (tree) => {
+  let blockSeq = 0;
   const blocks: { parent: Parent; index: number; node: Element; source: string }[] = [];
   visit(tree, "element", (node, index, parent) => {
     if (node.tagName !== "pre" || index === undefined || parent === undefined) return;
@@ -49,6 +64,9 @@ export const rehypeMermaid: Plugin<[], Root> = () => async (tree) => {
       `<div class="mermaid-diagram mermaid-light">${rendered.light}</div><div class="mermaid-diagram mermaid-dark">${rendered.dark}</div>`,
       { fragment: true },
     );
+    // tab/tabpanel ids must be unique within the document — the counter is
+    // per-tree, so ids stay stable across rebuilds of the same post.
+    const blockId = `mermaid-${blockSeq++}`;
     block.parent.children[block.index] = {
       type: "element",
       tagName: "div",
@@ -63,18 +81,22 @@ export const rehypeMermaid: Plugin<[], Root> = () => async (tree) => {
             {
               type: "element",
               tagName: "div",
-              properties: { className: ["mermaid-tabs"] },
-              children: [mermaidTab("プレビュー", "preview", true), mermaidTab("ソース", "source", false)],
+              properties: { className: ["mermaid-tabs"], role: "tablist", ariaLabel: "プレビューとソースの切り替え" },
+              children: [
+                mermaidTab(blockId, "プレビュー", "preview", true),
+                mermaidTab(blockId, "ソース", "source", false),
+              ],
             },
             copyButton(),
           ],
         },
         mermaidPane(
+          blockId,
           "preview",
           false,
           svgs.children.filter((child): child is ElementContent => child.type !== "doctype"),
         ),
-        mermaidPane("source", true, [block.node]),
+        mermaidPane(blockId, "source", true, [block.node]),
       ],
     };
   }

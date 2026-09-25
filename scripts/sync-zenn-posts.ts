@@ -11,6 +11,9 @@ import matter from "gray-matter";
 import { z } from "zod";
 
 import { author } from "../src/lib/config/site.ts";
+// Type-only import: erased at runtime, so the $lib alias inside
+// external-articles never needs resolving under node's type stripping.
+import type { ExternalPost } from "../src/lib/server/external-articles.ts";
 
 const ARTICLES_DIR = "content/zenn/articles";
 const OUT_FILE = "content/generated/zenn.json";
@@ -73,7 +76,7 @@ const feed = zennFeed.safeParse(doc);
 if (!feed.success) console.error("[sync] zenn feed failed validation:", feed.error);
 const items = feed.success ? (feed.data.rss?.channel?.item ?? []) : [];
 
-const posts = items.flatMap((item) => {
+const posts = items.flatMap((item): ExternalPost[] => {
   const parsed = zennItem.safeParse(item);
   if (!parsed.success) {
     console.warn("[sync] zenn: skipping malformed item", parsed.error.issues);
