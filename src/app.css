@@ -42,12 +42,14 @@
   --accent: var(--foreground);
 }
 
-/* The default 250ms view-transition crossfade lingers; a shorter fade
-   reads as a quick wipe rather than a dissolve. Reduced-motion users
-   never reach this — JS skips startViewTransition entirely. */
+/* A quick 100ms crossfade instead of the 250ms default dissolve. Linear
+   timing keeps old+new alpha summing to 1.0 throughout — eased fades dip
+   the combined brightness at the midpoint. Reduced-motion users never
+   reach this: JS skips startViewTransition entirely. */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 180ms;
+  animation-duration: 100ms;
+  animation-timing-function: linear;
 }
 
 @layer base {
