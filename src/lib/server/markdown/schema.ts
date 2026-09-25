@@ -12,12 +12,15 @@ export const sanitizeSchema: Schema = {
   attributes: {
     ...defaultSchema.attributes,
     // defaultSchema allows `id` on every element. Restrict it to the
-    // generated user-content-* prefix: a raw-HTML `id` could otherwise
-    // clobber landmarks (#main) or footnote anchors. Heading ids are added
-    // by rehype-slug after this step and are unaffected.
+    // generated user-content-* prefix plus the footnote label (refs point
+    // aria-describedby at it): a raw-HTML `id` could otherwise clobber
+    // landmarks (#main) or footnote anchors. Only the first definition
+    // per attribute name is consulted, so both values share one tuple.
+    // Heading ids are added by rehype-slug after this step and are
+    // unaffected.
     "*": [
       ...(defaultSchema.attributes?.["*"] ?? []).filter((attr) => !(typeof attr === "string" && attr === "id")),
-      ["id", /^user-content-/],
+      ["id", /^user-content-/, "footnote-label"],
     ],
     div: [...(defaultSchema.attributes?.div ?? []), ["className", /^markdown-alert/]],
     p: [...(defaultSchema.attributes?.p ?? []), ["className", "markdown-alert-title"]],
