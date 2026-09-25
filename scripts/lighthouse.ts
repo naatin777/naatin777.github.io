@@ -21,7 +21,7 @@ const firstPost = existsSync("build/posts")
       .map((d) => `/posts/${d.name}/`)
       .toSorted()[0]
   : undefined;
-const PATHS = ["/", "/articles/", "/about/", ...(firstPost ? [firstPost] : [])];
+const PATHS = ["/", "/articles/", "/projects/", "/activity/", "/about/", ...(firstPost ? [firstPost] : [])];
 // [level, minScore] — "warn" reports without failing, "error" fails the run
 const THRESHOLDS: Record<string, readonly ["warn" | "error", number]> = {
   performance: ["warn", 0.9],

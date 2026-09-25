@@ -4,7 +4,8 @@
 import { mkdirSync, renameSync, writeFileSync } from "node:fs";
 import { z } from "zod";
 
-const USERNAME = "naatin777";
+import { author } from "../src/lib/config/site.ts";
+
 const OUT_FILE = "content/generated/qiita.json";
 const PER_PAGE = 100;
 const MAX_PAGES = 10;
@@ -30,7 +31,7 @@ interface Post {
 const posts: Post[] = [];
 /* oxlint-disable no-await-in-loop -- each page depends on the previous page's item count */
 for (let page = 1; page <= MAX_PAGES; page++) {
-  const res = await fetch(`https://qiita.com/api/v2/users/${USERNAME}/items?per_page=${PER_PAGE}&page=${page}`, {
+  const res = await fetch(`https://qiita.com/api/v2/users/${author.name}/items?per_page=${PER_PAGE}&page=${page}`, {
     signal: AbortSignal.timeout(15_000),
   });
   if (!res.ok) throw new Error(`qiita api responded ${res.status}`);

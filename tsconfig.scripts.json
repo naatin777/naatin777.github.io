@@ -1,4 +1,10 @@
 {
   "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // scripts run under node's type stripping, which requires explicit
+    // .ts extensions on relative imports
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  },
   "include": ["scripts/**/*.ts"]
 }

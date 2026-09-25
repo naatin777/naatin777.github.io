@@ -19,6 +19,11 @@ const slugs = readdirSync(POSTS_DIR, { withFileTypes: true })
   .filter((d) => d.isDirectory() && existsSync(`${POSTS_DIR}/${d.name}/index.html`))
   .map((d) => d.name);
 
+if (slugs.length === 0) {
+  console.warn(`[og] no post pages found under ${POSTS_DIR} — skipping`);
+  process.exit(0);
+}
+
 const server = await preview({ preview: { port: PORT, strictPort: true } });
 let browser: Browser | undefined;
 let failures = 0;
@@ -46,7 +51,12 @@ try {
   /* oxlint-enable no-await-in-loop */
 } finally {
   await browser?.close();
-  server.httpServer?.close();
+  // close() is callback-based — await it so a lingering keep-alive
+  // socket can't hang the build.
+  await new Promise<void>((resolve) => {
+    if (server.httpServer) server.httpServer.close(() => resolve());
+    else resolve();
+  });
 }
 
 if (failures > 0) {

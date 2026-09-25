@@ -10,7 +10,8 @@ import { XMLParser } from "fast-xml-parser";
 import matter from "gray-matter";
 import { z } from "zod";
 
-const USERNAME = "naatin777";
+import { author } from "../src/lib/config/site.ts";
+
 const ARTICLES_DIR = "content/zenn/articles";
 const OUT_FILE = "content/generated/zenn.json";
 
@@ -59,7 +60,7 @@ const topicsFor = (slug: string): string[] => {
   }
 };
 
-const res = await fetch(`https://zenn.dev/${USERNAME}/feed?all=1`, {
+const res = await fetch(`https://zenn.dev/${author.name}/feed?all=1`, {
   signal: AbortSignal.timeout(15_000),
 });
 if (!res.ok) throw new Error(`zenn feed responded ${res.status}`);
@@ -69,6 +70,7 @@ const doc = new XMLParser({
   isArray: (name) => name === "item",
 }).parse(await res.text());
 const feed = zennFeed.safeParse(doc);
+if (!feed.success) console.error("[sync] zenn feed failed validation:", feed.error);
 const items = feed.success ? (feed.data.rss?.channel?.item ?? []) : [];
 
 const posts = items.flatMap((item) => {

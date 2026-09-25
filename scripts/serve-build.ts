@@ -49,12 +49,16 @@ createServer((req, res) => {
   // startsWith guard keeps the file inside build/ regardless.
   let file = join(ROOT, normalize(pathname));
   let status = 200;
-  if (!file.startsWith(ROOT)) status = 404;
+  if (file !== ROOT && !file.startsWith(`${ROOT}/`)) status = 404;
   else if (existsSync(file) && statSync(file).isDirectory()) file = join(file, "index.html");
   if (status === 404 || !existsSync(file)) {
     file = join(ROOT, "404.html");
     status = 404;
   }
   res.writeHead(status, { "content-type": contentTypes[extname(file)] ?? "application/octet-stream" });
-  createReadStream(file).pipe(res);
+  // A stream failure (EMFILE, race between existsSync and open) must not
+  // take the server down — headers are already sent, so just close.
+  createReadStream(file)
+    .on("error", () => res.end())
+    .pipe(res);
 }).listen(PORT, () => console.log(`[preview] serving build/ at http://localhost:${PORT}`));
