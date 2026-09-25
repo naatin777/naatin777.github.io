@@ -67,7 +67,7 @@ try {
           "--output=json",
           `--output-path=${reportPath}`,
           "--quiet",
-          '--chrome-flags="--headless --no-sandbox --disable-dev-shm-usage"',
+          "--chrome-flags=--headless --no-sandbox --disable-dev-shm-usage",
         ],
         { stdio: ["ignore", "ignore", "inherit"], timeout: 180_000 },
       );
