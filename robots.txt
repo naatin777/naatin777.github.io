@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Allow: /og/*.png
+Disallow: /og/
+
+Sitemap: https://naatin777.dev/sitemap.xml

@@ -1,0 +1,1 @@
+var e={name:`naatin777`,displayName:`Naatin`},t={url:`https://naatin777.dev`,title:`${e.displayName}'s Portfolio`,description:`${e.displayName}の個人ポートフォリオ。コードの実験や作ったものを少しずつ集めています。`};export{t as n,e as t};

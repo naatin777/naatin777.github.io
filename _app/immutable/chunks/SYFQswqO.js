@@ -1,0 +1,1 @@
+var e=[`blog`,`zenn`,`qiita`],t={blog:`Blog`,zenn:`Zenn`,qiita:`Qiita`};export{e as n,t};

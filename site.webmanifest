@@ -1,0 +1,9 @@
+{
+  "name": "Naatin's Portfolio",
+  "short_name": "Naatin",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#fafafa",
+  "theme_color": "#fafafa",
+  "icons": [{ "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }]
+}

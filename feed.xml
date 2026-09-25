@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Naatin&apos;s Portfolio</title>
+    <link>https://naatin777.dev/</link>
+    <atom:link href="https://naatin777.dev/feed.xml" rel="self" type="application/rss+xml" />
+    <description>Naatinの個人ポートフォリオ。コードの実験や作ったものを少しずつ集めています。</description>
+    <language>ja</language>
+    <image>
+      <url>https://naatin777.dev/apple-touch-icon.png</url>
+      <title>Naatin&apos;s Portfolio</title>
+      <link>https://naatin777.dev/</link>
+    </image>
+    <!-- sync runs weekly — 12h is a reasonable polling hint for readers -->
+    <ttl>720</ttl>
+    <lastBuildDate>Fri, 25 Sep 2026 02:43:28 GMT</lastBuildDate>
+
+  </channel>
+</rss>

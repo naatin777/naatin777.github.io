@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- GitHub Pages cannot set response headers, so CSP is delivered via meta.
+         The ws:// localhost entries keep Vite HMR working in dev without
+         opening production to arbitrary websocket origins. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' ws://localhost:* ws://127.0.0.1:*; object-src 'none'; base-uri 'self'; form-action 'none'"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fafafa" />
+    <!-- Pre-paint theme/lang init so neither flashes wrong. The values
+         duplicate src/lib/config/theme.ts and src/lib/config/i18n.ts by
+         hand — keep them in sync. -->
+    <script>
+      (() => {
+        try {
+          const stored = localStorage.getItem("theme");
+          const preference = stored === "light" || stored === "dark" ? stored : "system";
+          const dark =
+            preference === "dark" || (preference === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+          const root = document.documentElement;
+          root.dataset.themePreference = preference;
+          root.dataset.theme = dark ? "dark" : "light";
+          const meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.content = dark ? "#0a0a0a" : "#fafafa";
+          const langs = ["ja", "en"];
+          const storedLang = localStorage.getItem("lang");
+          root.lang = langs.includes(storedLang) ? storedLang : "ja";
+        } catch {
+          // fall through to markup defaults
+        }
+      })();
+    </script>
+    <link rel="icon" href="../favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png" />
+    <link rel="manifest" href="../site.webmanifest" />
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="../feed.xml" />
+    <link href="../_app/immutable/entry/start.CxoLgz2E.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/DUtpJi4R.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/BU42mfSA.js" rel="modulepreload">
+		<link href="../_app/immutable/entry/app.BT2h5cuE.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/xihTtKlq.js" rel="modulepreload">
+		<link href="../_app/immutable/nodes/0.B6MW8Cqq.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/CuRVSYnl.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/EfioOFpi.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/DarTia9U.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/CIUd84Hj.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/CAMapi3F.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/C3tyHfzZ.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/C7edWvYR.js" rel="modulepreload">
+		<link href="../_app/immutable/nodes/3.D1seeRcb.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/DgT-tWRt.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/SYFQswqO.js" rel="modulepreload">
+		<!--12qhfyh--><link rel="preload" as="font" type="font/woff2" href="/_app/immutable/assets/inter-latin-wght-normal.Dx4kXJAl.woff2" crossorigin="anonymous"/><!----><!--gsrl61--><meta name="description" content="Naatinについて — プロフィール、連絡先、使っているツールや機材。"/> <link rel="canonical" href="https://naatin777.dev/about/"/> <!--[-1--><!--]--> <meta property="og:type" content="website"/> <meta property="og:url" content="https://naatin777.dev/about/"/> <meta property="og:title" content="About · Naatin's Portfolio"/> <meta property="og:description" content="Naatinについて — プロフィール、連絡先、使っているツールや機材。"/> <meta property="og:site_name" content="Naatin's Portfolio"/> <meta property="og:locale" content="ja_JP"/> <meta property="og:locale:alternate" content="en_US"/> <meta property="og:image" content="https://naatin777.dev/og-image.png"/> <meta property="og:image:type" content="image/png"/> <meta property="og:image:width" content="1200"/> <meta property="og:image:height" content="630"/> <meta property="og:image:alt" content="About · Naatin's Portfolio"/> <!--[-1--><!--]--> <meta name="twitter:card" content="summary_large_image"/> <meta name="twitter:title" content="About · Naatin's Portfolio"/> <meta name="twitter:description" content="Naatinについて — プロフィール、連絡先、使っているツールや機材。"/> <meta name="twitter:image" content="https://naatin777.dev/og-image.png"/> <meta name="twitter:image:alt" content="About · Naatin's Portfolio"/> <!--[-1--><!--]--><!----><title>About · Naatin's Portfolio</title>
+		<link href="../_app/immutable/assets/0.A794PS37.css" rel="stylesheet">
+  </head>
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents"><!--[--><!--[0--><!--[--><a href="#main" class="skip-link"><!--[--><span class="lang-text lang-ja" lang="ja">本文へスキップ</span><span class="lang-text lang-en" lang="en">Skip to content</span><!--]--><!----></a> <!--$s1--><header class="border-border bg-background/80 sticky top-0 z-10 border-b backdrop-blur"><div class="mx-auto flex w-full max-w-3xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3"><div class="flex-1"><a href="/" class="font-bold tracking-tight">naatin777.dev</a></div> <nav aria-labelledby="s1" class="order-last mx-auto w-full min-[36rem]:order-none min-[36rem]:w-auto"><span id="s1" class="sr-only"><!--[--><span class="lang-text lang-ja" lang="ja">メインナビゲーション</span><span class="lang-text lang-en" lang="en">Primary navigation</span><!--]--><!----></span> <ul class="flex justify-center gap-4"><!--[--><li><a href="/articles/" class="text-muted hover:text-foreground aria-[current=page]:text-foreground text-sm whitespace-nowrap transition-colors aria-[current=page]:font-semibold"><!--[--><span class="lang-text lang-ja" lang="ja">記事</span><span class="lang-text lang-en" lang="en">Articles</span><!--]--><!----></a></li><li><a href="/projects/" class="text-muted hover:text-foreground aria-[current=page]:text-foreground text-sm whitespace-nowrap transition-colors aria-[current=page]:font-semibold"><!--[--><span class="lang-text lang-ja" lang="ja">制作物</span><span class="lang-text lang-en" lang="en">Projects</span><!--]--><!----></a></li><li><a href="/activity/" class="text-muted hover:text-foreground aria-[current=page]:text-foreground text-sm whitespace-nowrap transition-colors aria-[current=page]:font-semibold"><!--[--><span class="lang-text lang-ja" lang="ja">活動</span><span class="lang-text lang-en" lang="en">Activity</span><!--]--><!----></a></li><li><a href="/about/" aria-current="page" class="text-muted hover:text-foreground aria-[current=page]:text-foreground text-sm whitespace-nowrap transition-colors aria-[current=page]:font-semibold"><!--[--><span class="lang-text lang-ja" lang="ja">運営者</span><span class="lang-text lang-en" lang="en">About</span><!--]--><!----></a></li><!--]--></ul></nav> <div class="flex flex-1 items-center justify-end gap-2"><!--$s2--><div role="radiogroup" aria-labelledby="s2" tabindex="-1" class="flex items-center gap-0.5 text-xs transition-opacity invisible opacity-0"><span id="s2" class="sr-only"><!--[--><span class="lang-text lang-ja" lang="ja">言語</span><span class="lang-text lang-en" lang="en">Language</span><!--]--><!----></span> <!--[--><button type="button" role="radio" tabindex="0" aria-checked="true" class="aria-checked:text-foreground text-muted hover:text-foreground rounded-md px-1 whitespace-nowrap transition-colors aria-checked:font-semibold">日本語</button><button type="button" role="radio" tabindex="-1" aria-checked="false" class="aria-checked:text-foreground text-muted hover:text-foreground rounded-md px-1 whitespace-nowrap transition-colors aria-checked:font-semibold">English</button><!--]--></div><!----> <!--$s3--><button type="button" aria-labelledby="s3" class="text-muted hover:bg-surface hover:text-foreground flex size-8 items-center justify-center rounded-md transition-[color,background-color,opacity] invisible opacity-0"><span id="s3" class="sr-only"><!--[--><span class="lang-text lang-ja" lang="ja">テーマ: システム</span><span class="lang-text lang-en" lang="en">Theme: system</span><!--]--><!----></span> <!--[--><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun-moon lucide-icon size-5" aria-hidden="true"><!--[--><!----><path d="M12 2v2"><!----></path><!----><!----><path d="M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715"><!----></path><!----><!----><path d="M16 12a4 4 0 0 0-4-4"><!----></path><!----><!----><path d="m19 5-1.256 1.256"><!----></path><!----><!----><path d="M20 12h2"><!----></path><!----><!--]--><!----></svg><!--]--></button><!----></div></div></header><!----> <main id="main" class="mx-auto w-full max-w-3xl flex-1 px-4 py-10" tabindex="-1"><!--[--><!----> <section class="flex flex-col gap-10"><h1 class="text-2xl font-bold tracking-tight"><!--[--><span class="lang-text lang-ja" lang="ja">運営者</span><span class="lang-text lang-en" lang="en">About</span><!--]--><!----></h1> <p class="text-muted text-sm"><!--[--><span class="lang-text lang-ja" lang="ja">準備中です。</span><span class="lang-text lang-en" lang="en">Under construction.</span><!--]--><!----></p> <section class="flex flex-col gap-3"><h2 class="text-lg font-semibold"><!--[--><span class="lang-text lang-ja" lang="ja">書いている場所</span><span class="lang-text lang-en" lang="en">Where I write</span><!--]--><!----></h2> <ul class="flex flex-col gap-2"><!--[--><li class="flex items-baseline gap-2 text-sm"><span class="badge badge-blog">Blog</span> <span class="text-muted"><!--[--><span class="lang-text lang-ja" lang="ja">自分の活動や過程の記録</span><span class="lang-text lang-en" lang="en">Notes on what I'm doing and learning</span><!--]--><!----></span></li><li class="flex items-baseline gap-2 text-sm"><span class="badge badge-zenn">Zenn</span> <span class="text-muted"><!--[--><span class="lang-text lang-ja" lang="ja">調べて整理した記事</span><span class="lang-text lang-en" lang="en">Researched and organized write-ups</span><!--]--><!----></span></li><li class="flex items-baseline gap-2 text-sm"><span class="badge badge-qiita">Qiita</span> <span class="text-muted"><!--[--><span class="lang-text lang-ja" lang="ja">具体的な技術の知見や手順</span><span class="lang-text lang-en" lang="en">Concrete technical notes and how-tos</span><!--]--><!----></span></li><!--]--></ul></section></section><!--]--><!----></main> <footer class="border-border border-t"><div class="mx-auto flex w-full max-w-3xl flex-col items-center gap-4 px-4 py-8"><div class="flex flex-wrap items-center justify-center gap-4"><!--[--><a href="https://github.com/naatin777" target="_blank" rel="noopener noreferrer me" aria-label="GitHub" class="text-muted hover:text-foreground p-1 transition-colors"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="size-6"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg><!----></a><a href="https://x.com/naatin777" target="_blank" rel="noopener noreferrer me" aria-label="X" class="text-muted hover:text-foreground p-1 transition-colors"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="size-6"><path d="M14.234 10.162 22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299-.929-1.329L3.076 1.56h3.182l5.965 8.532.929 1.329 7.754 11.09h-3.182z"></path></svg><!----></a><a href="https://bsky.app/profile/naatin777.bsky.social" target="_blank" rel="noopener noreferrer me" aria-label="Bluesky" class="text-muted hover:text-foreground p-1 transition-colors"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="size-6"><path d="M5.202 2.857C7.954 4.922 10.913 9.11 12 11.358c1.087-2.247 4.046-6.436 6.798-8.501C20.783 1.366 24 .213 24 3.883c0 .732-.42 6.156-.667 7.037-.856 3.061-3.978 3.842-6.755 3.37 4.854.826 6.089 3.562 3.422 6.299-5.065 5.196-7.28-1.304-7.847-2.97-.104-.305-.152-.448-.153-.327 0-.121-.05.022-.153.327-.568 1.666-2.782 8.166-7.847 2.97-2.667-2.737-1.432-5.473 3.422-6.3-2.777.473-5.899-.308-6.755-3.369C.42 10.04 0 4.615 0 3.883c0-3.67 3.217-2.517 5.202-1.026"></path></svg><!----></a><a href="https://qiita.com/naatin777" target="_blank" rel="noopener noreferrer me" aria-label="Qiita" class="text-muted hover:text-foreground p-1 transition-colors"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="size-6"><path d="M12 0C5.3726 0 0 5.3726 0 12s5.3726 12 12 12c3.3984 0 6.4665-1.413 8.6498-3.6832-.383-.0574-.7746-.2062-1.1466-.4542-.7145-.4763-1.3486-.9263-1.6817-1.674-1.2945 1.3807-3.0532 1.835-5.1822 2.0503-4.311.4359-8.0456-1.4893-8.4979-6.2996-.1922-2.045.2628-3.989 1.1804-5.582l-.5342-2.1009c-.0862-.3652.2498-.7126.6057-.6262l1.8456.448c1.0974-.9012 2.4249-1.49 3.8892-1.638 1.2526-.1267 2.467.0834 3.571.5624l1.7348-1.0494c.3265-.1974.7399.0257.7711.4164l.1 2.4747v.0002c1.334 1.4084 2.2424 3.3319 2.4478 5.516.116 1.2339-.012 2.1776-.339 3.078-.1531.4215-.1992.7778.0776 1.1305.2674.3408.6915 1.0026 1.1644.8917.7107-.1666 1.4718-.1223 1.9422.1715C23.4925 15.9525 24 14.0358 24 12c0-6.6274-5.3726-12-12-12Zm-.0727 5.727a5.2731 5.2731 0 0 0-.6146.0273c-2.2084.2233-3.9572 1.8135-4.4937 3.8484l-1.3176-.1996-.014.2589 1.2972.1407c-.0352.1497-.0643.2384-.086.3923l-1.1319.0902.0103.2025 1.1032-.088c-.0194.1713-.031.2814-.0332.4565l-1.0078.412.0495.2499.9598-.4492c.002.1339.008.2053.0207.3407.2667 2.8371 2.6364 3.3981 5.4677 3.1118 2.8312-.2863 5.0517-1.3114 4.785-4.1486-.013-.1361-.0324-.2068-.0553-.3392l1.0397.2257.0242-.229-1.0906-.207c-.0342-.1687-.0765-.271-.1264-.4327l1.1208-.1374-.0158-.2019-1.1499.1409a5.1093 5.1093 0 0 0-.1665-.4259l1.2665-.4042-.0397-.2536-1.3471.4667c-.819-1.7168-2.5002-2.8224-4.4546-2.8482Z"></path></svg><!----></a><a href="https://zenn.dev/naatin777" target="_blank" rel="noopener noreferrer me" aria-label="Zenn" class="text-muted hover:text-foreground p-1 transition-colors"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="size-6"><path d="M.264 23.771h4.984c.264 0 .498-.147.645-.352L19.614.874c.176-.293-.029-.645-.381-.645h-4.72c-.235 0-.44.117-.557.323L.03 23.361c-.088.176.029.41.234.41zM17.445 23.419l6.479-10.408c.205-.323-.029-.733-.41-.733h-4.691c-.176 0-.352.088-.44.235l-6.655 10.643c-.176.264.029.616.352.616h4.779c.234-.001.468-.118.586-.353z"></path></svg><!----></a><!--]--></div> <p class="text-muted text-center text-xs leading-tight">© 2026
+      Naatin. All Rights Reserved.</p></div></footer><!----><!--]--><!--]--> <!--[-1--><!--]--><!--]-->
+			
+			<script>
+				{
+					__sveltekit_izh4vu = {
+						base: new URL("..", location).pathname.slice(0, -1)
+					};
+
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("../_app/immutable/entry/start.CxoLgz2E.js"),
+						import("../_app/immutable/entry/app.BT2h5cuE.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element, {
+							node_ids: [0, 3],
+							data: [null,null],
+							form: null,
+							error: null
+						});
+					});
+				}
+			</script>
+		</div>
+  </body>
+</html>
