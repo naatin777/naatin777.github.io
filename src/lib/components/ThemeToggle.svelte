@@ -29,7 +29,6 @@
   type="button"
   onclick={toggle}
   aria-labelledby={labelId}
-  title="テーマ切替 / Toggle theme"
   class="text-muted hover:bg-surface hover:text-foreground flex size-8 items-center justify-center rounded-md transition-[color,background-color,opacity] {isHydrated.value
     ? 'opacity-100'
     : 'invisible opacity-0'}"

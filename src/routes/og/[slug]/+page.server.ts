@@ -2,8 +2,6 @@ import { getPosts } from "$lib/server/posts";
 import { error } from "@sveltejs/kit";
 import type { EntryGenerator, PageServerLoad } from "./$types";
 
-export const prerender = true;
-
 export const entries: EntryGenerator = async () => (await getPosts()).map((post) => ({ slug: post.slug }));
 
 export const load: PageServerLoad = async ({ params }) => {

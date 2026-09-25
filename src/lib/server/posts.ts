@@ -15,7 +15,6 @@ const matterOptions = {
         const data: unknown = load(input, { schema: CORE_SCHEMA });
         return typeof data === "object" && data !== null ? data : {};
       },
-      stringify: (data: unknown) => String(data),
     },
   },
 };

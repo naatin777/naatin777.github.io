@@ -81,6 +81,10 @@
   {jsonLd}
 />
 
+<!-- Delegated clicks only reach real <button>s (copy / mermaid tabs), which
+     handle their own keyboard activation — the article itself is not
+     interactive, so no key handler is needed. -->
+<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions, a11y_no_noninteractive_element_interactions -->
 <article onclick={onArticleClick}>
   <header class="border-border mb-8 flex flex-col gap-2 border-b pb-6">
     <h1 class="text-2xl font-bold tracking-tight">{post.title}</h1>

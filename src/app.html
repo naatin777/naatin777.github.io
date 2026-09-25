@@ -8,15 +8,13 @@
          opening production to arbitrary websocket origins. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' ws://localhost:* ws://127.0.0.1:*; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' ws://localhost:* ws://127.0.0.1:*; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#fafafa" />
     <!-- Pre-paint theme/lang init so neither flashes wrong. The values
          duplicate src/lib/config/theme.ts and src/lib/config/i18n.ts by
-         hand — keep them in sync. ?lang= applies to this view only and
-         must NOT be persisted, or a shared link would silently rewrite
-         the recipient's preference. -->
+         hand — keep them in sync. -->
     <script>
       (() => {
         try {
@@ -30,9 +28,8 @@
           const meta = document.querySelector('meta[name="theme-color"]');
           if (meta) meta.content = dark ? "#0a0a0a" : "#fafafa";
           const langs = ["ja", "en"];
-          const pick = (value) => (langs.includes(value) ? value : null);
-          root.lang =
-            pick(new URLSearchParams(location.search).get("lang")) ?? pick(localStorage.getItem("lang")) ?? "ja";
+          const storedLang = localStorage.getItem("lang");
+          root.lang = langs.includes(storedLang) ? storedLang : "ja";
         } catch {
           // fall through to markup defaults
         }

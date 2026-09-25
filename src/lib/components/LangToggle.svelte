@@ -12,9 +12,7 @@
     browser ? (langs.find((l) => l === document.documentElement.lang) ?? defaultLang) : defaultLang,
   );
 
-  // ?lang= stays honored for incoming shared links (read by the init
-  // script in app.html), but toggling only persists to
-  // localStorage — URLs stay clean.
+  // Toggling only persists to localStorage — URLs stay clean.
   function setLang(next: Lang): void {
     lang = next;
     document.documentElement.lang = next;
