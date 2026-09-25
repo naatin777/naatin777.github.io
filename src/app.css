@@ -57,6 +57,9 @@
     font-family: var(--font-sans);
     /* Keep anchor targets (e.g. TOC links) clear of the sticky header. */
     scroll-padding-top: 6rem;
+    /* Smooth scroll for in-page anchors and the back-to-top button.
+       The global reduced-motion block below forces this back to auto. */
+    scroll-behavior: smooth;
   }
 
   body {

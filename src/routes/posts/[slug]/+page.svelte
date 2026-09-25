@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ArrowUp, Check, Link } from "@lucide/svelte";
   import LangText from "$lib/components/LangText.svelte";
   import Seo from "$lib/components/Seo.svelte";
   import SeriesNav from "$lib/components/SeriesNav.svelte";
@@ -12,6 +13,13 @@
 
   let { data }: PageProps = $props();
   const post = $derived(data.post);
+  const uid = $props.id();
+  const copyLabelId = `${uid}-copy`;
+  const pagerLabelId = `${uid}-pager`;
+  const topLabelId = `${uid}-top`;
+
+  let linkCopied = $state(false);
+  let showTop = $state(false);
 
   const showUpdated = $derived(post.updatedAt !== null && post.updatedAt.getTime() !== post.publishedAt.getTime());
 
@@ -74,6 +82,23 @@
       // clipboard unavailable (permissions, insecure context) — no-op
     }
   };
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(`${site.url}/posts/${post.slug}/`);
+      linkCopied = true;
+      setTimeout(() => (linkCopied = false), 1500);
+    } catch {
+      // clipboard unavailable (permissions, insecure context) — no-op
+    }
+  };
+
+  // Move focus too, not just the viewport — otherwise keyboard users keep
+  // their focus at the bottom while the page jumps away.
+  const toTop = () => {
+    document.getElementById("main")?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0 });
+  };
 </script>
 
 <Seo
@@ -102,9 +127,31 @@
           <time datetime={post.updatedAt.toISOString()}>{formatDate(post.updatedAt)}</time>
         </span>
       {/if}
+      <span>
+        <LangText texts={{ ja: `約${post.readingTime}分`, en: `${post.readingTime} min read` }} />
+      </span>
       {#each post.tags as tag (tag)}
         <span class="chip bg-surface">{tag}</span>
       {/each}
+      <button
+        type="button"
+        onclick={copyLink}
+        aria-labelledby={copyLabelId}
+        class="hover:text-foreground -m-1 ml-auto inline-flex items-center p-1 transition-colors"
+      >
+        <span id={copyLabelId} class="sr-only">
+          <LangText
+            texts={linkCopied
+              ? { ja: "リンクをコピーしました", en: "Link copied" }
+              : { ja: "記事のリンクをコピー", en: "Copy link to this post" }}
+          />
+        </span>
+        {#if linkCopied}
+          <Check class="size-4" aria-hidden="true" />
+        {:else}
+          <Link class="size-4" aria-hidden="true" />
+        {/if}
+      </button>
     </div>
   </header>
   {#if data.series}
@@ -117,4 +164,38 @@
   <div class="prose max-w-none" lang="ja">
     {@html post.html}
   </div>
+  {#if data.newer || data.older}
+    <nav aria-labelledby={pagerLabelId} class="border-border mt-10 grid grid-cols-2 gap-4 border-t pt-6 text-sm">
+      <span id={pagerLabelId} class="sr-only"><LangText texts={{ ja: "前後の記事", en: "Adjacent posts" }} /></span>
+      <span class="flex min-w-0 flex-col gap-1">
+        {#if data.older}
+          <span class="text-muted text-xs"><LangText texts={{ ja: "前の記事", en: "Older" }} /></span>
+          <a href="/posts/{data.older.slug}/" class="truncate font-medium hover:underline">
+            <span aria-hidden="true">← </span>{data.older.title}
+          </a>
+        {/if}
+      </span>
+      <span class="flex min-w-0 flex-col items-end gap-1 text-right">
+        {#if data.newer}
+          <span class="text-muted text-xs"><LangText texts={{ ja: "次の記事", en: "Newer" }} /></span>
+          <a href="/posts/{data.newer.slug}/" class="truncate font-medium hover:underline">
+            {data.newer.title}<span aria-hidden="true"> →</span>
+          </a>
+        {/if}
+      </span>
+    </nav>
+  {/if}
 </article>
+
+<svelte:window onscroll={() => (showTop = window.scrollY > 800)} />
+{#if showTop}
+  <button
+    type="button"
+    onclick={toTop}
+    aria-labelledby={topLabelId}
+    class="border-border bg-surface text-muted hover:text-foreground fixed right-6 bottom-6 z-20 flex size-10 items-center justify-center rounded-full border shadow-sm transition-colors"
+  >
+    <span id={topLabelId} class="sr-only"><LangText texts={{ ja: "ページの先頭へ戻る", en: "Back to top" }} /></span>
+    <ArrowUp class="size-5" aria-hidden="true" />
+  </button>
+{/if}

@@ -59,6 +59,7 @@ export interface Post {
   updatedAt: Date | null;
   tags: string[];
   series: string | null;
+  readingTime: number;
   html: string;
   toc: TocItem[];
 }
@@ -156,6 +157,13 @@ export async function loadPostsFrom(files: Record<string, string>, assets: Recor
         return null;
       }
       const { html, toc } = rendered;
+      // Reading time: CJK text is counted in characters (~500/min), latin
+      // text in words (~200/min). Fenced code blocks are excluded — readers
+      // skim them rather than read them linearly.
+      const prose = content.replace(/```[\s\S]*?(?:```|$)/g, " ");
+      const cjk = (prose.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/g) ?? []).length;
+      const words = (prose.match(/[a-zA-Z0-9_'-]+/g) ?? []).length;
+      const readingTime = Math.max(1, Math.ceil(cjk / 500 + words / 200));
       return {
         slug,
         title: fm.title,
@@ -164,6 +172,7 @@ export async function loadPostsFrom(files: Record<string, string>, assets: Recor
         updatedAt: fm.updatedAt ?? null,
         tags: fm.tags,
         series: fm.series ?? null,
+        readingTime,
         html,
         toc,
       };

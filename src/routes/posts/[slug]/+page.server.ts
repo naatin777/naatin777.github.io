@@ -8,7 +8,8 @@ export const entries: EntryGenerator = async () => {
 
 export const load: PageServerLoad = async ({ params }) => {
   const posts = await getPosts();
-  const post = posts.find((p) => p.slug === params.slug);
+  const index = posts.findIndex((p) => p.slug === params.slug);
+  const post = posts[index];
   if (!post) error(404, "Post not found");
   const series = post.series
     ? {
@@ -19,5 +20,9 @@ export const load: PageServerLoad = async ({ params }) => {
           .map((p) => ({ slug: p.slug, title: p.title })),
       }
     : null;
-  return { post, series };
+  // posts are sorted newest-first — "newer" is the previous index.
+  const toLink = (p: (typeof posts)[number] | undefined) => (p === undefined ? null : { slug: p.slug, title: p.title });
+  const newer = toLink(posts[index - 1]);
+  const older = toLink(posts[index + 1]);
+  return { post, series, newer, older };
 };

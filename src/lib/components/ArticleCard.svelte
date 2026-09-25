@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ExternalLink } from "@lucide/svelte";
   import { formatDate } from "$lib/date";
   import { sourceLabels, type ArticleSource } from "$lib/config/article-source";
   import LangText from "./LangText.svelte";
@@ -28,8 +29,8 @@
       class="text-foreground font-medium after:absolute after:inset-0 after:content-[''] hover:underline"
     >
       {title}
-      {#if external}<span class="sr-only"
-          ><LangText texts={{ ja: "（新しいタブで開く）", en: "(opens in a new tab)" }} /></span
+      {#if external}<ExternalLink class="text-muted mb-0.5 ml-0.5 inline size-3.5" aria-hidden="true" /><span
+          class="sr-only"><LangText texts={{ ja: "（新しいタブで開く）", en: "(opens in a new tab)" }} /></span
         >{/if}
     </a>
     <span class="badge badge-{source}">{sourceLabels[source]}</span>

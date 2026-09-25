@@ -17,7 +17,12 @@
       }}
     />
   </p>
-  <a href="/" class="text-foreground underline underline-offset-2">
-    <LangText texts={{ ja: "ホームに戻る", en: "Back to home" }} />
-  </a>
+  <div class="flex items-center gap-4">
+    <a href="/" class="text-foreground underline underline-offset-2">
+      <LangText texts={{ ja: "ホームに戻る", en: "Back to home" }} />
+    </a>
+    <a href="/articles/" class="text-muted hover:text-foreground underline underline-offset-2">
+      <LangText texts={{ ja: "記事一覧へ", en: "Browse articles" }} />
+    </a>
+  </div>
 </section>
