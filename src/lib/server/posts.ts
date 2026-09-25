@@ -1,3 +1,4 @@
+import { posix } from "node:path";
 import matter from "gray-matter";
 import { CORE_SCHEMA, load } from "js-yaml";
 import { z } from "zod";
@@ -13,7 +14,11 @@ const matterOptions = {
     yaml: {
       parse: (input: string) => {
         const data: unknown = load(input, { schema: CORE_SCHEMA });
-        return typeof data === "object" && data !== null ? data : {};
+        if (typeof data !== "object" || data === null) return {};
+        // A blank YAML value (`description:` etc.) parses as null — treat
+        // it as unset so optional fields hit their defaults instead of
+        // failing validation and skipping the whole post.
+        return Object.fromEntries(Object.entries(data).filter(([, v]) => v !== null));
       },
     },
   },
@@ -130,7 +135,10 @@ export async function loadPostsFrom(files: Record<string, string>, assets: Recor
       const resolveImage = (src: string): string => {
         // Absolute URLs, site-root paths, and anchors pass through untouched.
         if (/^[a-z]+:/i.test(src) || src.startsWith("/") || src.startsWith("#")) return src;
-        const bundled = assets[`${dir}/${src.replace(/^\.\//, "")}`];
+        // ./ and ../ resolve against the post folder via glob keys, so
+        // normalize the joined path; a query/hash suffix is ignored.
+        const rel = src.split(/[?#]/)[0] ?? "";
+        const bundled = assets[posix.normalize(`${dir}/${rel}`)];
         if (!bundled) {
           console.warn(`[posts] ${path}: image "${src}" not found beside the post`);
           return src;

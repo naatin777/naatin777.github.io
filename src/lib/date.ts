@@ -12,14 +12,20 @@ const formatter = new Intl.DateTimeFormat("ja-JP", {
   timeZone: "Asia/Tokyo",
 });
 
-const toJstAware = (value: string): string => {
-  const bare = JST_DATE.exec(value);
-  if (!bare) return value;
-  const time = bare[2] ?? "00:00:00";
-  return `${bare[1]}T${time.length === 5 ? `${time}:00` : time}+09:00`;
-};
+// Date.parse resolves offsetless non-bare forms (fractional seconds,
+// unpadded, non-ISO) in the machine's timezone — reject them so output
+// stays identical on CI (UTC) and local (JST) builds.
+const EXPLICIT_OFFSET = /(?:Z|[+-]\d{2}:?\d{2})$/;
 
-export const parseDate = (value: string): number => Date.parse(toJstAware(value));
+export const parseDate = (value: string): number => {
+  const bare = JST_DATE.exec(value);
+  if (bare) {
+    const time = bare[2] ?? "00:00:00";
+    return Date.parse(`${bare[1]}T${time.length === 5 ? `${time}:00` : time}+09:00`);
+  }
+  if (!EXPLICIT_OFFSET.test(value)) return NaN;
+  return Date.parse(value);
+};
 
 export const formatDate = (date: Date | string): string => {
   const timestamp = typeof date === "string" ? parseDate(date) : date.getTime();

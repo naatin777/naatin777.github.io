@@ -58,4 +58,44 @@ describe("loadPostsFrom", () => {
     expect(bySlug.get("sec")?.publishedAt.toISOString()).toBe("2026-03-08T14:00:45.000Z");
     expect(bySlug.get("offset")?.publishedAt.toISOString()).toBe("2026-03-08T14:00:45.000Z");
   });
+
+  it("rejects dates that parse in machine-local time", async () => {
+    const posts = await loadPostsFrom(
+      {
+        "/content/posts/2026/frac/index.md": entry("title: F\npublishedAt: 2026-03-08T23:00:45.123"),
+        "/content/posts/2026/unpadded/index.md": entry("title: U\npublishedAt: 2026-3-8"),
+        "/content/posts/2026/words/index.md": entry("title: W\npublishedAt: Mar 8 2026"),
+        "/content/posts/2026/z/index.md": entry("title: Z\npublishedAt: 2026-03-08T23:00:45Z"),
+      },
+      {},
+    );
+    expect(posts.map((p) => p.slug)).toEqual(["z"]);
+  });
+
+  it("treats blank YAML values as unset", async () => {
+    const posts = await loadPostsFrom(
+      { "/content/posts/2026/a/index.md": entry("title: A\npublishedAt: 2026-03-01\ndescription:\ntags:") },
+      {},
+    );
+    expect(posts).toHaveLength(1);
+    expect(posts[0]?.description).toBe("");
+    expect(posts[0]?.tags).toEqual([]);
+  });
+
+  it("resolves ../ and query-suffixed image paths", async () => {
+    const posts = await loadPostsFrom(
+      {
+        "/content/posts/2026/a/index.md": entry(
+          "title: A\npublishedAt: 2026-03-01",
+          "![x](../shared/p.png) ![y](./q.png?v=1)",
+        ),
+      },
+      {
+        "/content/posts/2026/shared/p.png": "/bundled/p.png",
+        "/content/posts/2026/a/q.png": "/bundled/q.png",
+      },
+    );
+    expect(posts[0]?.html).toContain("/bundled/p.png");
+    expect(posts[0]?.html).toContain("/bundled/q.png");
+  });
 });
