@@ -42,6 +42,14 @@
   --accent: var(--foreground);
 }
 
+/* The default 250ms view-transition crossfade lingers; a shorter fade
+   reads as a quick wipe rather than a dissolve. Reduced-motion users
+   never reach this — JS skips startViewTransition entirely. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+}
+
 @layer base {
   html {
     background-color: var(--background);

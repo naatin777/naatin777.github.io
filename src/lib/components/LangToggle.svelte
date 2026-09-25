@@ -1,8 +1,10 @@
 <script lang="ts">
   import { browser } from "$app/environment";
+  import { tick } from "svelte";
   import { defaultLang, langNames, langs, type Lang } from "$lib/config/i18n";
   import { hydrated } from "$lib/hydrated.svelte";
   import { selectionGroupKeydown } from "$lib/selection-group";
+  import { withViewTransition } from "$lib/view-transition";
   import LangText from "./LangText.svelte";
 
   const isHydrated = hydrated();
@@ -13,14 +15,19 @@
   );
 
   // Toggling only persists to localStorage — URLs stay clean.
+  // The swap is crossfaded like a navigation; tick() lets the lang
+  // attribute and the radio states land inside the "new" snapshot.
   function setLang(next: Lang): void {
-    lang = next;
-    document.documentElement.lang = next;
-    try {
-      localStorage.setItem("lang", next);
-    } catch {
-      // storage disabled — preference still applies for this session
-    }
+    withViewTransition(async () => {
+      lang = next;
+      document.documentElement.lang = next;
+      try {
+        localStorage.setItem("lang", next);
+      } catch {
+        // storage disabled — preference still applies for this session
+      }
+      await tick();
+    });
   }
 </script>
 

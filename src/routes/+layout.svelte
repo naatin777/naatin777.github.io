@@ -1,13 +1,28 @@
 <script lang="ts">
+  import { onNavigate } from "$app/navigation";
   import "@fontsource-variable/inter";
   import "@fontsource-variable/noto-sans-jp";
   import "../app.css";
   import Footer from "$lib/components/Footer.svelte";
   import Header from "$lib/components/Header.svelte";
   import LangText from "$lib/components/LangText.svelte";
+  import { viewTransitionAllowed } from "$lib/view-transition";
   import interWoff2 from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
 
   let { children } = $props();
+
+  // Subtle crossfade on client-side navigations via the View Transitions
+  // API. Browsers without support (and reduced-motion users) just get the
+  // normal instant swap.
+  onNavigate((navigation) => {
+    if (!viewTransitionAllowed()) return;
+    return new Promise((resolve) => {
+      document.startViewTransition(async () => {
+        resolve();
+        await navigation.complete;
+      });
+    });
+  });
 </script>
 
 <svelte:head>

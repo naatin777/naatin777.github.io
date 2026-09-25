@@ -1,7 +1,9 @@
 <script lang="ts">
   import { Moon, Sun, SunMoon } from "@lucide/svelte";
+  import { tick } from "svelte";
   import { hydrated } from "$lib/hydrated.svelte";
   import { themeState } from "$lib/theme.svelte";
+  import { withViewTransition } from "$lib/view-transition";
   import LangText from "./LangText.svelte";
 
   const theme = themeState();
@@ -12,7 +14,12 @@
   // preference rather than the resolved theme, so "system" is visible.
   const order = { light: "dark", dark: "system", system: "light" } as const;
   function toggle(): void {
-    theme.set(order[theme.preference]);
+    // Crossfade the whole page into the new theme; tick() lets the
+    // $effect that writes data-theme land inside the "new" snapshot.
+    withViewTransition(async () => {
+      theme.set(order[theme.preference]);
+      await tick();
+    });
   }
 
   const icons = { light: Sun, dark: Moon, system: SunMoon } as const;
