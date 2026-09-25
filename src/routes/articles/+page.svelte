@@ -152,11 +152,10 @@
         />
       </li>
     {:else}
-      <li class="text-muted flex flex-col items-start gap-2 text-sm">
+      <!-- No second clear button here — the one beside the count above is
+           already visible whenever filters are active. -->
+      <li class="text-muted text-sm">
         <LangText texts={{ ja: "条件に一致する記事はありません", en: "No articles match the current filters." }} />
-        <button type="button" onclick={clearFilters} class="chip hover:border-foreground px-3 py-1">
-          <LangText texts={{ ja: "フィルターをクリア", en: "Clear filters" }} />
-        </button>
       </li>
     {/each}
   </ul>
