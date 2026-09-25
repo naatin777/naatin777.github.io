@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ params }) => {
         name: post.series,
         posts: posts
           .filter((p) => p.series === post.series)
-          .toSorted((a, b) => a.publishedAt.getTime() - b.publishedAt.getTime())
+          .toSorted((a, b) => a.publishedAt.getTime() - b.publishedAt.getTime() || a.slug.localeCompare(b.slug))
           .map((p) => ({ slug: p.slug, title: p.title })),
       }
     : null;

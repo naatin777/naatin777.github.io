@@ -48,7 +48,8 @@ const posts: ArticleItem[] = SOURCES.flatMap((source) => {
     console.warn(`[articles] ${file} not found — run \`pnpm sync:${source}\` to populate it`);
     return [];
   }
-  return z.array(externalPost).parse(JSON.parse(readFileSync(file, "utf8")));
+  // A hand-edited file could smuggle a foreign `source` label — pin it.
+  return z.array(externalPost.extend({ source: z.literal(source) })).parse(JSON.parse(readFileSync(file, "utf8")));
 }).map((post) => Object.assign(post, { series: null }));
 
 export function getExternalArticles(): ArticleItem[] {

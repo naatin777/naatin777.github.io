@@ -34,11 +34,14 @@ const frontmatterDate = z.string().transform((value, ctx) => {
 });
 
 const postFrontmatter = z.object({
-  title: z.string(),
+  title: z.string().trim().min(1),
   description: z.string().default(""),
   publishedAt: frontmatterDate,
   updatedAt: frontmatterDate.optional(),
-  tags: z.array(z.string()).default([]),
+  tags: z
+    .array(z.string())
+    .default([])
+    .transform((tags) => [...new Set(tags.map((tag) => tag.trim()).filter((tag) => tag !== ""))]),
   series: z.string().optional(),
   // "true"/"false" strings are accepted (a common frontmatter slip); other
   // truthy-looking values like "yes" still fail validation loudly.

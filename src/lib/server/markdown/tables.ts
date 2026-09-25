@@ -5,10 +5,19 @@ import { visit } from "unist-util-visit";
 // Tables wider than the prose column would overflow the page — wrapping in
 // a scroll container lets the frame scroll instead. Done as an AST wrap
 // (rather than display:block on <table>) so table semantics survive.
-// Post-sanitize: the wrapper div is generated markup.
+// Post-sanitize: the wrapper div is generated markup. Tables inside SVG
+// (e.g. mermaid foreignObject labels) are left alone — a scrolling div
+// doesn't belong in an SVG.
 export const rehypeWrapTables: Plugin<[], Root> = () => (tree) => {
+  const insideSvg = new WeakSet();
+  visit(tree, "element", (node) => {
+    if (node.tagName !== "svg") return;
+    visit(node, "element", (inner) => {
+      insideSvg.add(inner);
+    });
+  });
   visit(tree, "element", (node, index, parent) => {
-    if (node.tagName !== "table" || index === undefined || parent === undefined) return;
+    if (node.tagName !== "table" || insideSvg.has(node) || index === undefined || parent === undefined) return;
     parent.children[index] = {
       type: "element",
       tagName: "div",
