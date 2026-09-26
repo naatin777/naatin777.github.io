@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { replaceState } from "$app/navigation";
-  import { page } from "$app/state";
-  import { onMount, untrack } from "svelte";
   import ArticleCard from "$lib/components/ArticleCard.svelte";
   import LangText from "$lib/components/LangText.svelte";
   import Seo from "$lib/components/Seo.svelte";
   import SourceFilter from "$lib/components/SourceFilter.svelte";
+  import SortControl from "$lib/components/SortControl.svelte";
   import TagFilter from "$lib/components/TagFilter.svelte";
+  import { ArticleListState } from "$lib/article-list-state.svelte";
   import { sourceOrder, type ArticleSource } from "$lib/config/article-source";
   import { site } from "$lib/config/site";
   import type { PageProps } from "./$types";
@@ -23,87 +22,32 @@
     return [...tagNames.values()].toSorted((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
   });
 
-  let selected = $state(new Set<string>());
-  let selectedSource = $state<ArticleSource | null>(null);
-
-  const hasFilters = $derived(selected.size > 0 || selectedSource !== null);
-  const clearFilters = () => {
-    selected = new Set();
-    selectedSource = null;
-    syncUrl();
-  };
-
-  const toggleTag = (tag: string) => {
-    const canonical = allTags.find((t) => t.toLowerCase() === tag.toLowerCase()) ?? tag;
-    const next = new Set(selected);
-    if (next.has(canonical)) {
-      next.delete(canonical);
-    } else {
-      next.add(canonical);
-    }
-    selected = next;
-    syncUrl();
-  };
-
-  // Filters live in the URL (?tag= repeatable, ?source=) so filtered views
-  // are shareable. The effect adopts incoming/shared links and back/forward
-  // navigation; user actions publish via replaceState — never pushState,
-  // filtering shouldn't stack history entries. URL writes stay out of the
-  // effect: replaceState during the hydration flush races router init —
-  // page.url never updates and the adopted state gets reverted.
-  const syncUrl = (): void => {
-    const url = new URL(page.url);
-    url.searchParams.delete("tag");
-    for (const tag of selected) url.searchParams.append("tag", tag);
-    if (selectedSource) url.searchParams.set("source", selectedSource);
-    else url.searchParams.delete("source");
-    if (url.href !== page.url.href) replaceState(url, page.state);
-  };
-
-  $effect(() => {
-    const tags = new Set<string>();
-    for (const raw of page.url.searchParams.getAll("tag")) {
-      const canonical = allTags.find((t) => t.toLowerCase() === raw.toLowerCase());
-      if (canonical) tags.add(canonical);
-    }
-    const source = sourceOrder.find((s) => s === page.url.searchParams.get("source")) ?? null;
-    // Compare untracked: re-run only on URL changes, not on our own writes.
-    untrack(() => {
-      if (tags.size !== selected.size || [...tags].some((t) => !selected.has(t))) selected = tags;
-      if (source !== selectedSource) selectedSource = source;
-    });
+  const sourceCounts = $derived.by(() => {
+    const counts = Object.fromEntries(sourceOrder.map((s) => [s, 0])) as Record<ArticleSource, number>;
+    for (const article of data.articles) counts[article.source] += 1;
+    return counts;
   });
 
-  // A shared link can carry params matching nothing (?tag=bogus,
-  // ?source=zzz) — the effect adopts only valid values, so strip the
-  // leftovers once mounted. This stays out of the effect for the same
-  // router-init race documented above.
-  onMount(() => {
-    const url = new URL(page.url);
-    const rawTags = url.searchParams.getAll("tag");
-    const tags = rawTags.filter((raw) => allTags.some((t) => t.toLowerCase() === raw.toLowerCase()));
-    const source = url.searchParams.get("source");
-    const sourceOk = source === null || (sourceOrder as readonly string[]).includes(source);
-    if (tags.length === rawTags.length && sourceOk) return;
-    url.searchParams.delete("tag");
-    for (const tag of tags) url.searchParams.append("tag", tag);
-    if (!sourceOk) url.searchParams.delete("source");
-    replaceState(url, page.state);
-  });
+  const state = new ArticleListState(() => allTags);
 
-  const setSource = (next: ArticleSource | null): void => {
-    selectedSource = next;
-    syncUrl();
-  };
-
-  const selectedKeys = $derived(new Set([...selected].map((t) => t.toLowerCase())));
+  const selectedKeys = $derived(new Set([...state.selected].map((t) => t.toLowerCase())));
   const filtered = $derived(
     data.articles.filter(
       (article) =>
-        (selectedSource === null || article.source === selectedSource) &&
+        (state.selectedSource === null || article.source === state.selectedSource) &&
         (selectedKeys.size === 0 || article.tags.some((tag) => selectedKeys.has(tag.toLowerCase()))),
     ),
   );
+
+  // Never-updated articles sort by their publish date under "updated".
+  const sorted = $derived.by(() => {
+    const dir = state.sortOrder === "asc" ? 1 : -1;
+    const at = (article: (typeof filtered)[number]) =>
+      Date.parse(state.sortKey === "updated" ? (article.updatedAt ?? article.publishedAt) : article.publishedAt);
+    return filtered.toSorted((a, b) =>
+      state.sortKey === "name" ? dir * a.title.localeCompare(b.title, "ja") : dir * (at(a) - at(b)),
+    );
+  });
 </script>
 
 <Seo
@@ -117,9 +61,19 @@
        confusing, and a shared ?source=blog link would otherwise select a
        filter that doesn't exist in the UI. The each-block's empty state
        covers the zero-result case. -->
-  <SourceFilter sources={[...sourceOrder]} value={selectedSource} onchange={setSource} />
-  <TagFilter tags={allTags} {selected} ontoggle={toggleTag} />
-  <div class="text-muted flex items-center justify-between text-xs">
+  <!-- Chips are the "narrowing" group; below the hairline sits one toolbar
+       row for list state — count/clear on the left, sorting on the right. -->
+  <div class="flex flex-col gap-4">
+    <SourceFilter
+      sources={[...sourceOrder]}
+      value={state.selectedSource}
+      counts={sourceCounts}
+      total={data.articles.length}
+      onchange={state.setSource}
+    />
+    <TagFilter tags={allTags} selected={state.selected} ontoggle={state.toggleTag} />
+  </div>
+  <div class="border-border text-muted flex flex-wrap items-center gap-x-3 gap-y-3 border-t pt-4 text-xs">
     <p role="status">
       <LangText
         texts={{
@@ -130,15 +84,18 @@
     </p>
     <button
       type="button"
-      onclick={clearFilters}
-      disabled={!hasFilters}
-      class="chip hover:border-foreground disabled:invisible"
+      onclick={state.clearFilters}
+      disabled={!state.hasFilters}
+      class="chip hover:border-foreground px-3 py-1 disabled:invisible"
     >
       <LangText texts={{ ja: "フィルターをクリア", en: "Clear filters" }} />
     </button>
+    <div class="w-full min-[36rem]:ml-auto min-[36rem]:w-auto">
+      <SortControl value={state.sortKey} order={state.sortOrder} onsort={state.setSort} onorder={state.setOrder} />
+    </div>
   </div>
   <ul class="flex flex-col gap-3">
-    {#each filtered as article (article.url)}
+    {#each sorted as article (article.url)}
       <li>
         <ArticleCard
           title={article.title}
@@ -146,9 +103,12 @@
           tags={article.tags}
           source={article.source}
           series={article.series}
+          seriesSlug={article.seriesSlug}
           publishedAt={article.publishedAt}
+          updatedAt={article.updatedAt}
+          description={article.description}
           selectedTags={selectedKeys}
-          ontag={toggleTag}
+          ontag={state.toggleTag}
         />
       </li>
     {:else}

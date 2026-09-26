@@ -7,5 +7,10 @@ export const entries: EntryGenerator = async () => (await getPosts()).map((post)
 export const load: PageServerLoad = async ({ params }) => {
   const post = (await getPosts()).find((p) => p.slug === params.slug);
   if (!post) error(404);
-  return { title: post.title, publishedAt: post.publishedAt.toISOString(), tags: post.tags };
+  return {
+    title: post.title,
+    description: post.description,
+    publishedAt: post.publishedAt.toISOString(),
+    tags: post.tags,
+  };
 };

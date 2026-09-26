@@ -9,7 +9,7 @@
     {
       source: "blog",
       texts: {
-        ja: "自分の活動や過程の記録",
+        ja: "開発や勉強の記録",
         en: "Notes on what I'm doing and learning",
       },
     },
@@ -23,7 +23,7 @@
     {
       source: "qiita",
       texts: {
-        ja: "具体的な技術の知見や手順",
+        ja: "具体的な技術知見",
         en: "Concrete technical notes and how-tos",
       },
     },

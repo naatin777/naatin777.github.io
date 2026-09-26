@@ -6,10 +6,12 @@
   interface Props {
     sources: ArticleSource[];
     value: ArticleSource | null;
+    counts: Record<ArticleSource, number>;
+    total: number;
     onchange: (value: ArticleSource | null) => void;
   }
 
-  let { sources, value, onchange }: Props = $props();
+  let { sources, value, counts, total, onchange }: Props = $props();
   const groupLabelId = $props.id();
 </script>
 
@@ -30,6 +32,7 @@
     class="chip px-3 py-1"
   >
     <LangText texts={{ ja: "すべて", en: "All" }} />
+    <span class="text-muted ml-1">{total}</span>
   </button>
   {#each sources as source (source)}
     <button
@@ -41,6 +44,7 @@
       class="chip px-3 py-1"
     >
       {sourceLabels[source]}
+      <span class="text-muted ml-1">{counts[source]}</span>
     </button>
   {/each}
 </div>

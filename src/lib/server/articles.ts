@@ -12,8 +12,10 @@ export async function getAllArticles(): Promise<ArticleItem[]> {
     tags: post.tags,
     source: "blog",
     series: post.series,
+    seriesSlug: post.seriesSlug ?? undefined,
     publishedAt: post.publishedAt.toISOString(),
     updatedAt: post.updatedAt?.toISOString(),
+    description: post.description || undefined,
   }));
   return [...external, ...posts].toSorted((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
 }

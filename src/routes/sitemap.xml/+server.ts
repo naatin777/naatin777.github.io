@@ -12,8 +12,11 @@ const toDate = (date: Date) => date.toISOString().slice(0, 10);
 
 export const GET: RequestHandler = async () => {
   const posts = await getPosts();
+  const seriesSlugs = new Set(posts.flatMap((post) => (post.seriesSlug ? [post.seriesSlug] : [])));
   const urls = [
     ...staticPages.map((path) => `  <url><loc>${site.url}${path}</loc></url>`),
+    ...(seriesSlugs.size > 0 ? [`  <url><loc>${site.url}/series/</loc></url>`] : []),
+    ...[...seriesSlugs].map((slug) => `  <url><loc>${site.url}/series/${encodeURIComponent(slug)}/</loc></url>`),
     ...posts.map(
       (post) =>
         `  <url><loc>${site.url}/posts/${post.slug}/</loc><lastmod>${toDate(post.updatedAt ?? post.publishedAt)}</lastmod></url>`,

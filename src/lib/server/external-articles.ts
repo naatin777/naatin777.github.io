@@ -39,8 +39,10 @@ export interface ArticleItem {
   tags: string[];
   source: ArticleSource;
   series: string | null;
+  seriesSlug?: string | undefined;
   publishedAt: string;
   updatedAt?: string | undefined;
+  description?: string | undefined;
 }
 
 // Validate at build time — a hand-edited or truncated JSON fails loudly here

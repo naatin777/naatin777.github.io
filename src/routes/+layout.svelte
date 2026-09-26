@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onNavigate } from "$app/navigation";
+  import { page } from "$app/state";
   import "@fontsource-variable/inter";
   import "@fontsource-variable/noto-sans-jp";
   import "../app.css";
@@ -10,6 +11,10 @@
   import interWoff2 from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
 
   let { children } = $props();
+
+  // Post pages get a wider column at xl+ so their sticky ToC sidebar fits
+  // in a real grid track instead of overlapping the reading column.
+  const isPost = $derived(page.route.id === "/posts/[slug]");
 
   // Subtle crossfade on client-side navigations via the View Transitions
   // API. Browsers without support (and reduced-motion users) just get the
@@ -31,7 +36,7 @@
 
 <a href="#main" class="skip-link"><LangText texts={{ ja: "本文へスキップ", en: "Skip to content" }} /></a>
 <Header />
-<main id="main" class="mx-auto w-full max-w-3xl flex-1 px-4 py-10" tabindex="-1">
+<main id="main" class="mx-auto w-full max-w-3xl flex-1 px-4 py-10{isPost ? ' xl:max-w-6xl' : ''}" tabindex="-1">
   {@render children()}
 </main>
 <Footer />

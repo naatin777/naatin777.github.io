@@ -5,12 +5,34 @@
 
   interface Props {
     headings: TocItem[];
+    // "inline": bordered box inside the article flow — shown below xl.
+    // "sidebar": bare list for the sticky grid column — shown at xl+.
+    variant?: "inline" | "sidebar";
   }
 
-  let { headings }: Props = $props();
-  const navLabelId = $props.id();
+  interface TocNode extends TocItem {
+    children: TocNode[];
+  }
 
-  const tocHeadings = $derived(headings.filter((h) => h.depth === 2 || h.depth === 3));
+  let { headings, variant = "inline" }: Props = $props();
+  const labelId = $props.id();
+
+  const tocHeadings = $derived(headings.filter((h) => h.depth >= 2 && h.depth <= 4));
+
+  // Fold the flat heading list into a tree: each node adopts following
+  // deeper headings until a same-or-shallower one pops the stack.
+  const tocTree = $derived.by(() => {
+    const root: TocNode[] = [];
+    const stack: TocNode[] = [];
+    for (const h of tocHeadings) {
+      const node: TocNode = { ...h, children: [] };
+      while (stack.length > 0 && stack[stack.length - 1]!.depth >= h.depth) stack.pop();
+      if (stack.length > 0) stack[stack.length - 1]!.children.push(node);
+      else root.push(node);
+      stack.push(node);
+    }
+    return root;
+  });
 
   // Scroll-spy: the active entry is the last heading above the line just
   // under the sticky header. getBoundingClientRect is read live so lazy
@@ -31,20 +53,34 @@
 
 <svelte:window onscroll={updateActive} onresize={updateActive} />
 
+{#snippet tocNodes(nodes: TocNode[], nested: boolean)}
+  <ul class="flex flex-col gap-1 {nested ? 'border-border mt-1 ml-1 border-l pl-3' : 'text-sm'}">
+    {#each nodes as node (node.id)}
+      <li>
+        <a
+          href="#{node.id}"
+          aria-current={activeId === node.id ? "location" : undefined}
+          class="text-muted hover:text-foreground aria-[current=location]:text-foreground aria-[current=location]:font-medium"
+          >{node.text}</a
+        >
+        {#if node.children.length > 0}
+          {@render tocNodes(node.children, true)}
+        {/if}
+      </li>
+    {/each}
+  </ul>
+{/snippet}
+
 {#if tocHeadings.length >= 3}
-  <nav class="border-border mb-8 rounded-lg border p-4" aria-labelledby={navLabelId}>
-    <p id={navLabelId} class="mb-2 text-sm font-bold"><LangText texts={{ ja: "目次", en: "Contents" }} /></p>
-    <ul class="flex flex-col gap-1 text-sm">
-      {#each tocHeadings as heading (heading.id)}
-        <li class:pl-4={heading.depth === 3}>
-          <a
-            href="#{heading.id}"
-            aria-current={activeId === heading.id ? "location" : undefined}
-            class="text-muted hover:text-foreground aria-[current=location]:text-foreground aria-[current=location]:font-medium"
-            >{heading.text}</a
-          >
-        </li>
-      {/each}
-    </ul>
-  </nav>
+  {#if variant === "inline"}
+    <nav class="border-border mb-8 rounded-lg border p-4 xl:hidden" aria-labelledby={labelId}>
+      <p id={labelId} class="mb-2 text-sm font-bold"><LangText texts={{ ja: "目次", en: "Contents" }} /></p>
+      {@render tocNodes(tocTree, false)}
+    </nav>
+  {:else}
+    <nav class="border-border rounded-lg border p-4" aria-labelledby={labelId}>
+      <p id={labelId} class="mb-2 text-sm font-bold"><LangText texts={{ ja: "目次", en: "Contents" }} /></p>
+      {@render tocNodes(tocTree, false)}
+    </nav>
+  {/if}
 {/if}

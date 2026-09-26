@@ -43,6 +43,7 @@ const postFrontmatter = z.object({
     .default([])
     .transform((tags) => [...new Set(tags.map((tag) => tag.trim()).filter((tag) => tag !== ""))]),
   series: z.string().optional(),
+  seriesSlug: z.string().optional(),
   // "true"/"false" strings are accepted (a common frontmatter slip); other
   // truthy-looking values like "yes" still fail validation loudly.
   draft: z
@@ -59,6 +60,7 @@ export interface Post {
   updatedAt: Date | null;
   tags: string[];
   series: string | null;
+  seriesSlug: string | null;
   readingTime: number;
   html: string;
   toc: TocItem[];
@@ -164,6 +166,13 @@ export async function loadPostsFrom(files: Record<string, string>, assets: Recor
       const cjk = (prose.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/g) ?? []).length;
       const words = (prose.match(/[a-zA-Z0-9_'-]+/g) ?? []).length;
       const readingTime = Math.max(1, Math.ceil(cjk / 500 + words / 200));
+      // Like the post slug, the series slug is a URL segment — fall back to
+      // the series name itself when absent or not URL-safe.
+      let seriesSlug = fm.seriesSlug ?? null;
+      if (seriesSlug !== null && !/^[\w-]+$/.test(seriesSlug)) {
+        console.warn(`[posts] ${path}: seriesSlug "${seriesSlug}" is not URL-safe — ignoring it`);
+        seriesSlug = null;
+      }
       return {
         slug,
         title: fm.title,
@@ -172,13 +181,28 @@ export async function loadPostsFrom(files: Record<string, string>, assets: Recor
         updatedAt: fm.updatedAt ?? null,
         tags: fm.tags,
         series: fm.series ?? null,
+        seriesSlug,
         readingTime,
         html,
         toc,
       };
     }),
   );
-  return posts
-    .filter((post): post is Post => post !== null)
-    .toSorted((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
+  const loaded = posts.filter((post): post is Post => post !== null);
+  // One URL slug per series: an explicit seriesSlug wins (first seen, with a
+  // warning on conflicts); without one the series name itself is the slug.
+  const slugBySeries = new Map<string, string>();
+  for (const post of loaded) {
+    if (post.series === null || post.seriesSlug === null) continue;
+    const existing = slugBySeries.get(post.series);
+    if (existing === undefined) slugBySeries.set(post.series, post.seriesSlug);
+    else if (existing !== post.seriesSlug)
+      console.warn(
+        `[posts] conflicting seriesSlug "${post.seriesSlug}" for series "${post.series}" — keeping "${existing}"`,
+      );
+  }
+  for (const post of loaded) {
+    if (post.series !== null) post.seriesSlug = slugBySeries.get(post.series) ?? post.series;
+  }
+  return loaded.toSorted((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
 }

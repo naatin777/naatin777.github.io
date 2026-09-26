@@ -15,6 +15,7 @@
   const post = $derived(data.post);
   const uid = $props.id();
   const copyLabelId = `${uid}-copy`;
+
   const pagerLabelId = `${uid}-pager`;
   const topLabelId = `${uid}-top`;
 
@@ -22,6 +23,9 @@
   let showTop = $state(false);
 
   const showUpdated = $derived(post.updatedAt !== null && post.updatedAt.getTime() !== post.publishedAt.getTime());
+  // Same h2–h4 >= 3 rule as Toc — needed here to decide whether the aside
+  // column exists at all, so the article isn't offset by an empty track.
+  const hasToc = $derived(post.toc.filter((h) => h.depth >= 2 && h.depth <= 4).length >= 3);
 
   const jsonLd = $derived(
     JSON.stringify({
@@ -112,80 +116,103 @@
   {jsonLd}
 />
 
-<!-- Delegated clicks only reach real <button>s (copy / mermaid tabs), which
-     handle their own activation; the delegated keydown adds arrow-key
-     navigation for the tablists. The article itself is not interactive. -->
-<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions, a11y_no_noninteractive_element_interactions -->
-<article onclick={onArticleClick} onkeydown={selectionGroupKeydown}>
-  <header class="border-border mb-8 flex flex-col gap-2 border-b pb-6">
-    <h1 class="text-2xl font-bold tracking-tight">{post.title}</h1>
-    <div class="text-muted flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-      <time datetime={post.publishedAt.toISOString()}>{formatDate(post.publishedAt)}</time>
-      {#if showUpdated && post.updatedAt}
-        <span>
-          <LangText texts={{ ja: "更新", en: "Updated" }} />:
-          <time datetime={post.updatedAt.toISOString()}>{formatDate(post.updatedAt)}</time>
-        </span>
+<!-- Two-column grid at xl+ when the post has a ToC: the article keeps its
+     readable max-w-3xl width, the sticky ToC sidebar takes the second track.
+     Below xl (or with too few headings) it's a plain centered column. -->
+<div class={hasToc ? "xl:grid xl:grid-cols-[minmax(0,48rem)_14rem] xl:justify-center xl:gap-12" : ""}>
+  <!-- Delegated clicks only reach real <button>s (copy / mermaid tabs), which
+       handle their own activation; the delegated keydown adds arrow-key
+       navigation for the tablists. The article itself is not interactive. -->
+  <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions, a11y_no_noninteractive_element_interactions -->
+  <article onclick={onArticleClick} onkeydown={selectionGroupKeydown}>
+    <header class="border-border mb-8 flex flex-col gap-2 border-b pb-6">
+      <h1 class="text-4xl font-bold tracking-tight">{post.title}</h1>
+      {#if post.description}
+        <p class="text-muted">{post.description}</p>
       {/if}
-      <span>
-        <LangText texts={{ ja: `約${post.readingTime}分`, en: `${post.readingTime} min read` }} />
-      </span>
-      {#each post.tags as tag (tag)}
-        <span class="chip bg-surface">{tag}</span>
-      {/each}
-      <button
-        type="button"
-        onclick={copyLink}
-        aria-labelledby={copyLabelId}
-        class="hover:text-foreground -m-1 ml-auto inline-flex items-center p-1 transition-colors"
-      >
-        <span id={copyLabelId} class="sr-only">
-          <LangText
-            texts={linkCopied
-              ? { ja: "リンクをコピーしました", en: "Link copied" }
-              : { ja: "記事のリンクをコピー", en: "Copy link to this post" }}
-          />
+      <div class="text-muted flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+        <span>
+          <LangText texts={{ ja: "公開", en: "Published" }} />:
+          <time datetime={post.publishedAt.toISOString()}>{formatDate(post.publishedAt)}</time>
         </span>
-        {#if linkCopied}
-          <Check class="size-4" aria-hidden="true" />
-        {:else}
-          <Link class="size-4" aria-hidden="true" />
+        {#if showUpdated && post.updatedAt}
+          <span>
+            <LangText texts={{ ja: "更新", en: "Updated" }} />:
+            <time datetime={post.updatedAt.toISOString()}>{formatDate(post.updatedAt)}</time>
+          </span>
         {/if}
-      </button>
-    </div>
-  </header>
-  {#if data.series}
-    <SeriesNav name={data.series.name} posts={data.series.posts} currentSlug={post.slug} />
-  {/if}
-  <Toc headings={post.toc} />
-  <!-- Post content is authored in Japanese — including pipeline-generated
+        <span>
+          <LangText texts={{ ja: `約${post.readingTime}分`, en: `${post.readingTime} min read` }} />
+        </span>
+        {#each post.tags as tag (tag)}
+          <span class="chip bg-surface">{tag}</span>
+        {/each}
+        <button
+          type="button"
+          onclick={copyLink}
+          aria-labelledby={copyLabelId}
+          class="hover:text-foreground -m-1 ml-auto inline-flex items-center p-1 transition-colors"
+        >
+          <span id={copyLabelId} class="sr-only">
+            <LangText
+              texts={linkCopied
+                ? { ja: "リンクをコピーしました", en: "Link copied" }
+                : { ja: "記事のリンクをコピー", en: "Copy link to this post" }}
+            />
+          </span>
+          {#if linkCopied}
+            <Check class="size-4" aria-hidden="true" />
+          {:else}
+            <Link class="size-4" aria-hidden="true" />
+          {/if}
+        </button>
+      </div>
+    </header>
+    <Toc headings={post.toc} />
+    <!-- Post content is authored in Japanese — including pipeline-generated
        labels (copy buttons, heading anchors, mermaid tabs). lang="ja" keeps
        screen readers correct when the UI language is switched to English. -->
-  <div class="prose max-w-none" lang="ja">
-    {@html post.html}
-  </div>
-  {#if data.newer || data.older}
-    <nav aria-labelledby={pagerLabelId} class="border-border mt-10 grid grid-cols-2 gap-4 border-t pt-6 text-sm">
-      <span id={pagerLabelId} class="sr-only"><LangText texts={{ ja: "前後の記事", en: "Adjacent posts" }} /></span>
-      <span class="flex min-w-0 flex-col gap-1">
-        {#if data.older}
-          <span class="text-muted text-xs"><LangText texts={{ ja: "前の記事", en: "Older" }} /></span>
-          <a href="/posts/{data.older.slug}/" class="truncate font-medium hover:underline">
-            <span aria-hidden="true">← </span>{data.older.title}
-          </a>
-        {/if}
-      </span>
-      <span class="flex min-w-0 flex-col items-end gap-1 text-right">
-        {#if data.newer}
-          <span class="text-muted text-xs"><LangText texts={{ ja: "次の記事", en: "Newer" }} /></span>
-          <a href="/posts/{data.newer.slug}/" class="truncate font-medium hover:underline">
-            {data.newer.title}<span aria-hidden="true"> →</span>
-          </a>
-        {/if}
-      </span>
-    </nav>
+    <div class="prose max-w-none" lang="ja">
+      {@html post.html}
+    </div>
+    {#if data.series}
+      <div class="mt-10">
+        <SeriesNav name={data.series.name} slug={data.series.slug} posts={data.series.posts} currentSlug={post.slug} />
+      </div>
+    {/if}
+    {#if data.newer || data.older}
+      <nav
+        aria-labelledby={pagerLabelId}
+        class="border-border grid grid-cols-2 gap-4 border-t pt-6 text-sm{data.series ? '' : ' mt-10'}"
+      >
+        <span id={pagerLabelId} class="sr-only"><LangText texts={{ ja: "前後の記事", en: "Adjacent posts" }} /></span>
+        <span class="flex min-w-0 flex-col gap-1">
+          {#if data.older}
+            <span class="text-muted text-xs"><LangText texts={{ ja: "前の記事", en: "Older" }} /></span>
+            <a href="/posts/{data.older.slug}/" class="truncate font-medium hover:underline">
+              <span aria-hidden="true">← </span>{data.older.title}
+            </a>
+          {/if}
+        </span>
+        <span class="flex min-w-0 flex-col items-end gap-1 text-right">
+          {#if data.newer}
+            <span class="text-muted text-xs"><LangText texts={{ ja: "次の記事", en: "Newer" }} /></span>
+            <a href="/posts/{data.newer.slug}/" class="truncate font-medium hover:underline">
+              {data.newer.title}<span aria-hidden="true"> →</span>
+            </a>
+          {/if}
+        </span>
+      </nav>
+    {/if}
+  </article>
+  {#if hasToc}
+    <aside class="hidden xl:block">
+      <div class="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto">
+        <Toc headings={post.toc} variant="sidebar" />
+      </div>
+    </aside>
   {/if}
-</article>
+</div>
 
 <svelte:window onscroll={() => (showTop = window.scrollY > 800)} />
 {#if showTop}

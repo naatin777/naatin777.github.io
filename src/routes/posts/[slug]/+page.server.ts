@@ -14,10 +14,11 @@ export const load: PageServerLoad = async ({ params }) => {
   const series = post.series
     ? {
         name: post.series,
+        slug: post.seriesSlug ?? post.series,
         posts: posts
           .filter((p) => p.series === post.series)
           .toSorted((a, b) => a.publishedAt.getTime() - b.publishedAt.getTime() || a.slug.localeCompare(b.slug))
-          .map((p) => ({ slug: p.slug, title: p.title })),
+          .map((p) => ({ slug: p.slug, title: p.title, description: p.description })),
       }
     : null;
   // posts are sorted newest-first — "newer" is the previous index.

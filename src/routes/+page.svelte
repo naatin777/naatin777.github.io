@@ -61,7 +61,9 @@
             tags={article.tags}
             source={article.source}
             series={article.series}
+            seriesSlug={article.seriesSlug}
             publishedAt={article.publishedAt}
+            updatedAt={article.updatedAt}
           />
         </li>
       {/each}

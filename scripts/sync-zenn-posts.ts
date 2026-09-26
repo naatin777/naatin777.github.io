@@ -5,6 +5,9 @@
 //     → the list of published articles: title / pubDate / link
 //   Vendored repo (content/zenn/articles/<slug>.md, via git subtree)
 //     → frontmatter `topics`, joined on the slug from the RSS link
+//   GitHub commits API on the article repo (official, unauthenticated)
+//     → last commit touching articles/<slug>.md = the repo-side update
+//       time; Zenn exposes no per-article updatedAt in its feed
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { XMLParser } from "fast-xml-parser";
 import matter from "gray-matter";
@@ -42,6 +45,36 @@ const zennFrontmatter = z.object({
   topics: z.array(z.string()).default([]),
 });
 
+const githubCommits = z.array(
+  z.object({
+    commit: z.object({
+      committer: z.object({ date: z.string() }),
+    }),
+  }),
+);
+
+// Repo-linked Zenn articles deploy on push, so the last commit touching the
+// file is the update timestamp Zenn itself reports for the article. A failure
+// just means no updatedAt — publication data from the RSS still syncs.
+const repoUpdatedAt = async (slug: string): Promise<string | undefined> => {
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${author.name}/zenn-articles/commits?path=articles/${slug}.md&per_page=1`,
+      {
+        signal: AbortSignal.timeout(15_000),
+        headers: { "user-agent": "zenn-posts-sync" },
+      },
+    );
+    if (!res.ok) return undefined;
+    const parsed = githubCommits.safeParse(await res.json());
+    const date = parsed.success ? parsed.data[0]?.commit.committer.date : undefined;
+    if (!date || Number.isNaN(Date.parse(date))) return undefined;
+    return new Date(date).toISOString();
+  } catch {
+    return undefined;
+  }
+};
+
 // Topics live only in the repo frontmatter — RSS does not carry them.
 // An article missing from the subtree still syncs, with empty tags.
 const topicsFor = (slug: string): string[] => {
@@ -76,31 +109,41 @@ const feed = zennFeed.safeParse(doc);
 if (!feed.success) console.error("[sync] zenn feed failed validation:", feed.error);
 const items = feed.success ? (feed.data.rss?.channel?.item ?? []) : [];
 
-const posts = items.flatMap((item): ExternalPost[] => {
-  const parsed = zennItem.safeParse(item);
-  if (!parsed.success) {
-    console.warn("[sync] zenn: skipping malformed item", parsed.error.issues);
-    return [];
-  }
-  const { title, link, pubDate } = parsed.data;
-  const timestamp = Date.parse(pubDate);
-  const slug = link.split("/").pop() ?? "";
-  // The slug becomes a filesystem path segment in topicsFor() — restrict it
-  // so a hostile/malformed feed link can't traverse outside ARTICLES_DIR.
-  if (!title || !link || !/^[\w-]+$/.test(slug) || Number.isNaN(timestamp)) {
-    console.warn(`[sync] zenn: skipping item with missing/invalid fields (${title || link || "?"})`);
-    return [];
-  }
-  return [
-    {
-      title,
-      tags: topicsFor(slug),
-      publishedAt: new Date(timestamp).toISOString(),
-      url: link,
-      source: "zenn",
-    },
-  ];
-});
+const posts = (
+  await Promise.all(
+    items.map(async (item): Promise<ExternalPost[]> => {
+      const parsed = zennItem.safeParse(item);
+      if (!parsed.success) {
+        console.warn("[sync] zenn: skipping malformed item", parsed.error.issues);
+        return [];
+      }
+      const { title, link, pubDate } = parsed.data;
+      const timestamp = Date.parse(pubDate);
+      const slug = link.split("/").pop() ?? "";
+      // The slug becomes a filesystem path segment in topicsFor() — restrict it
+      // so a hostile/malformed feed link can't traverse outside ARTICLES_DIR.
+      if (!title || !link || !/^[\w-]+$/.test(slug) || Number.isNaN(timestamp)) {
+        console.warn(`[sync] zenn: skipping item with missing/invalid fields (${title || link || "?"})`);
+        return [];
+      }
+      // The first commit lands seconds before Zenn's deploy, so a never-edited
+      // article would get updatedAt < publishedAt — only emit it when the file
+      // was actually committed to again after publication.
+      const committedAt = await repoUpdatedAt(slug);
+      const updatedAt = committedAt !== undefined && Date.parse(committedAt) > timestamp ? committedAt : undefined;
+      return [
+        {
+          title,
+          tags: topicsFor(slug),
+          publishedAt: new Date(timestamp).toISOString(),
+          updatedAt,
+          url: link,
+          source: "zenn",
+        },
+      ];
+    }),
+  )
+).flat();
 
 // Write via temp+rename so a crash mid-write can't corrupt the existing file;
 // an empty fetch never overwrites real data.
