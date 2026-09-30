@@ -12,7 +12,7 @@
     series: string | null;
     seriesSlug?: string | undefined;
     publishedAt: string;
-    updatedAt?: string | undefined;
+    updatedAt: string;
     description?: string | undefined;
     selectedTags?: Set<string>;
     ontag?: (tag: string) => void;
@@ -70,7 +70,7 @@
       </span>
       <span>
         <LangText texts={{ ja: "更新", en: "Updated" }} />:
-        <time datetime={updatedAt ?? publishedAt}>{formatDate(updatedAt ?? publishedAt)}</time>
+        <time datetime={updatedAt}>{formatDate(updatedAt)}</time>
       </span>
     {/if}
     {#each tags as tag (tag)}

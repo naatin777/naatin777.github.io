@@ -16,7 +16,7 @@
   const baseId = $props.id();
 
   const keyLabels: Record<SortKey, { ja: string; en: string }> = {
-    name: { ja: "タイトル", en: "Title" },
+    title: { ja: "タイトル", en: "Title" },
     published: { ja: "公開日", en: "Published" },
     updated: { ja: "更新日", en: "Updated" },
   };

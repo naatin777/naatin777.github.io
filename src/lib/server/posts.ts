@@ -1,10 +1,13 @@
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { posix } from "node:path";
 import matter from "gray-matter";
 import { CORE_SCHEMA, load } from "js-yaml";
 import { z } from "zod";
 import { parseDate } from "$lib/date";
 import type { TocItem } from "$lib/types";
-import { renderMarkdown } from "./markdown";
+import { linkcardsDigest } from "./markdown/linkcards";
+import { renderMarkdownCached } from "./markdown/render-cache";
 
 // gray-matter's bundled js-yaml resolves YAML timestamps into Date objects
 // (UTC for date-only, machine-local otherwise) — parsing with CORE_SCHEMA
@@ -33,7 +36,7 @@ const frontmatterDate = z.string().transform((value, ctx) => {
   return new Date(timestamp);
 });
 
-const postFrontmatter = z.object({
+const frontmatterSchema = z.object({
   title: z.string().trim().min(1),
   description: z.string().default(""),
   publishedAt: frontmatterDate,
@@ -57,7 +60,7 @@ export interface Post {
   title: string;
   description: string;
   publishedAt: Date;
-  updatedAt: Date | null;
+  updatedAt: Date;
   tags: string[];
   series: string | null;
   seriesSlug: string | null;
@@ -96,13 +99,41 @@ export function getPosts(): Promise<Post[]> {
 }
 
 async function loadPosts(): Promise<Post[]> {
-  return loadPostsFrom(postFiles, postAssets);
+  return loadPostsFrom(postFiles, postAssets, gitUpdatedAt);
+}
+
+// updatedAt falls back to the file's last commit when frontmatter doesn't
+// set it — author date (%aI), which survives rebase unlike committer date.
+// Requires a full clone (CI checks out with fetch-depth: 0): if git itself
+// fails there is no reliable date source, so the build fails rather than
+// shipping silently-wrong dates. A file with no commits yet (a WIP post
+// not yet committed) just yields null → publishedAt.
+function gitUpdatedAt(path: string): Date | null {
+  const out = execFileSync("git", ["log", "-1", "--format=%aI", "--", path.replace(/^\//, "")], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "ignore"],
+  }).trim();
+  if (out === "") return null;
+  const timestamp = Date.parse(out);
+  if (Number.isNaN(timestamp)) {
+    throw new Error(`[posts] unparseable commit date ${JSON.stringify(out)} for ${path}`);
+  }
+  return new Date(timestamp);
 }
 
 // Files/assets are injectable so tests can exercise the loading rules
-// (skip/dedup/draft/date parsing) without fixtures in content/.
-export async function loadPostsFrom(files: Record<string, string>, assets: Record<string, string>): Promise<Post[]> {
+// (skip/dedup/draft/date parsing) without fixtures in content/. The
+// updatedAt fallback is injectable for the same reason.
+export async function loadPostsFrom(
+  files: Record<string, string>,
+  assets: Record<string, string>,
+  resolveUpdatedAt: (path: string) => Date | null = () => null,
+): Promise<Post[]> {
   const slugs = new Set<string>();
+  // Render-cache salt covering every image this glob could resolve to —
+  // an asset add/remove/swap re-renders posts even when their md is
+  // untouched.
+  const assetsDigest = createHash("sha256").update(JSON.stringify(assets)).digest("hex");
   const posts = await Promise.all(
     Object.entries(files).map(async ([path, raw]): Promise<Post | null> => {
       // matter() throws YAMLException on malformed frontmatter — a single
@@ -115,7 +146,7 @@ export async function loadPostsFrom(files: Record<string, string>, assets: Recor
         return null;
       }
       const { data, content } = matterResult;
-      const parsed = postFrontmatter.safeParse(data);
+      const parsed = frontmatterSchema.safeParse(data);
       if (!parsed.success) {
         console.warn(`[posts] skipping ${path}:`, parsed.error.issues);
         return null;
@@ -153,7 +184,18 @@ export async function loadPostsFrom(files: Record<string, string>, assets: Recor
       };
       let rendered: { html: string; toc: TocItem[] };
       try {
-        rendered = await renderMarkdown(content, { resolveImage });
+        // Keyed by everything that affects the output: body, post dir
+        // (resolveImage resolves ./ against it), and the asset map.
+        const cacheKey = createHash("sha256")
+          .update(dir)
+          .update("\0")
+          .update(assetsDigest)
+          .update("\0")
+          .update(linkcardsDigest())
+          .update("\0")
+          .update(content)
+          .digest("hex");
+        rendered = await renderMarkdownCached(content, { cacheKey, resolveImage });
       } catch (error) {
         console.warn(`[posts] skipping ${path}: markdown render failed`, error);
         return null;
@@ -178,7 +220,7 @@ export async function loadPostsFrom(files: Record<string, string>, assets: Recor
         title: fm.title,
         description: fm.description,
         publishedAt: fm.publishedAt,
-        updatedAt: fm.updatedAt ?? null,
+        updatedAt: fm.updatedAt ?? resolveUpdatedAt(path) ?? fm.publishedAt,
         tags: fm.tags,
         series: fm.series ?? null,
         seriesSlug,
@@ -203,6 +245,19 @@ export async function loadPostsFrom(files: Record<string, string>, assets: Recor
   }
   for (const post of loaded) {
     if (post.series !== null) post.seriesSlug = slugBySeries.get(post.series) ?? post.series;
+  }
+  // A name-fallback slug can collide with another series' slug (explicit or
+  // not) — the /series/<slug>/ page would then mix two series. Warn loudly.
+  const seriesBySlug = new Map<string, string>();
+  for (const post of loaded) {
+    if (post.series === null || post.seriesSlug === null) continue;
+    const other = seriesBySlug.get(post.seriesSlug);
+    if (other !== undefined && other !== post.series) {
+      console.warn(
+        `[posts] series slug "${post.seriesSlug}" is shared by "${other}" and "${post.series}" — their series pages will merge`,
+      );
+    }
+    seriesBySlug.set(post.seriesSlug, post.series);
   }
   return loaded.toSorted((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
 }

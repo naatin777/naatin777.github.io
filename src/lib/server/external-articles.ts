@@ -20,7 +20,7 @@ const externalUrl = z.string().refine(
   { message: "url must be an absolute http(s) URL" },
 );
 
-const externalPost = z.object({
+const externalPostSchema = z.object({
   title: z.string(),
   tags: z.array(z.string()),
   publishedAt: z.iso.datetime(),
@@ -31,7 +31,7 @@ const externalPost = z.object({
 
 // Shared with scripts/sync-*-posts.ts — they write the shape this validates.
 // Imported type-only there, so the $lib alias never needs runtime resolution.
-export type ExternalPost = z.infer<typeof externalPost>;
+export type ExternalPost = z.infer<typeof externalPostSchema>;
 
 export interface ArticleItem {
   title: string;
@@ -41,14 +41,16 @@ export interface ArticleItem {
   series: string | null;
   seriesSlug?: string | undefined;
   publishedAt: string;
-  updatedAt?: string | undefined;
+  // Normalized at the boundary below: a source without its own updatedAt
+  // reports publishedAt, so consumers never see it unset.
+  updatedAt: string;
   description?: string | undefined;
 }
 
 // Validate at build time — a hand-edited or truncated JSON fails loudly here
 // rather than silently rendering broken cards. A missing file just means that
 // source has never been synced.
-const posts: ArticleItem[] = externalSources
+const articles: ArticleItem[] = externalSources
   .flatMap((source) => {
     const file = `content/generated/${source}.json`;
     if (!existsSync(file)) {
@@ -56,10 +58,12 @@ const posts: ArticleItem[] = externalSources
       return [];
     }
     // A hand-edited file could smuggle a foreign `source` label — pin it.
-    return z.array(externalPost.extend({ source: z.literal(source) })).parse(JSON.parse(readFileSync(file, "utf8")));
+    return z
+      .array(externalPostSchema.extend({ source: z.literal(source) }))
+      .parse(JSON.parse(readFileSync(file, "utf8")));
   })
-  .map((post) => Object.assign(post, { series: null }));
+  .map((post) => Object.assign(post, { series: null, updatedAt: post.updatedAt ?? post.publishedAt }));
 
 export function getExternalArticles(): ArticleItem[] {
-  return posts;
+  return articles;
 }

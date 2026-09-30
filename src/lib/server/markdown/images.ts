@@ -8,8 +8,10 @@ import { visit } from "unist-util-visit";
 // images (![x](./a.png), reference style included — all become elements by
 // then), and before sanitize so rewritten srcs still cross the trust
 // boundary. Links are untouched: [id]: ./page definitions used by <a> keep
-// their semantics. loading/decoding are set before sanitize too — sanitize
-// must allow them through (default schema does).
+// their semantics. decoding is set before sanitize too — sanitize must
+// allow it through (default schema does). `loading` is left to
+// rehypeLazyImages: pre-filling "lazy" here would defeat its first-image
+// and in-SVG exclusions.
 export const rehypeResolveImages =
   (resolveImage: (src: string) => string): Plugin<[], Root> =>
   () =>
@@ -18,7 +20,6 @@ export const rehypeResolveImages =
       const src = node.properties?.src;
       if (node.tagName === "img" && typeof src === "string") {
         node.properties.src = resolveImage(src);
-        node.properties.loading ??= "lazy";
         node.properties.decoding ??= "async";
       }
     });

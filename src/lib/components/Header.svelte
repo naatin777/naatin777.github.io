@@ -5,7 +5,7 @@
   import LangText from "./LangText.svelte";
   import ThemeToggle from "./ThemeToggle.svelte";
 
-  const isActive = (item: NavItem): boolean => item.match.some((prefix) => page.url.pathname.startsWith(prefix));
+  const isActive = (item: NavItem): boolean => item.activeOn.some((prefix) => page.url.pathname.startsWith(prefix));
   const navLabelId = $props.id();
 </script>
 

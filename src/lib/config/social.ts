@@ -8,9 +8,9 @@ interface SocialLink {
 }
 
 export const socialLinks: SocialLink[] = [
-  { name: "GitHub", url: `https://github.com/${author.name}`, icon: siGithub },
-  { name: "X", url: `https://x.com/${author.name}`, icon: siX },
-  { name: "Bluesky", url: `https://bsky.app/profile/${author.name}.bsky.social`, icon: siBluesky },
-  { name: "Qiita", url: `https://qiita.com/${author.name}`, icon: siQiita },
-  { name: "Zenn", url: `https://zenn.dev/${author.name}`, icon: siZenn },
+  { name: "GitHub", url: `https://github.com/${author.handle}`, icon: siGithub },
+  { name: "X", url: `https://x.com/${author.handle}`, icon: siX },
+  { name: "Bluesky", url: `https://bsky.app/profile/${author.handle}.bsky.social`, icon: siBluesky },
+  { name: "Qiita", url: `https://qiita.com/${author.handle}`, icon: siQiita },
+  { name: "Zenn", url: `https://zenn.dev/${author.handle}`, icon: siZenn },
 ];

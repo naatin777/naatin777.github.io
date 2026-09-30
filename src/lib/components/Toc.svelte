@@ -39,6 +39,10 @@
   // images shifting the layout can't leave a stale highlight.
   let activeId = $state<string | null>(null);
   const updateActive = () => {
+    // Both variants are always mounted (one is CSS-hidden at xl / below xl).
+    // Only the visible one runs the scroll-spy — otherwise every scroll does
+    // double the getBoundingClientRect work. 80rem is Tailwind's xl.
+    if ((variant === "sidebar") !== matchMedia("(min-width: 80rem)").matches) return;
     let current: string | null = null;
     for (const h of tocHeadings) {
       const el = document.getElementById(h.id);

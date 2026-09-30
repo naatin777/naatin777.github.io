@@ -72,6 +72,23 @@ describe("loadPostsFrom", () => {
     expect(posts.map((p) => p.slug)).toEqual(["z"]);
   });
 
+  it("uses frontmatter updatedAt over the resolver, then falls back to it", async () => {
+    const posts = await loadPostsFrom(
+      {
+        "/content/posts/2026/explicit/index.md": entry("title: E\npublishedAt: 2026-03-01\nupdatedAt: 2026-04-01"),
+        "/content/posts/2026/fallback/index.md": entry("title: F\npublishedAt: 2026-03-02"),
+        "/content/posts/2026/none/index.md": entry("title: N\npublishedAt: 2026-03-03"),
+      },
+      {},
+      (path) => (path.includes("none") ? null : new Date("2026-05-01T00:00:00Z")),
+    );
+    const bySlug = new Map(posts.map((p) => [p.slug, p]));
+    expect(bySlug.get("explicit")?.updatedAt.toISOString()).toBe("2026-03-31T15:00:00.000Z");
+    expect(bySlug.get("fallback")?.updatedAt.toISOString()).toBe("2026-05-01T00:00:00.000Z");
+    // no resolver result → publishedAt (updatedAt is never null downstream)
+    expect(bySlug.get("none")?.updatedAt.toISOString()).toBe("2026-03-02T15:00:00.000Z");
+  });
+
   it("treats blank YAML values as unset", async () => {
     const posts = await loadPostsFrom(
       { "/content/posts/2026/a/index.md": entry("title: A\npublishedAt: 2026-03-01\ndescription:\ntags:") },

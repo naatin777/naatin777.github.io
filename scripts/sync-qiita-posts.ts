@@ -13,7 +13,7 @@ const OUT_FILE = "content/generated/qiita.json";
 const PER_PAGE = 100;
 const MAX_PAGES = 10;
 
-const qiitaItem = z.object({
+const qiitaItemSchema = z.object({
   title: z.string(),
   url: z.string(),
   created_at: z.string(),
@@ -25,14 +25,14 @@ const qiitaItem = z.object({
 const posts: ExternalPost[] = [];
 /* oxlint-disable no-await-in-loop -- each page depends on the previous page's item count */
 for (let page = 1; page <= MAX_PAGES; page++) {
-  const res = await fetch(`https://qiita.com/api/v2/users/${author.name}/items?per_page=${PER_PAGE}&page=${page}`, {
+  const res = await fetch(`https://qiita.com/api/v2/users/${author.handle}/items?per_page=${PER_PAGE}&page=${page}`, {
     signal: AbortSignal.timeout(15_000),
   });
   if (!res.ok) throw new Error(`qiita api responded ${res.status}`);
   const items: unknown = await res.json();
   if (!Array.isArray(items)) throw new Error("unexpected response shape (not an array)");
   for (const raw of items) {
-    const parsed = qiitaItem.safeParse(raw);
+    const parsed = qiitaItemSchema.safeParse(raw);
     if (!parsed.success) {
       console.warn("[sync] qiita: skipping malformed item", parsed.error.issues);
       continue;

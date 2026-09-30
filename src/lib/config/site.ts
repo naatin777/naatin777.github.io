@@ -1,10 +1,10 @@
 interface Author {
-  name: string;
+  handle: string;
   displayName: string;
 }
 
 export const author: Author = {
-  name: "naatin777",
+  handle: "naatin777",
   displayName: "Naatin",
 };
 

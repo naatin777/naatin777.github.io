@@ -1,13 +1,13 @@
 <script lang="ts">
   import { Moon, Sun, SunMoon } from "@lucide/svelte";
   import { tick } from "svelte";
-  import { hydrated } from "$lib/hydrated.svelte";
+  import { hydrationState } from "$lib/hydration.svelte";
   import { themeState } from "$lib/theme.svelte";
   import { withViewTransition } from "$lib/view-transition";
   import LangText from "./LangText.svelte";
 
   const theme = themeState();
-  const isHydrated = hydrated();
+  const isHydrated = hydrationState();
   const labelId = $props.id();
 
   // Three-state cycle: light → dark → system. The icon shows the current

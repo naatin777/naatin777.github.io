@@ -3,7 +3,7 @@
 個人ポートフォリオサイト。SvelteKit + Tailwind CSS で構築し、GitHub Pages へ静的エクスポートしている。
 
 - サイト内記事は `content/posts/` に置く。
-- Zenn/Qiita の記事メタデータ（タイトル/URL/タグ/日付）は `content/generated/<source>.json` に同期される — コミット済みなので、ビルド時にネットワークへアクセスしない。Qiita は API v2、Zenn は公式 RSS と vendored `content/zenn/` subtree の結合で topics を取得する。
+- Zenn/Qiita の記事メタデータ（タイトル/URL/タグ/日付）は `content/generated/<source>.json` に同期される — コミット済みなので、ビルド時にネットワークへアクセスしない。Qiita は API v2、Zenn は公式 RSS と `zenn-articles` repo の blobless clone（frontmatter の topics と git log の更新日時）の結合でメタデータを取得する。
 
 ## コマンド
 

@@ -2,7 +2,12 @@
 // parsed by rehype-raw — crosses the rehypeSanitize trust boundary; every
 // plugin below it only injects generated markup (KaTeX/Shiki/Mermaid
 // SVG/heading anchors) on top of the sanitized tree.
-import { transformerNotationDiff, transformerNotationHighlight } from "@shikijs/transformers";
+import {
+  transformerMetaHighlight,
+  transformerNotationDiff,
+  transformerNotationFocus,
+  transformerNotationHighlight,
+} from "@shikijs/transformers";
 import rehypeShiki from "@shikijs/rehype";
 import rehypeExternalLinks from "rehype-external-links";
 import rehypeKatex from "rehype-katex";
@@ -11,17 +16,20 @@ import rehypeSanitize from "rehype-sanitize";
 import rehypeSlug from "rehype-slug";
 import rehypeStringify from "rehype-stringify";
 import { remarkAlert } from "remark-github-blockquote-alert";
+import remarkDirective from "remark-directive";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 import type { TocItem } from "$lib/types";
-import { rehypeCodeBlocks } from "./code-blocks";
+import { consoleLines, lineAnchorIds, rehypeCodeBlocks } from "./code-blocks";
+import { remarkDetails } from "./details";
 import { rehypeFlattenRoots } from "./flatten-roots";
 import { rehypeAvoidPageIds, rehypeCollectToc, rehypeHeadingAnchors } from "./headings";
 import { rehypeResolveImages } from "./images";
 import { rehypeLazyImages } from "./lazy-images";
+import { rehypeLinkcards } from "./linkcards";
 import { rehypeMermaid } from "./mermaid";
 import { sanitizeSchema } from "./schema";
 import { rehypeWrapTables } from "./tables";
@@ -32,6 +40,8 @@ const createProcessor = (resolveImage: (src: string) => string) =>
     .use(remarkGfm)
     .use(remarkMath)
     .use(remarkAlert)
+    .use(remarkDirective)
+    .use(remarkDetails)
     .use(remarkRehype, { allowDangerousHtml: true })
     // Trust boundary: author markup (including embedded raw HTML parsed by
     // rehype-raw) is sanitized here; everything below only adds generated
@@ -50,8 +60,21 @@ const createProcessor = (resolveImage: (src: string) => string) =>
       themes: { light: "github-light", dark: "github-dark" },
       defaultColor: "light-dark()",
       cssVariablePrefix: "--shiki-",
-      transformers: [transformerNotationHighlight(), transformerNotationDiff()],
+      transformers: [
+        transformerNotationHighlight(),
+        transformerNotationDiff(),
+        transformerNotationFocus(),
+        // {3-6} meta for fenced blocks — works on any language, unlike the
+        // notation transformers which need comment syntax (none in `text`
+        // log output). lineAnchorIds adds per-line ids when the fence
+        // carries #name (see rehypeCodeBlocks); consoleLines dims output
+        // rows in ```console blocks.
+        transformerMetaHighlight(),
+        lineAnchorIds(),
+        consoleLines(),
+      ],
     })
+    .use(rehypeLinkcards)
     .use(rehypeFlattenRoots)
     .use(rehypeKatex)
     .use(rehypeLazyImages)

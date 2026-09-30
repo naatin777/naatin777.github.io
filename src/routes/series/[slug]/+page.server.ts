@@ -21,7 +21,7 @@ export const load: PageServerLoad = async ({ params }) => {
       title: p.title,
       description: p.description,
       publishedAt: p.publishedAt.toISOString(),
-      updatedAt: p.updatedAt?.toISOString(),
+      updatedAt: p.updatedAt.toISOString(),
     })),
   };
 };

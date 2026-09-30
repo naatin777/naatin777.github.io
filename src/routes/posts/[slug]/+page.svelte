@@ -22,7 +22,7 @@
   let linkCopied = $state(false);
   let showTop = $state(false);
 
-  const showUpdated = $derived(post.updatedAt !== null && post.updatedAt.getTime() !== post.publishedAt.getTime());
+  const showUpdated = $derived(post.updatedAt.getTime() !== post.publishedAt.getTime());
   // Same h2–h4 >= 3 rule as Toc — needed here to decide whether the aside
   // column exists at all, so the article isn't offset by an empty track.
   const hasToc = $derived(post.toc.filter((h) => h.depth >= 2 && h.depth <= 4).length >= 3);
@@ -34,7 +34,7 @@
       headline: post.title,
       description: post.description || site.description,
       datePublished: post.publishedAt.toISOString(),
-      dateModified: (post.updatedAt ?? post.publishedAt).toISOString(),
+      dateModified: post.updatedAt.toISOString(),
       inLanguage: defaultLang,
       author: { "@type": "Person", name: author.displayName, url: site.url },
       image: `${site.url}/og/${post.slug}.png`,
@@ -46,6 +46,16 @@
   const onArticleClick = async (event: MouseEvent) => {
     if (!(event.target instanceof Element)) return;
     const target = event.target;
+
+    // × on an anchored code block — history.replaceState can't undo a
+    // .line:target (browsers only re-evaluate it on fragment navigation),
+    // so navigate the hash to the block's own id instead.
+    const unfocus = target.closest<HTMLButtonElement>(".code-unfocus");
+    if (unfocus) {
+      const id = unfocus.closest(".code-block")?.id;
+      if (id) location.hash = id;
+      return;
+    }
 
     // mermaid preview/source tabs (APG tabs: roving tabindex + aria-selected)
     const tab = target.closest<HTMLButtonElement>(".mermaid-tab");
@@ -61,6 +71,15 @@
       block.querySelectorAll<HTMLElement>(".mermaid-pane").forEach((p) => {
         p.hidden = p.dataset.pane !== pane;
       });
+      return;
+    }
+
+    // wrap/scroll toggle on the code-block title bar
+    const wrapButton = target.closest<HTMLButtonElement>(".code-wrap");
+    if (wrapButton) {
+      const block = wrapButton.closest(".code-block");
+      const wrapped = block?.classList.toggle("wrap") ?? false;
+      wrapButton.setAttribute("aria-pressed", String(wrapped));
       return;
     }
 
@@ -111,7 +130,7 @@
   type="article"
   image={`/og/${post.slug}.png`}
   publishedTime={post.publishedAt}
-  modifiedTime={post.updatedAt ?? undefined}
+  modifiedTime={post.updatedAt}
   tags={post.tags}
   {jsonLd}
 />
@@ -135,7 +154,7 @@
           <LangText texts={{ ja: "公開", en: "Published" }} />:
           <time datetime={post.publishedAt.toISOString()}>{formatDate(post.publishedAt)}</time>
         </span>
-        {#if showUpdated && post.updatedAt}
+        {#if showUpdated}
           <span>
             <LangText texts={{ ja: "更新", en: "Updated" }} />:
             <time datetime={post.updatedAt.toISOString()}>{formatDate(post.updatedAt)}</time>
@@ -207,7 +226,7 @@
   </article>
   {#if hasToc}
     <aside class="hidden xl:block">
-      <div class="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto">
+      <div class="sticky top-24 max-h-[calc(100dvh-8rem)] overflow-y-auto">
         <Toc headings={post.toc} variant="sidebar" />
       </div>
     </aside>
@@ -220,7 +239,7 @@
     type="button"
     onclick={toTop}
     aria-labelledby={topLabelId}
-    class="border-border bg-surface text-muted hover:text-foreground fixed right-6 bottom-6 z-20 flex size-10 items-center justify-center rounded-full border shadow-sm transition-colors"
+    class="border-border bg-surface text-muted hover:text-foreground fixed right-6 bottom-6 z-20 flex size-10 items-center justify-center rounded-full border shadow-sm transition starting:opacity-0"
   >
     <span id={topLabelId} class="sr-only"><LangText texts={{ ja: "ページの先頭へ戻る", en: "Back to top" }} /></span>
     <ArrowUp class="size-5" aria-hidden="true" />

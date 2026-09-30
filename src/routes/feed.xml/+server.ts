@@ -34,7 +34,7 @@ const itemXml = (post: Post): string => `    <item>
 export const GET: RequestHandler = async () => {
   const posts = await getPosts();
   const items = posts.map(itemXml).join("\n");
-  const lastUpdate = Math.max(...posts.map((p) => (p.updatedAt ?? p.publishedAt).getTime()), 0);
+  const lastUpdate = Math.max(...posts.map((p) => p.updatedAt.getTime()), 0);
   const lastBuildDate = toPubDate(lastUpdate ? new Date(lastUpdate) : new Date());
   const body = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">

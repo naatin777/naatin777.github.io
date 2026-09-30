@@ -106,6 +106,29 @@
       animation-iteration-count: 1 !important;
     }
   }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--foreground) 20%, transparent);
+  }
+
+  /* Smooth open/close for <details> where ::details-content exists
+     (Chrome 131+, Safari 18.4+); the unknown pseudo is ignored elsewhere.
+     interpolate-size allows the block-size auto transition. */
+  :root {
+    interpolate-size: allow-keywords;
+  }
+
+  ::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition:
+      block-size 0.25s,
+      content-visibility 0.25s allow-discrete;
+  }
+
+  details[open]::details-content {
+    block-size: auto;
+  }
 }
 
 @layer components {
@@ -366,6 +389,114 @@
     margin-bottom: 1.7142857em;
   }
 
+  /* ```filetree — nested list rendered from an indented dump instead of a
+     gray monospace block. Compact indent + hairline guides + row hover,
+     closer to a file-explorer tree than a document list. */
+  .filetree {
+    padding: 0.625rem 0.75rem;
+    font-family: ui-monospace, monospace;
+    font-size: 0.8125rem;
+    line-height: 1.7;
+  }
+
+  .filetree ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .filetree ul ul {
+    padding-left: 0.5rem;
+    margin-left: 0.375rem;
+    border-left: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+  }
+
+  .filetree li {
+    margin: 0;
+  }
+
+  .filetree-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.05em 0.375em;
+    border-radius: 0.25rem;
+    transition: background-color 0.15s;
+  }
+
+  .filetree li:hover > .filetree-name {
+    background-color: color-mix(in srgb, var(--foreground) 6%, transparent);
+  }
+
+  .filetree-name svg {
+    width: 0.875rem;
+    height: 0.875rem;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .filetree-name .icon-folder {
+    color: var(--accent);
+  }
+
+  /* Link cards — generated for bare-URL paragraphs; metadata comes from
+     content/generated/linkcards.json (pnpm sync:linkcards). */
+  .linkcard {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    background-color: var(--surface);
+    margin-top: 1.7142857em;
+    margin-bottom: 1.7142857em;
+    transition: border-color 0.15s;
+  }
+
+  .linkcard:hover {
+    border-color: var(--muted);
+  }
+
+  .linkcard-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+    flex: 1;
+    padding: 0.75rem 1rem;
+  }
+
+  .linkcard-title {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .linkcard-description {
+    font-size: 0.8125rem;
+    color: var(--muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .linkcard-domain {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: auto;
+  }
+
+  .linkcard-thumbnail {
+    width: 8rem;
+    flex-shrink: 0;
+    object-fit: cover;
+    margin: 0;
+  }
+
   .code-block-title {
     display: flex;
     align-items: center;
@@ -398,6 +529,32 @@
 
     .line.highlighted {
       background-color: color-mix(in srgb, var(--accent) 12%, transparent);
+    }
+
+    /* Deep-link target: excerpt "Ln" labels link to <block-id>-L<n> — tint
+       the row so the jump destination is obvious. Same inline-block
+       stretch trick as .highlighted so the tint spans the row. */
+    .line:target {
+      display: inline-block;
+      min-width: 100%;
+      scroll-margin-top: 4rem;
+      background-color: color-mix(in srgb, var(--accent) 22%, transparent);
+    }
+
+    .line:target::before {
+      background-color: inherit;
+    }
+
+    /* [!code focus]: the pre gets .has-focused and the row .focused —
+       recede everything else. */
+    &.has-focused .line:not(.focused) {
+      opacity: 0.35;
+    }
+
+    /* ```console / shellsession: `$ ` command rows stand out; plain
+       output recedes. */
+    .line.output {
+      opacity: 0.6;
     }
 
     /* Line numbers via CSS counters — pseudo-element content never enters
@@ -458,10 +615,11 @@
 
   /* Lives inside the .code-block-title bar; margin-left:auto keeps it at
      the right end even when the bar has no title text. */
-  .code-copy {
+  .code-copy,
+  .code-wrap,
+  .code-unfocus {
     display: flex;
     align-items: center;
-    margin-left: auto;
     justify-content: center;
     width: 1.5rem;
     height: 1.5rem;
@@ -471,13 +629,52 @@
     transition: color 0.15s;
   }
 
+  /* Standalone copy (mermaid bar) self-aligns right; inside the actions
+     group the container margin does it instead. */
+  .code-copy {
+    margin-left: auto;
+  }
+
+  .code-block-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-left: auto;
+  }
+
+  .code-block-actions .code-copy,
+  .code-block-actions .code-wrap {
+    margin-left: 0;
+  }
+
+  /* Only exists on #anchored blocks, and only shows while one of the
+     block's lines is the :target. */
+  .code-unfocus {
+    display: none;
+  }
+
+  .code-block:has(.line:target) .code-unfocus {
+    display: flex;
+  }
+
   .code-copy:hover,
   .code-copy:focus-visible,
-  .code-copy.copied {
+  .code-copy.copied,
+  .code-wrap:hover,
+  .code-wrap:focus-visible,
+  .code-wrap[aria-pressed="true"],
+  .code-unfocus:hover,
+  .code-unfocus:focus-visible {
     color: var(--foreground);
   }
 
-  .code-copy svg {
+  .code-wrap[aria-pressed="true"] {
+    background-color: color-mix(in srgb, var(--foreground) 10%, transparent);
+  }
+
+  .code-copy svg,
+  .code-wrap svg,
+  .code-unfocus svg {
     width: 0.875rem;
     height: 0.875rem;
   }
@@ -532,6 +729,25 @@
   /* Japanese body text reads better with wider leading (recommended 1.7–1.9);
      also overridden by the plugin inside a layer, so it must live here. */
   line-height: 1.8;
+  /* CJK typography, all progressive — unsupported engines ignore each:
+     pretty avoids orphaned last characters, hanging-punctuation lets 、。
+     hang at line edges, auto-phrase breaks Japanese at phrase boundaries,
+     trim-start trims fullwidth opening punctuation at line start. */
+  text-wrap: pretty;
+  hanging-punctuation: first allow-end;
+  word-break: auto-phrase;
+  text-spacing-trim: trim-start;
+}
+
+/* Multi-line headings break more evenly where supported. */
+.prose :is(h1, h2, h3, h4, h5, h6) {
+  text-wrap: balance;
+}
+
+/* Fragment-jumped headings (heading anchors, in-page links) get a faint
+   tint so the destination is obvious. */
+.prose :is(h1, h2, h3, h4, h5, h6):target {
+  background-color: color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
 /* Alert internals: the title is a <p>, so prose's 1.25em paragraph margins
@@ -576,6 +792,31 @@
   display: none;
 }
 
+/* .code-wrap toggles .wrap on .code-block — lines wrap instead of
+   overflowing (long log lines, mobile). The sticky number gutter just
+   stays inline at each line start; a highlighted row's tint follows its
+   wrapped continuation. */
+.code-block.wrap pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Wrapped mode hanging indent: the number gutter is pulled into the
+   line's own left padding, so a wrapped continuation starts at the text
+   edge instead of sliding under the line numbers. inline-block +
+   border-box min-width keeps the row exactly container-wide — no
+   horizontal overflow — and keeps row tints edge-to-edge. */
+.code-block.wrap .line {
+  display: inline-block;
+  box-sizing: border-box;
+  min-width: 100%;
+  padding-left: calc(3ch + 0.25rem + 0.75em);
+}
+
+.code-block.wrap .line::before {
+  margin-left: calc(-1 * (3ch + 0.25rem + 0.75em));
+}
+
 /* Inline code: strip the plugin's backtick quotes and bold — a subtle
    surface tint is enough to mark code inside body text. :not(pre) keeps
    the rule off fenced blocks. Unlayered like the other prose overrides. */
@@ -588,6 +829,18 @@
 
 .prose :not(pre) > code::before,
 .prose :not(pre) > code::after {
+  content: none;
+}
+
+/* The plugin wraps every blockquote in curly quotes and italics — fine
+   for prose quotations, wrong for quoted terminal output. A blockquote
+   containing code is an excerpt citation, not a literary quote. */
+.prose blockquote:has(code) {
+  font-style: normal;
+}
+
+.prose blockquote:has(code) p:first-of-type::before,
+.prose blockquote:has(code) p:last-of-type::after {
   content: none;
 }
 

@@ -2,12 +2,12 @@
   import { browser } from "$app/environment";
   import { tick } from "svelte";
   import { defaultLang, langNames, langs, type Lang } from "$lib/config/i18n";
-  import { hydrated } from "$lib/hydrated.svelte";
+  import { hydrationState } from "$lib/hydration.svelte";
   import { selectionGroupKeydown } from "$lib/selection-group";
   import { withViewTransition } from "$lib/view-transition";
   import LangText from "./LangText.svelte";
 
-  const isHydrated = hydrated();
+  const isHydrated = hydrationState();
   const groupLabelId = $props.id();
 
   let lang = $state<Lang>(

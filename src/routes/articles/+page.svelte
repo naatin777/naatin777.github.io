@@ -45,7 +45,7 @@
     const at = (article: (typeof filtered)[number]) =>
       Date.parse(state.sortKey === "updated" ? (article.updatedAt ?? article.publishedAt) : article.publishedAt);
     return filtered.toSorted((a, b) =>
-      state.sortKey === "name" ? dir * a.title.localeCompare(b.title, "ja") : dir * (at(a) - at(b)),
+      state.sortKey === "title" ? dir * a.title.localeCompare(b.title, "ja") : dir * (at(a) - at(b)),
     );
   });
 </script>

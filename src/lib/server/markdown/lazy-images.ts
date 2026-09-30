@@ -21,6 +21,7 @@ export const rehypeLazyImages: Plugin<[], Root> = () => (tree) => {
       first = false;
       return;
     }
-    node.properties.loading = "lazy";
+    // ??= keeps an author-set loading (it crossed sanitize already).
+    node.properties.loading ??= "lazy";
   });
 };

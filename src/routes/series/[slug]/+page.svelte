@@ -30,7 +30,7 @@
             <LangText texts={{ ja: "公開", en: "Published" }} />:
             <time datetime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
             · <LangText texts={{ ja: "更新", en: "Updated" }} />:
-            <time datetime={post.updatedAt ?? post.publishedAt}>{formatDate(post.updatedAt ?? post.publishedAt)}</time>
+            <time datetime={post.updatedAt}>{formatDate(post.updatedAt)}</time>
             {#if post.description}
               · {post.description}{/if}
           </p>
