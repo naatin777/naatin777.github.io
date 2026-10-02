@@ -1,4 +1,6 @@
 <script lang="ts">
+  // CI runners lack CJK fonts — this page bundles the webfont the site dropped.
+  import "@fontsource-variable/noto-sans-jp";
   import icon from "#lib/assets/icon.png";
   import { author, site } from "#lib/config/site.js";
   import { formatDate } from "#lib/date.js";
@@ -49,3 +51,9 @@
     </div>
   </div>
 </div>
+
+<style>
+  .og-card {
+    font-family: "Inter Variable", "Noto Sans JP Variable", sans-serif;
+  }
+</style>
