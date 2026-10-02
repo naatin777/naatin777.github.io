@@ -59,7 +59,6 @@ export const rehypeMermaid: Plugin<[], Root> = () => async (tree) => {
   /* oxlint-disable no-await-in-loop -- renderMermaid serializes work internally; one queue, sequential calls */
   for (const block of blocks) {
     const rendered = await renderMermaid(block.source);
-    if (!rendered) continue; // stays a code block — shiki renders it as a fallback
     const svgs = fromHtml(
       `<div class="mermaid-diagram mermaid-light">${rendered.light}</div><div class="mermaid-diagram mermaid-dark">${rendered.dark}</div>`,
       { fragment: true },
