@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import type { Element, Root } from "hast";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
@@ -23,13 +23,11 @@ const cardsSchema = z.record(z.string(), cardSchema);
 // Card metadata is synced by `pnpm sync:linkcards` into linkcards.json and
 // committed — builds never touch the network. Read per render (no module
 // cache) so a re-sync is picked up without restarting the dev server.
-const cards = (): Record<string, Linkcard> =>
-  existsSync(CARDS_FILE) ? cardsSchema.parse(JSON.parse(readFileSync(CARDS_FILE, "utf8"))) : {};
+const cards = (): Record<string, Linkcard> => cardsSchema.parse(JSON.parse(readFileSync(CARDS_FILE, "utf8")));
 
 // Render-cache salt — a re-synced linkcards.json re-renders posts even
 // when their Markdown is untouched.
-export const linkcardsDigest = (): string =>
-  existsSync(CARDS_FILE) ? createHash("sha256").update(readFileSync(CARDS_FILE)).digest("hex") : "";
+export const linkcardsDigest = (): string => createHash("sha256").update(readFileSync(CARDS_FILE)).digest("hex");
 
 const textOf = (node: Element): string =>
   node.children.map((c) => (c.type === "text" ? c.value : c.type === "element" ? textOf(c) : "")).join("");

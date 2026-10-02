@@ -1,7 +1,7 @@
 // Syncs Qiita article metadata into content/generated/qiita.json.
 // Run via `pnpm sync:qiita`. Uses the unauthenticated Qiita API v2:
 // https://qiita.com/api/v2/users/<user>/items (paginated, 100/page).
-import { mkdirSync, renameSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { z } from "zod";
 
 import { author } from "#lib/config/site.ts";
@@ -18,9 +18,9 @@ const qiitaItemSchema = z.object({
   title: z.string(),
   url: z.string(),
   created_at: z.string(),
-  updated_at: z.string().optional(),
+  updated_at: z.string(),
   private: z.boolean().optional(),
-  tags: z.array(z.object({ name: z.string() })).default([]),
+  tags: z.array(z.object({ name: z.string() })),
 });
 
 const posts: ExternalPost[] = [];
@@ -30,44 +30,25 @@ for (let page = 1; page <= MAX_PAGES; page++) {
     signal: AbortSignal.timeout(15_000),
   });
   if (!res.ok) throw new Error(`qiita api responded ${res.status}`);
-  const items: unknown = await res.json();
-  if (!Array.isArray(items)) throw new Error("unexpected response shape (not an array)");
-  for (const raw of items) {
-    const parsed = qiitaItemSchema.safeParse(raw);
-    if (!parsed.success) {
-      console.warn("[sync] qiita: skipping malformed item", parsed.error.issues);
-      continue;
-    }
-    if (parsed.data.private === true) continue;
-    const { title, url, created_at, updated_at, tags } = parsed.data;
-    const timestamp = Date.parse(created_at);
-    if (!title || !url || Number.isNaN(timestamp)) {
-      console.warn(`[sync] qiita: skipping item with missing/invalid fields (${title || url || "?"})`);
-      continue;
-    }
-    const post: ExternalPost = {
-      title,
-      tags: tags.map((tag) => tag.name),
-      publishedAt: new Date(timestamp).toISOString(),
-      url,
+  const items = z.array(qiitaItemSchema).parse(await res.json());
+  for (const item of items) {
+    if (item.private === true) continue;
+    posts.push({
+      title: item.title,
+      tags: item.tags.map((tag) => tag.name),
+      publishedAt: new Date(item.created_at).toISOString(),
+      updatedAt: new Date(item.updated_at).toISOString(),
+      url: item.url,
       source: "qiita",
-    };
-    if (updated_at && !Number.isNaN(Date.parse(updated_at))) {
-      post.updatedAt = new Date(updated_at).toISOString();
-    }
-    posts.push(post);
+    });
   }
   if (items.length < PER_PAGE) break;
   if (page === MAX_PAGES) {
-    console.warn(`[sync] qiita: hit MAX_PAGES (${MAX_PAGES * PER_PAGE} items) — output may be truncated`);
+    throw new Error(`[sync] qiita: hit MAX_PAGES (${MAX_PAGES * PER_PAGE} items) — output would be truncated`);
   }
 }
 /* oxlint-enable no-await-in-loop */
 
-// Write via temp+rename so a crash mid-write can't corrupt the existing file;
-// an empty fetch never overwrites real data.
 if (posts.length === 0) throw new Error("qiita: fetched 0 posts — not overwriting");
-mkdirSync("content/generated", { recursive: true });
-writeFileSync(`${OUT_FILE}.tmp`, `${JSON.stringify(posts, null, 2)}\n`);
-renameSync(`${OUT_FILE}.tmp`, OUT_FILE);
+writeFileSync(OUT_FILE, `${JSON.stringify(posts, null, 2)}\n`);
 console.log(`[sync] wrote ${posts.length} qiita post(s) -> ${OUT_FILE}`);
