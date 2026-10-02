@@ -89,4 +89,35 @@ describe("loadPostsFrom", () => {
     );
     expect(posts[0]?.html).toContain("/bundled/sample.png");
   });
+
+  it("throws when a relative image is missing", async () => {
+    await expect(
+      loadPostsFrom(
+        {
+          "/content/posts/2026/a/index.md": entry("title: A\npublishedAt: 2026-03-01", "![x](gone.png)"),
+        },
+        {},
+      ),
+    ).rejects.toThrow("[posts] /content/posts/2026/a/index.md");
+  });
+
+  it("leaves external and absolute image srcs alone", async () => {
+    const posts = await loadPostsFrom(
+      {
+        "/content/posts/2026/a/index.md": entry(
+          "title: A\npublishedAt: 2026-03-01",
+          "![x](https://example.com/x.png) ![y](/images/y.png)",
+        ),
+      },
+      {},
+    );
+    expect(posts[0]?.html).toContain('src="https://example.com/x.png"');
+    expect(posts[0]?.html).toContain('src="/images/y.png"');
+  });
+
+  it("rejects a frontmatter date without an offset", async () => {
+    await expect(
+      loadPostsFrom({ "/content/posts/2026/a/index.md": entry('title: A\npublishedAt: "2026-01-01 10:00"') }, {}),
+    ).rejects.toThrow("[posts] /content/posts/2026/a/index.md");
+  });
 });

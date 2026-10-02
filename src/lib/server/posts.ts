@@ -129,9 +129,11 @@ function parsePostFrontmatter(raw: string): { frontmatter: z.infer<typeof frontm
 function createImageResolver(path: string, assets: Record<string, string>): ResolveImage {
   const directory = posix.dirname(path);
   return (src) => {
+    if (URL.canParse(src) || src.startsWith("/")) return { src };
     const key = posix.normalize(`${directory}/${src}`);
     const bundled = assets[key];
-    return bundled ? { src: bundled, ...imageDimensions(key) } : { src };
+    if (!bundled) throw new Error(`image "${src}" not found beside the post`);
+    return { src: bundled, ...imageDimensions(key) };
   };
 }
 
