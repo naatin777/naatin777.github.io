@@ -67,7 +67,6 @@ export interface Post {
   tags: string[];
   series: string | null;
   seriesSlug: string | null;
-  readingTime: number;
   html: string;
   toc: TocItem[];
   // True when the rendered HTML contains KaTeX markup — gates the vendored
@@ -180,15 +179,6 @@ function createImageResolver(path: string, assets: Record<string, string>): Reso
   };
 }
 
-// CJK text is estimated at 500 characters/minute, Latin text at 200 words/minute.
-// Fenced code is excluded because readers usually skim it.
-function estimateReadingTime(content: string): number {
-  const prose = content.replace(/```[\s\S]*?(?:```|$)/g, " ");
-  const cjkCharacters = (prose.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/g) ?? []).length;
-  const latinWords = (prose.match(/[a-zA-Z0-9_'-]+/g) ?? []).length;
-  return Math.max(1, Math.ceil(cjkCharacters / 500 + latinWords / 200));
-}
-
 // An explicit slug applies to every member of its series, including posts
 // that omit it. Conflicts keep the first explicit slug and emit a warning.
 function resolveSeriesSlugs(posts: Post[]): void {
@@ -283,7 +273,6 @@ export async function loadPostsFrom(
         tags: frontmatter.tags,
         series: frontmatter.series ?? null,
         seriesSlug,
-        readingTime: estimateReadingTime(content),
         html,
         toc,
         hasMath: html.includes('class="katex"'),
