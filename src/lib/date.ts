@@ -8,9 +8,14 @@ const formatter = new Intl.DateTimeFormat("ja-JP", {
   timeZone: "Asia/Tokyo",
 });
 
-export const parseDate = (value: string): number => Date.parse(value.length === 10 ? `${value}T00:00:00+09:00` : value);
+// Bare "YYYY-MM-DD" is JST; anything else must carry an explicit offset.
+export const parseDate = (value: string): number => {
+  if (value.length === 10) return Date.parse(`${value}T00:00:00+09:00`);
+  return /(?:Z|[+-]\d{2}:\d{2})$/.test(value) ? Date.parse(value) : NaN;
+};
 
 export const formatDate = (date: Date | string): string => {
   const timestamp = typeof date === "string" ? parseDate(date) : date.getTime();
-  return Number.isNaN(timestamp) ? "" : formatter.format(timestamp);
+  if (Number.isNaN(timestamp)) throw new Error(`invalid date "${String(date)}"`);
+  return formatter.format(timestamp);
 };
