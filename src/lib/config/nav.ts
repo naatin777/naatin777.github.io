@@ -14,7 +14,5 @@ export const navItems: NavItem[] = [
     activeOn: ["/articles/", "/posts/", "/series/"],
     texts: { ja: "記事", en: "Articles" },
   },
-  { href: resolve("projects/"), activeOn: ["/projects/"], texts: { ja: "制作物", en: "Projects" } },
-  { href: resolve("activity/"), activeOn: ["/activity/"], texts: { ja: "活動", en: "Activity" } },
   { href: resolve("about/"), activeOn: ["/about/"], texts: { ja: "運営者", en: "About" } },
 ];
