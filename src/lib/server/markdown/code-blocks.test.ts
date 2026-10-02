@@ -33,4 +33,13 @@ describe("code blocks", () => {
     expect(html).toContain("shiki");
     expect(html).toContain('class="line"');
   });
+
+  it("reserves the page landmark and deduplicates block and line anchors", async () => {
+    const { html } = await renderMarkdown("```text#main\na\n```\n\n```text#main\nb\n```");
+    expect(html).not.toContain('id="main"');
+    expect(html).toContain('id="main-1"');
+    expect(html).toContain('id="main-1-L1"');
+    expect(html).toContain('id="main-2"');
+    expect(html).toContain('id="main-2-L1"');
+  });
 });

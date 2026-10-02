@@ -1,10 +1,10 @@
 <script lang="ts">
-  import icon from "$lib/assets/icon.png?enhanced";
-  import ArticleCard from "$lib/components/ArticleCard.svelte";
-  import LangText from "$lib/components/LangText.svelte";
-  import Seo from "$lib/components/Seo.svelte";
-  import { author, site } from "$lib/config/site";
-  import { socialLinks } from "$lib/config/social";
+  import { resolve } from "$app/paths";
+  import ArticleCard from "#lib/components/ArticleCard.svelte";
+  import LangText from "#lib/components/LangText.svelte";
+  import Seo from "#lib/components/Seo.svelte";
+  import { author, site } from "#lib/config/site.js";
+  import { socialLinks } from "#lib/config/social.js";
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
@@ -30,7 +30,7 @@
 <Seo title={site.title} {jsonLd} />
 
 <section class="flex flex-col items-center justify-center gap-6 text-center">
-  <enhanced:img src={icon} alt="" class="size-30 rounded-full" />
+  <enhanced:img src="#lib/assets/icon.png" alt="" class="size-30 rounded-full" />
   <h1 class="text-3xl font-bold tracking-tight">
     <LangText texts={{ ja: "仮サイト", en: "Temporary site" }} />
   </h1>
@@ -48,7 +48,7 @@
   <section class="mt-12 flex flex-col gap-4">
     <div class="flex items-baseline justify-between">
       <h2 class="text-lg font-semibold"><LangText texts={{ ja: "最近の記事", en: "Recent articles" }} /></h2>
-      <a href="/articles/" class="text-muted hover:text-foreground text-sm transition-colors">
+      <a href={resolve("articles/")} class="text-muted hover:text-foreground text-sm transition-colors">
         <LangText texts={{ ja: "すべて見る", en: "View all" }} /> <span aria-hidden="true">→</span>
       </a>
     </div>

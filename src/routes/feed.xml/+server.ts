@@ -1,7 +1,8 @@
-import { defaultLang } from "$lib/config/i18n";
-import { author, site } from "$lib/config/site";
-import { absolutizeUrls } from "$lib/server/absolutize-urls";
-import { getPosts, type Post } from "$lib/server/posts";
+import { resolve } from "$app/paths";
+import { defaultLang } from "#lib/config/i18n.js";
+import { author, site } from "#lib/config/site.js";
+import { absolutizeUrls } from "#lib/server/absolutize-urls.js";
+import { getPosts, type Post } from "#lib/server/posts.js";
 import type { RequestHandler } from "./$types";
 
 export const prerender = true;
@@ -22,13 +23,13 @@ const escapeCdata = (html: string): string => html.replace(/\]\]>/g, "]]]]><![CD
 
 const itemXml = (post: Post): string => `    <item>
       <title>${escapeXml(post.title)}</title>
-      <link>${site.url}/posts/${post.slug}/</link>
-      <guid isPermaLink="true">${site.url}/posts/${post.slug}/</guid>
+      <link>${site.url}${resolve(`posts/${post.slug}/`)}</link>
+      <guid isPermaLink="true">${site.url}${resolve(`posts/${post.slug}/`)}</guid>
       <pubDate>${toPubDate(post.publishedAt)}</pubDate>
       <dc:creator>${escapeXml(author.displayName)}</dc:creator>
       ${post.tags.map((tag) => `<category>${escapeXml(tag)}</category>`).join("\n      ")}
       <description>${escapeXml(post.description)}</description>
-      <content:encoded><![CDATA[${escapeCdata(absolutizeUrls(post.html, `${site.url}/posts/${post.slug}/`))}]]></content:encoded>
+      <content:encoded><![CDATA[${escapeCdata(absolutizeUrls(post.html, `${site.url}${resolve(`posts/${post.slug}/`)}`))}]]></content:encoded>
     </item>`;
 
 export const GET: RequestHandler = async () => {

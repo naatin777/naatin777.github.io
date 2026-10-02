@@ -18,9 +18,9 @@
   --color-blog: #8b5cf6;
   --color-blog-text: light-dark(#7048d8, #a78bfa);
   --color-zenn: #3ea8ff;
-  --color-zenn-text: light-dark(#1a85d6, #74c0ff);
+  --color-zenn-text: light-dark(#0969a8, #74c0ff);
   --color-qiita: #55c500;
-  --color-qiita-text: light-dark(#3d8f00, #7ed321);
+  --color-qiita-text: light-dark(#2f6e00, #7ed321);
 }
 
 :root {
@@ -339,7 +339,7 @@
   }
 
   .markdown-alert-tip {
-    --alert-color: light-dark(#16a34a, #4ade80);
+    --alert-color: light-dark(#15803d, #4ade80);
   }
 
   .markdown-alert-important {
@@ -347,7 +347,7 @@
   }
 
   .markdown-alert-warning {
-    --alert-color: light-dark(#d97706, #fbbf24);
+    --alert-color: light-dark(#b45309, #fbbf24);
   }
 
   .markdown-alert-caution {
@@ -548,13 +548,13 @@
     /* [!code focus]: the pre gets .has-focused and the row .focused —
        recede everything else. */
     &.has-focused .line:not(.focused) {
-      opacity: 0.35;
+      opacity: 0.85;
     }
 
     /* ```console / shellsession: `$ ` command rows stand out; plain
        output recedes. */
     .line.output {
-      opacity: 0.6;
+      opacity: 0.85;
     }
 
     /* Line numbers via CSS counters — pseudo-element content never enters

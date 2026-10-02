@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { z } from "zod";
-import { externalSources, type ArticleSource } from "$lib/config/article-source";
+import { externalSources } from "#lib/config/article-source.js";
+import type { ArticleItem } from "#lib/types.js";
 
 // Shape of content/generated/<source>.json — produced by `pnpm sync:zenn` /
 // `pnpm sync:qiita` (scripts/sync-*-posts.ts). The build reads only these
@@ -30,22 +31,8 @@ const externalPostSchema = z.object({
 });
 
 // Shared with scripts/sync-*-posts.ts — they write the shape this validates.
-// Imported type-only there, so the $lib alias never needs runtime resolution.
+// Imported type-only there, so the #lib alias never needs runtime resolution.
 export type ExternalPost = z.infer<typeof externalPostSchema>;
-
-export interface ArticleItem {
-  title: string;
-  url: string;
-  tags: string[];
-  source: ArticleSource;
-  series: string | null;
-  seriesSlug?: string | undefined;
-  publishedAt: string;
-  // Normalized at the boundary below: a source without its own updatedAt
-  // reports publishedAt, so consumers never see it unset.
-  updatedAt: string;
-  description?: string | undefined;
-}
 
 // Validate at build time — a hand-edited or truncated JSON fails loudly here
 // rather than silently rendering broken cards. A missing file just means that

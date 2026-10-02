@@ -42,4 +42,23 @@ describe("headings", () => {
     expect(html).toContain('<h5 id="five">');
     expect(toc.map((t) => t.depth)).toEqual([4]);
   });
+
+  it("keeps explicit code anchors and moves colliding headings without stealing another slug", async () => {
+    const { html, toc } = await renderMarkdown(
+      "## output\n\n## output-1\n\n```text#output\nhello\n```\n\n[Line](#output-L1)",
+    );
+    expect(toc.map((heading) => heading.id)).toEqual(["output-2", "output-1"]);
+    expect(html).toContain('<div class="code-block" id="output">');
+    expect(html).toContain('id="output-L1"');
+    expect(html).toContain('href="#output-L1"');
+    const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("preserves footnote destinations when a heading has the same slug", async () => {
+    const { html, toc } = await renderMarkdown("## user-content-fn-1\n\ntext[^1]\n\n[^1]: note");
+    expect(toc[0]?.id).toBe("user-content-fn-1-1");
+    expect(html).toContain('<li id="user-content-fn-1">');
+    expect(html).toContain('href="#user-content-fn-1"');
+  });
 });

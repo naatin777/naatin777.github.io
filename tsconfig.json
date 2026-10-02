@@ -1,21 +1,16 @@
 {
-  "extends": "./.svelte-kit/tsconfig.json",
+  "extends": "$app/tsconfig",
   "compilerOptions": {
-    "allowJs": true,
-    "checkJs": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
-    "verbatimModuleSyntax": true,
     "noUncheckedSideEffectImports": true,
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true,
-    "erasableSyntaxOnly": true,
-    "moduleResolution": "bundler"
-  }
+    "erasableSyntaxOnly": true
+  },
+  // vite.config.ts pulls @sveltejs/enhanced-img's types transitively, which
+  // is what loads the ambient `*?enhanced` module declaration.
+  "include": ["src", "vite.config.ts"]
 }

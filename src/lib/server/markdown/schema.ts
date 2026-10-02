@@ -25,9 +25,10 @@ export const sanitizeSchema: Schema = {
     ],
     div: [...(defaultSchema.attributes?.div ?? []), ["className", /^markdown-alert/]],
     p: [...(defaultSchema.attributes?.p ?? []), ["className", "markdown-alert-title"]],
-    // loading/decoding are performance hints, not attack surface — allow
-    // author overrides (rehypeResolveImages only fills unset values).
-    img: [...(defaultSchema.attributes?.img ?? []), "loading", "decoding"],
+    // loading/decoding/width/height are performance hints, not attack
+    // surface — allow author overrides (rehypeResolveImages only fills
+    // unset values).
+    img: [...(defaultSchema.attributes?.img ?? []), "loading", "decoding", "width", "height"],
     section: [...(defaultSchema.attributes?.section ?? []), "ariaLabelledBy"],
     svg: [["className", "octicon"], "viewBox", "width", "height", "ariaHidden"],
     path: ["d"],

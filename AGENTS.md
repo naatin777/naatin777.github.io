@@ -44,6 +44,7 @@
 
 - ルート・スタイル・コンテンツのファイル名は `kebab-case` にする。
 - コンポーネントファイルは `src/lib/components/` に `PascalCase.svelte` で置く。
+- `src/lib` への import は `#lib` subpath imports（`package.json` の `imports` フィールド）を使い、拡張子を必ず付ける: `.ts`→`.js`、`.svelte.ts`→`.svelte.js`、`.svelte`→`.svelte`。`$lib` エイリアスは SvelteKit 3 で廃止された。
 - サーバー専用コードは `src/lib/server/` に置く（クライアントコンポーネントから import しない）。
 - サーバーとクライアントで共有する型は `src/lib/types.ts` に置く — ファイルごとに再定義しない。
 

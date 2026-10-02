@@ -6,16 +6,20 @@
 // fences can't yield false positives), collects those URLs, fetches each
 // page once, and writes og:/<title>/description metadata. The file is
 // committed — builds never touch the network.
-import { mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { fromHtml } from "hast-util-from-html";
+import { toText } from "hast-util-to-text";
 import { join } from "node:path";
 import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import { unified } from "unified";
 import { visit } from "unist-util-visit";
+import { z } from "zod";
 
-// Single source of truth for the card shape — the runtime import resolves
-// without the $lib alias (the module only pulls node/unist deps).
-import { cardSchema, type Linkcard } from "../src/lib/server/markdown/linkcards.ts";
+// Single source of truth for the card shape — imported at runtime via
+// #lib (package.json imports field); the module only pulls node/unist
+// deps, so node's type stripping can execute it.
+import { cardSchema, type Linkcard } from "#lib/server/markdown/linkcards.ts";
 
 const OUT_FILE = "content/generated/linkcards.json";
 const POSTS_DIR = "content/posts";
@@ -47,25 +51,7 @@ const collectUrls = (files: string[]): Set<string> => {
   return urls;
 };
 
-// <meta> attrs can appear in either order — match content= both ways.
-const pickMeta = (html: string, key: string): string | undefined => {
-  const attr = `["']([^"']+)["']`;
-  const forward = new RegExp(`<meta[^>]+(?:property|name)=["']${key}["'][^>]+content=${attr}`, "i");
-  const backward = new RegExp(`<meta[^>]+content=${attr}[^>]+(?:property|name)=["']${key}["']`, "i");
-  const value = forward.exec(html)?.[1] ?? backward.exec(html)?.[1];
-  // &amp; decodes last so &amp;lt; becomes "&lt;" (literal), not "<".
-  return value
-    ?.replace(/&#x([0-9a-f]+);/gi, (_, hex: string) => String.fromCodePoint(Number.parseInt(hex, 16)))
-    .replace(/&#(\d+);/g, (_, dec: string) => String.fromCodePoint(Number(dec)))
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&");
-};
-
-const fetchCard = async (url: string) => {
+const fetchCard = async (url: string): Promise<Linkcard> => {
   const res = await fetch(url, {
     headers: {
       // Some hosts 403 on undecorated fetch() (undici default UA).
@@ -76,42 +62,47 @@ const fetchCard = async (url: string) => {
     signal: AbortSignal.timeout(15_000),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const html = await res.text();
-  const rawImage = pickMeta(html, "og:image");
+  const tree = fromHtml(await res.text());
+  const metadata = new Map<string, string>();
+  let title: string | undefined;
+  visit(tree, "element", (node) => {
+    if (node.tagName === "title") title ??= toText(node).trim();
+    if (node.tagName !== "meta") return;
+    const key = node.properties.property ?? node.properties.name;
+    const value = node.properties.content;
+    if (typeof key === "string" && typeof value === "string" && !metadata.has(key)) metadata.set(key, value);
+  });
+  const rawImage = metadata.get("og:image");
   // og:image is remote-fetched data that lands post-sanitize as <img src> —
   // only http(s) may pass; anything else (data:, javascript:, junk) is dropped.
-  const image = rawImage ? new URL(rawImage, url) : undefined;
+  const image = rawImage ? new URL(rawImage, res.url || url) : undefined;
   return cardSchema.parse({
-    title:
-      pickMeta(html, "og:title") ??
-      pickMeta(html, "twitter:title") ??
-      /<title[^>]*>([^<]*)<\/title>/i.exec(html)?.[1]?.trim() ??
-      url,
-    description: pickMeta(html, "og:description") ?? pickMeta(html, "description") ?? "",
+    title: metadata.get("og:title") ?? metadata.get("twitter:title") ?? title ?? url,
+    description: metadata.get("og:description") ?? metadata.get("description") ?? "",
     image: image && (image.protocol === "http:" || image.protocol === "https:") ? image.href : undefined,
-    siteName: pickMeta(html, "og:site_name"),
+    siteName: metadata.get("og:site_name"),
   });
 };
 
-const urls = collectUrls(markdownFiles(POSTS_DIR));
-if (urls.size === 0) {
-  console.log("[linkcards] no bare-URL paragraphs found");
-  mkdirSync(join(OUT_FILE, ".."), { recursive: true });
-  writeFileSync(OUT_FILE, "{}\n");
-  process.exit(0);
-}
-
+const sorted = [...collectUrls(markdownFiles(POSTS_DIR))].toSorted();
+const existing = existsSync(OUT_FILE)
+  ? z.record(z.string(), cardSchema).parse(JSON.parse(readFileSync(OUT_FILE, "utf8")))
+  : {};
 const cards: Record<string, Linkcard> = {};
-const sorted = [...urls].toSorted();
-const results = await Promise.allSettled(
-  sorted.map(async (url) => {
-    const card = await fetchCard(url);
-    cards[url] = card;
-    console.log(`[linkcards] ${url} → ${card.title}`);
-  }),
-);
+const results = await Promise.allSettled(sorted.map(fetchCard));
 results.forEach((result, i) => {
-  if (result.status === "rejected") console.warn(`[linkcards] ${sorted[i]!}:`, result.reason);
+  const url = sorted[i];
+  if (url === undefined) return;
+  if (result.status === "fulfilled") {
+    cards[url] = result.value;
+    console.log(`[linkcards] ${url} → ${result.value.title}`);
+  } else {
+    console.warn(`[linkcards] ${url}:`, result.reason);
+    // Keep cached metadata during outages, while still pruning removed URLs.
+    const previous = existing[url];
+    if (previous) cards[url] = previous;
+    else process.exitCode = 1;
+  }
 });
 
 mkdirSync(join(OUT_FILE, ".."), { recursive: true });

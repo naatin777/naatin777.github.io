@@ -22,19 +22,20 @@ import remarkMath from "remark-math";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
-import type { TocItem } from "$lib/types";
+import type { TocItem } from "#lib/types.js";
 import { consoleLines, lineAnchorIds, rehypeCodeBlocks } from "./code-blocks";
 import { remarkDetails } from "./details";
 import { rehypeFlattenRoots } from "./flatten-roots";
-import { rehypeAvoidPageIds, rehypeCollectToc, rehypeHeadingAnchors } from "./headings";
-import { rehypeResolveImages } from "./images";
+import { rehypeUniqueHeadingIds, rehypeCollectToc, rehypeHeadingAnchors } from "./headings";
+import { rehypeResolveImages, type ResolveImage } from "./images";
 import { rehypeLazyImages } from "./lazy-images";
 import { rehypeLinkcards } from "./linkcards";
 import { rehypeMermaid } from "./mermaid";
 import { sanitizeSchema } from "./schema";
 import { rehypeWrapTables } from "./tables";
+import { rehypeTaskLabels } from "./task-labels";
 
-const createProcessor = (resolveImage: (src: string) => string) =>
+const createProcessor = (resolveImage: ResolveImage) =>
   unified()
     .use(remarkParse)
     .use(remarkGfm)
@@ -49,15 +50,11 @@ const createProcessor = (resolveImage: (src: string) => string) =>
     .use(rehypeRaw)
     .use(rehypeResolveImages(resolveImage))
     .use(rehypeSanitize, sanitizeSchema)
-    .use(rehypeSlug)
-    .use(rehypeAvoidPageIds)
-    .use(rehypeCollectToc)
-    .use(rehypeHeadingAnchors)
     .use(rehypeExternalLinks, { target: "_blank", rel: ["noopener", "noreferrer"] })
     .use(rehypeMermaid)
     .use(rehypeCodeBlocks)
     .use(rehypeShiki, {
-      themes: { light: "github-light", dark: "github-dark" },
+      themes: { light: "github-light-high-contrast", dark: "github-dark-high-contrast" },
       defaultColor: "light-dark()",
       cssVariablePrefix: "--shiki-",
       transformers: [
@@ -76,6 +73,11 @@ const createProcessor = (resolveImage: (src: string) => string) =>
     })
     .use(rehypeLinkcards)
     .use(rehypeFlattenRoots)
+    .use(rehypeSlug)
+    .use(rehypeUniqueHeadingIds)
+    .use(rehypeCollectToc)
+    .use(rehypeHeadingAnchors)
+    .use(rehypeTaskLabels)
     .use(rehypeKatex)
     .use(rehypeLazyImages)
     .use(rehypeWrapTables)
@@ -83,7 +85,7 @@ const createProcessor = (resolveImage: (src: string) => string) =>
 
 export async function renderMarkdown(
   content: string,
-  options: { resolveImage?: (src: string) => string } = {},
+  options: { resolveImage?: ResolveImage } = {},
 ): Promise<{ html: string; toc: TocItem[] }> {
   const file = await createProcessor(options.resolveImage ?? ((src) => src)).process(content);
   return {

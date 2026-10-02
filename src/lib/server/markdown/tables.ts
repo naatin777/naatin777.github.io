@@ -21,7 +21,7 @@ export const rehypeWrapTables: Plugin<[], Root> = () => (tree) => {
     parent.children[index] = {
       type: "element",
       tagName: "div",
-      properties: { className: ["table-wrap"] },
+      properties: { className: ["table-wrap"], tabIndex: 0 },
       children: [node],
     };
   });

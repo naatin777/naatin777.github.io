@@ -1,8 +1,8 @@
 <script lang="ts">
-  import LangText from "$lib/components/LangText.svelte";
-  import Seo from "$lib/components/Seo.svelte";
-  import { site } from "$lib/config/site";
-  import { formatDate } from "$lib/date";
+  import LangText from "#lib/components/LangText.svelte";
+  import Seo from "#lib/components/Seo.svelte";
+  import { site } from "#lib/config/site.js";
+  import { formatDate } from "#lib/date.js";
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();

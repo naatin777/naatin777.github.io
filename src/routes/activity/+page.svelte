@@ -1,9 +1,9 @@
 <script lang="ts">
-  import LangText from "$lib/components/LangText.svelte";
-  import Seo from "$lib/components/Seo.svelte";
-  import type { LocalizedText } from "$lib/config/i18n";
-  import { site } from "$lib/config/site";
-  import { formatDate } from "$lib/date";
+  import LangText from "#lib/components/LangText.svelte";
+  import Seo from "#lib/components/Seo.svelte";
+  import type { LocalizedText } from "#lib/config/i18n.js";
+  import { site } from "#lib/config/site.js";
+  import { formatDate } from "#lib/date.js";
 
   // newest first
   const entries: { date: string; texts: LocalizedText }[] = [];

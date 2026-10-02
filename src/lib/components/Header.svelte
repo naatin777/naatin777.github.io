@@ -1,6 +1,7 @@
 <script lang="ts">
+  import { resolve } from "$app/paths";
   import { page } from "$app/state";
-  import { navItems, type NavItem } from "$lib/config/nav";
+  import { navItems, type NavItem } from "#lib/config/nav.js";
   import LangToggle from "./LangToggle.svelte";
   import LangText from "./LangText.svelte";
   import ThemeToggle from "./ThemeToggle.svelte";
@@ -12,7 +13,7 @@
 <header class="border-border bg-background/80 sticky top-0 z-10 border-b backdrop-blur">
   <div class="mx-auto flex w-full max-w-3xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
     <div class="flex-1">
-      <a href="/" class="font-bold tracking-tight">naatin777.dev</a>
+      <a href={resolve("/")} class="font-bold tracking-tight">naatin777.dev</a>
     </div>
 
     <nav aria-labelledby={navLabelId} class="order-last mx-auto w-full min-[36rem]:order-none min-[36rem]:w-auto">

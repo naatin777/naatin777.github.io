@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { author } from "$lib/config/site";
-  import { socialLinks } from "$lib/config/social";
+  import { author } from "#lib/config/site.js";
+  import { socialLinks } from "#lib/config/social.js";
   import SocialIcon from "./SocialIcon.svelte";
 
   const year = new Date().getFullYear();

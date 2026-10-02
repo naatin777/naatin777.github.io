@@ -16,7 +16,7 @@ const iconSvg = (inner: string, cls: string): ElementContent[] =>
 //
 // Dismisses the .line:target tint — the delegated article click navigates
 // the hash to the block's own id (browsers only re-evaluate :target on
-// real fragment navigation, not replaceState).
+// real fragment navigation, not shallow goto history writes).
 const unfocusButton = (): Element => ({
   type: "element",
   tagName: "button",
@@ -95,16 +95,18 @@ export const consoleLines = (): ShikiTransformer => ({
 // file icons — for layout-tour sections where a raw tree dump in
 // monospace is all-gray. Trailing "/" marks directories.
 const fileTree = (text: string): Element => {
-  const lines = text.split("\n").filter((l) => l.trim().length > 0);
-  let i = 0;
+  const lines = text.split("\n").filter((line) => line.trim().length > 0);
+  let lineIndex = 0;
   const build = (depth: number): Element => {
     const ul: Element = { type: "element", tagName: "ul", properties: {}, children: [] };
-    while (i < lines.length) {
-      const indent = lines[i]!.match(/^[ \t]*/)![0].replace(/\t/g, "  ").length;
-      const d = Math.floor(indent / 2);
-      if (d < depth) break;
-      i++;
-      const name = lines[i - 1]!.trim();
+    while (lineIndex < lines.length) {
+      const line = lines[lineIndex];
+      if (line === undefined) break;
+      const indent = (line.match(/^[ \t]*/)?.[0] ?? "").replace(/\t/g, "  ").length;
+      const indentDepth = Math.floor(indent / 2);
+      if (indentDepth < depth) break;
+      lineIndex++;
+      const name = line.trim();
       const isDir = name.endsWith("/");
       const li: Element = {
         type: "element",
@@ -149,6 +151,10 @@ const fileTree = (text: string): Element => {
 // bar empty. Must run before rehypeShiki so it sees the raw language-
 // class.
 export const rehypeCodeBlocks: Plugin<[], Root> = () => (tree) => {
+  const usedIds = new Set(["main"]);
+  visit(tree, "element", (node) => {
+    if (typeof node.properties.id === "string") usedIds.add(node.properties.id);
+  });
   visit(tree, "element", (node, index, parent) => {
     if (node.tagName !== "pre" || index === undefined || parent === undefined) return;
     let title = "";
@@ -178,9 +184,21 @@ export const rehypeCodeBlocks: Plugin<[], Root> = () => (tree) => {
         if (anchor) body = body.slice(0, -anchor[0].length);
         const highlight = /\{[\d,-]+\}$/.exec(body);
         if (highlight) body = body.slice(0, -highlight[0].length);
-        const meta = [highlight?.[0], anchor?.[0]].filter(Boolean).join("");
+        if (anchor) {
+          const requested = anchor[0].slice(1);
+          const lineCount = nodeText(code).replace(/\n$/, "").split("\n").length;
+          const idsFor = (id: string): string[] => [
+            id,
+            ...Array.from({ length: lineCount }, (_, i) => `${id}-L${i + 1}`),
+          ];
+          blockId = requested;
+          for (let n = 1; idsFor(blockId).some((id) => usedIds.has(id)); n += 1) blockId = `${requested}-${n}`;
+          idsFor(blockId).forEach((id) => usedIds.add(id));
+          if (blockId !== requested)
+            console.warn(`[posts] code anchor "${requested}" renamed to "${blockId}" (id collision)`);
+        }
+        const meta = [highlight?.[0], blockId ? `#${blockId}` : undefined].filter(Boolean).join("");
         if (meta) code.properties.metastring = meta;
-        if (anchor) blockId = anchor[0].slice(1);
         const colon = body.indexOf(":");
         const lang = colon === -1 ? body : body.slice(0, colon);
         title = colon === -1 ? body : body.slice(colon + 1);

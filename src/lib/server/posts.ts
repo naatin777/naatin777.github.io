@@ -1,11 +1,14 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { posix } from "node:path";
+import { imageSize } from "image-size";
 import matter from "gray-matter";
 import { CORE_SCHEMA, load } from "js-yaml";
 import { z } from "zod";
-import { parseDate } from "$lib/date";
-import type { TocItem } from "$lib/types";
+import { parseDate } from "#lib/date.js";
+import type { TocItem } from "#lib/types.js";
+import type { ResolveImage } from "./markdown/images";
 import { linkcardsDigest } from "./markdown/linkcards";
 import { renderMarkdownCached } from "./markdown/render-cache";
 
@@ -67,6 +70,9 @@ export interface Post {
   readingTime: number;
   html: string;
   toc: TocItem[];
+  // True when the rendered HTML contains KaTeX markup — gates the vendored
+  // stylesheet link so math-free posts don't pay for it.
+  hasMath: boolean;
 }
 
 // Posts live at content/posts/<year>/<slug>/index.md — the year folder is
@@ -121,6 +127,97 @@ function gitUpdatedAt(path: string): Date | null {
   return new Date(timestamp);
 }
 
+// Reads a bundled image's intrinsic size from disk — glob keys are
+// root-relative ("/content/..."), so strip the leading slash. The
+// dimensions become width/height attrs that let the browser reserve the
+// layout box pre-fetch; files with no measurable size (e.g. a viewBox-only
+// SVG) or unreadable paths just ship without them.
+const imageDimensions = (globKey: string): { width?: number; height?: number } => {
+  try {
+    const { width, height } = imageSize(readFileSync(globKey.slice(1)));
+    return width === undefined || height === undefined ? {} : { width, height };
+  } catch {
+    return {};
+  }
+};
+
+function parsePostFrontmatter(
+  path: string,
+  raw: string,
+): { frontmatter: z.infer<typeof frontmatterSchema>; content: string } | null {
+  let result: ReturnType<typeof matter>;
+  try {
+    result = matter(raw, matterOptions);
+  } catch (error) {
+    console.warn(`[posts] skipping ${path}: frontmatter parse failed`, error);
+    return null;
+  }
+  const parsed = frontmatterSchema.safeParse(result.data);
+  if (!parsed.success) {
+    console.warn(`[posts] skipping ${path}:`, parsed.error.issues);
+    return null;
+  }
+  if (parsed.data.draft) {
+    console.warn(`[posts] skipping ${path}: draft post inside content/posts/ (assets still ship)`);
+    return null;
+  }
+  return { frontmatter: parsed.data, content: result.content };
+}
+
+function createImageResolver(path: string, assets: Record<string, string>): ResolveImage {
+  const directory = posix.dirname(path);
+  return (src) => {
+    if (/^[a-z]+:/i.test(src) || src.startsWith("/") || src.startsWith("#")) return { src };
+    // Glob keys are paths; query strings and fragments do not identify files.
+    const relativePath = src.split(/[?#]/)[0] ?? "";
+    const key = posix.normalize(`${directory}/${relativePath}`);
+    const bundled = assets[key];
+    if (!bundled) {
+      console.warn(`[posts] ${path}: image "${src}" not found beside the post`);
+      return { src };
+    }
+    return { src: bundled, ...imageDimensions(key) };
+  };
+}
+
+// CJK text is estimated at 500 characters/minute, Latin text at 200 words/minute.
+// Fenced code is excluded because readers usually skim it.
+function estimateReadingTime(content: string): number {
+  const prose = content.replace(/```[\s\S]*?(?:```|$)/g, " ");
+  const cjkCharacters = (prose.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/g) ?? []).length;
+  const latinWords = (prose.match(/[a-zA-Z0-9_'-]+/g) ?? []).length;
+  return Math.max(1, Math.ceil(cjkCharacters / 500 + latinWords / 200));
+}
+
+// An explicit slug applies to every member of its series, including posts
+// that omit it. Conflicts keep the first explicit slug and emit a warning.
+function resolveSeriesSlugs(posts: Post[]): void {
+  const slugBySeries = new Map<string, string>();
+  for (const post of posts) {
+    if (post.series === null || post.seriesSlug === null) continue;
+    const existing = slugBySeries.get(post.series);
+    if (existing === undefined) slugBySeries.set(post.series, post.seriesSlug);
+    else if (existing !== post.seriesSlug)
+      console.warn(
+        `[posts] conflicting seriesSlug "${post.seriesSlug}" for series "${post.series}" — keeping "${existing}"`,
+      );
+  }
+  for (const post of posts) {
+    if (post.series !== null) post.seriesSlug = slugBySeries.get(post.series) ?? post.series;
+  }
+  const seriesBySlug = new Map<string, string>();
+  for (const post of posts) {
+    if (post.series === null || post.seriesSlug === null) continue;
+    const other = seriesBySlug.get(post.seriesSlug);
+    if (other !== undefined && other !== post.series) {
+      console.warn(
+        `[posts] series slug "${post.seriesSlug}" is shared by "${other}" and "${post.series}" — their series pages will merge`,
+      );
+    }
+    seriesBySlug.set(post.seriesSlug, post.series);
+  }
+}
+
 // Files/assets are injectable so tests can exercise the loading rules
 // (skip/dedup/draft/date parsing) without fixtures in content/. The
 // updatedAt fallback is injectable for the same reason.
@@ -136,28 +233,9 @@ export async function loadPostsFrom(
   const assetsDigest = createHash("sha256").update(JSON.stringify(assets)).digest("hex");
   const posts = await Promise.all(
     Object.entries(files).map(async ([path, raw]): Promise<Post | null> => {
-      // matter() throws YAMLException on malformed frontmatter — a single
-      // bad file must not fail the whole build.
-      let matterResult: ReturnType<typeof matter>;
-      try {
-        matterResult = matter(raw, matterOptions);
-      } catch (error) {
-        console.warn(`[posts] skipping ${path}: frontmatter parse failed`, error);
-        return null;
-      }
-      const { data, content } = matterResult;
-      const parsed = frontmatterSchema.safeParse(data);
-      if (!parsed.success) {
-        console.warn(`[posts] skipping ${path}:`, parsed.error.issues);
-        return null;
-      }
-      const fm = parsed.data;
-      if (fm.draft) {
-        // The page is skipped, but every asset in this folder still ships —
-        // drafts belong outside content/posts/ where the glob can't see them.
-        console.warn(`[posts] skipping ${path}: draft post inside content/posts/ (assets still ship)`);
-        return null;
-      }
+      const parsed = parsePostFrontmatter(path, raw);
+      if (!parsed) return null;
+      const { frontmatter, content } = parsed;
       // /content/posts/<year>/<slug>/index.md — slug is the folder name and
       // must be unique since it is the URL segment.
       const dir = path.slice(0, path.lastIndexOf("/"));
@@ -169,19 +247,7 @@ export async function loadPostsFrom(
         return null;
       }
       slugs.add(slug);
-      const resolveImage = (src: string): string => {
-        // Absolute URLs, site-root paths, and anchors pass through untouched.
-        if (/^[a-z]+:/i.test(src) || src.startsWith("/") || src.startsWith("#")) return src;
-        // ./ and ../ resolve against the post folder via glob keys, so
-        // normalize the joined path; a query/hash suffix is ignored.
-        const rel = src.split(/[?#]/)[0] ?? "";
-        const bundled = assets[posix.normalize(`${dir}/${rel}`)];
-        if (!bundled) {
-          console.warn(`[posts] ${path}: image "${src}" not found beside the post`);
-          return src;
-        }
-        return bundled;
-      };
+      const resolveImage = createImageResolver(path, assets);
       let rendered: { html: string; toc: TocItem[] };
       try {
         // Keyed by everything that affects the output: body, post dir
@@ -201,63 +267,30 @@ export async function loadPostsFrom(
         return null;
       }
       const { html, toc } = rendered;
-      // Reading time: CJK text is counted in characters (~500/min), latin
-      // text in words (~200/min). Fenced code blocks are excluded — readers
-      // skim them rather than read them linearly.
-      const prose = content.replace(/```[\s\S]*?(?:```|$)/g, " ");
-      const cjk = (prose.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/g) ?? []).length;
-      const words = (prose.match(/[a-zA-Z0-9_'-]+/g) ?? []).length;
-      const readingTime = Math.max(1, Math.ceil(cjk / 500 + words / 200));
       // Like the post slug, the series slug is a URL segment — fall back to
       // the series name itself when absent or not URL-safe.
-      let seriesSlug = fm.seriesSlug ?? null;
+      let seriesSlug = frontmatter.seriesSlug ?? null;
       if (seriesSlug !== null && !/^[\w-]+$/.test(seriesSlug)) {
         console.warn(`[posts] ${path}: seriesSlug "${seriesSlug}" is not URL-safe — ignoring it`);
         seriesSlug = null;
       }
       return {
         slug,
-        title: fm.title,
-        description: fm.description,
-        publishedAt: fm.publishedAt,
-        updatedAt: fm.updatedAt ?? resolveUpdatedAt(path) ?? fm.publishedAt,
-        tags: fm.tags,
-        series: fm.series ?? null,
+        title: frontmatter.title,
+        description: frontmatter.description,
+        publishedAt: frontmatter.publishedAt,
+        updatedAt: frontmatter.updatedAt ?? resolveUpdatedAt(path) ?? frontmatter.publishedAt,
+        tags: frontmatter.tags,
+        series: frontmatter.series ?? null,
         seriesSlug,
-        readingTime,
+        readingTime: estimateReadingTime(content),
         html,
         toc,
+        hasMath: html.includes('class="katex"'),
       };
     }),
   );
   const loaded = posts.filter((post): post is Post => post !== null);
-  // One URL slug per series: an explicit seriesSlug wins (first seen, with a
-  // warning on conflicts); without one the series name itself is the slug.
-  const slugBySeries = new Map<string, string>();
-  for (const post of loaded) {
-    if (post.series === null || post.seriesSlug === null) continue;
-    const existing = slugBySeries.get(post.series);
-    if (existing === undefined) slugBySeries.set(post.series, post.seriesSlug);
-    else if (existing !== post.seriesSlug)
-      console.warn(
-        `[posts] conflicting seriesSlug "${post.seriesSlug}" for series "${post.series}" — keeping "${existing}"`,
-      );
-  }
-  for (const post of loaded) {
-    if (post.series !== null) post.seriesSlug = slugBySeries.get(post.series) ?? post.series;
-  }
-  // A name-fallback slug can collide with another series' slug (explicit or
-  // not) — the /series/<slug>/ page would then mix two series. Warn loudly.
-  const seriesBySlug = new Map<string, string>();
-  for (const post of loaded) {
-    if (post.series === null || post.seriesSlug === null) continue;
-    const other = seriesBySlug.get(post.seriesSlug);
-    if (other !== undefined && other !== post.series) {
-      console.warn(
-        `[posts] series slug "${post.seriesSlug}" is shared by "${other}" and "${post.series}" — their series pages will merge`,
-      );
-    }
-    seriesBySlug.set(post.seriesSlug, post.series);
-  }
+  resolveSeriesSlugs(loaded);
   return loaded.toSorted((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
 }

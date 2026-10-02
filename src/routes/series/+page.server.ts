@@ -1,4 +1,5 @@
-import { getPosts } from "$lib/server/posts";
+import { resolve } from "$app/paths";
+import { getPosts } from "#lib/server/posts.js";
 import type { PageServerLoad } from "./$types";
 
 // Series are a local-post concept — external articles can't belong to one.
@@ -18,7 +19,7 @@ export const load: PageServerLoad = async () => {
         return latest
           ? {
               name,
-              href: `/series/${encodeURIComponent(latest.seriesSlug ?? name)}/`,
+              href: resolve(`series/${encodeURIComponent(latest.seriesSlug ?? name)}/`),
               count: members.length,
               latestTitle: latest.title,
               latestAt: latest.publishedAt.toISOString(),

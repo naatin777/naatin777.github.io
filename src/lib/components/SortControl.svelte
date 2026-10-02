@@ -1,8 +1,8 @@
 <script lang="ts">
   import { ArrowDown, ArrowUp } from "@lucide/svelte";
-  import LangText from "$lib/components/LangText.svelte";
-  import { selectionGroupKeydown } from "$lib/selection-group";
-  import { sortKeys, sortOrders, type SortKey, type SortOrder } from "$lib/types";
+  import LangText from "#lib/components/LangText.svelte";
+  import { selectionGroupKeydown } from "#lib/selection-group.js";
+  import { sortKeys, sortOrders, type SortKey, type SortOrder } from "#lib/types.js";
 
   interface Props {
     value: SortKey;

@@ -1,5 +1,5 @@
-import { browser } from "$app/environment";
-import { themeColors } from "$lib/config/theme";
+import { browser } from "$app/env";
+import { themeColors } from "#lib/config/theme.js";
 
 type ThemePreference = "light" | "dark" | "system";
 

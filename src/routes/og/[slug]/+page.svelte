@@ -1,7 +1,7 @@
 <script lang="ts">
-  import icon from "$lib/assets/icon.png";
-  import { author, site } from "$lib/config/site";
-  import { formatDate } from "$lib/date";
+  import icon from "#lib/assets/icon.png";
+  import { author, site } from "#lib/config/site.js";
+  import { formatDate } from "#lib/date.js";
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();

@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { browser } from "$app/environment";
+  import { browser } from "$app/env";
   import { tick } from "svelte";
-  import { defaultLang, langNames, langs, type Lang } from "$lib/config/i18n";
-  import { hydrationState } from "$lib/hydration.svelte";
-  import { selectionGroupKeydown } from "$lib/selection-group";
-  import { withViewTransition } from "$lib/view-transition";
+  import { defaultLang, langNames, langs, type Lang } from "#lib/config/i18n.js";
+  import { hydrationState } from "#lib/hydration.svelte.js";
+  import { selectionGroupKeydown } from "#lib/selection-group.js";
+  import { withViewTransition } from "#lib/view-transition.js";
   import LangText from "./LangText.svelte";
 
   const isHydrated = hydrationState();

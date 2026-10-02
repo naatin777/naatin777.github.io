@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { TocItem } from "$lib/types";
+  import type { TocItem } from "#lib/types.js";
   import LangText from "./LangText.svelte";
 
   interface Props {
@@ -26,9 +26,13 @@
     const stack: TocNode[] = [];
     for (const h of tocHeadings) {
       const node: TocNode = { ...h, children: [] };
-      while (stack.length > 0 && stack[stack.length - 1]!.depth >= h.depth) stack.pop();
-      if (stack.length > 0) stack[stack.length - 1]!.children.push(node);
-      else root.push(node);
+      let top = stack.at(-1);
+      while (top !== undefined && top.depth >= h.depth) {
+        stack.pop();
+        top = stack.at(-1);
+      }
+      if (top === undefined) root.push(node);
+      else top.children.push(node);
       stack.push(node);
     }
     return root;

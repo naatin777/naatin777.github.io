@@ -28,3 +28,9 @@ minimumReleaseAgeExclude:
   - jsdom@30.1.1
   - lru-cache@11.5.3
   - w3c-xmlserializer@6.0.0
+  # SvelteKit 3 migration — freshly published, waived explicitly
+  - "@sveltejs/kit@3.0.0"
+  - "@sveltejs/adapter-static@4.0.0"
+  - "@sveltejs/enhanced-img@1.0.0"
+  - "@sveltejs/sv-utils@1.0.0"
+  - sv@1.0.1

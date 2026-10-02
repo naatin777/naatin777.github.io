@@ -1,19 +1,12 @@
 <script lang="ts">
+  import { resolve } from "$app/paths";
   import { ExternalLink } from "@lucide/svelte";
-  import { formatDate } from "$lib/date";
-  import { sourceLabels, type ArticleSource } from "$lib/config/article-source";
+  import { formatDate } from "#lib/date.js";
+  import { sourceLabels } from "#lib/config/article-source.js";
+  import type { ArticleItem } from "#lib/types.js";
   import LangText from "./LangText.svelte";
 
-  interface Props {
-    title: string;
-    url: string;
-    tags: string[];
-    source: ArticleSource;
-    series: string | null;
-    seriesSlug?: string | undefined;
-    publishedAt: string;
-    updatedAt: string;
-    description?: string | undefined;
+  interface Props extends ArticleItem {
     selectedTags?: Set<string>;
     ontag?: (tag: string) => void;
   }
@@ -40,7 +33,7 @@
     <div class="min-w-0">
       {#if series}
         <a
-          href="/series/{encodeURIComponent(seriesSlug ?? series)}/"
+          href={resolve(`series/${encodeURIComponent(seriesSlug ?? series)}/`)}
           class="text-muted hover:text-foreground relative z-10 mb-0.5 block truncate text-xs hover:underline"
           >{series}</a
         >

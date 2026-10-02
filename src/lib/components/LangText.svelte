@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { langs, type LocalizedText } from "$lib/config/i18n";
+  import { langs, type LocalizedText } from "#lib/config/i18n.js";
 
   interface Props {
     texts: LocalizedText;

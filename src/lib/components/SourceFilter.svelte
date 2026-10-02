@@ -1,7 +1,7 @@
 <script lang="ts">
-  import LangText from "$lib/components/LangText.svelte";
-  import { sourceLabels, type ArticleSource } from "$lib/config/article-source";
-  import { selectionGroupKeydown } from "$lib/selection-group";
+  import LangText from "#lib/components/LangText.svelte";
+  import { sourceLabels, type ArticleSource } from "#lib/config/article-source.js";
+  import { selectionGroupKeydown } from "#lib/selection-group.js";
 
   interface Props {
     sources: ArticleSource[];

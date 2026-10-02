@@ -4,10 +4,10 @@
   import "@fontsource-variable/inter";
   import "@fontsource-variable/noto-sans-jp";
   import "../app.css";
-  import Footer from "$lib/components/Footer.svelte";
-  import Header from "$lib/components/Header.svelte";
-  import LangText from "$lib/components/LangText.svelte";
-  import { viewTransitionAllowed } from "$lib/view-transition";
+  import Footer from "#lib/components/Footer.svelte";
+  import Header from "#lib/components/Header.svelte";
+  import LangText from "#lib/components/LangText.svelte";
+  import { viewTransitionAllowed } from "#lib/view-transition.js";
   import interWoff2 from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
 
   let { children } = $props();
@@ -20,6 +20,7 @@
   // API. Browsers without support (and reduced-motion users) just get the
   // normal instant swap.
   onNavigate((navigation) => {
+    if (navigation.shallow) return;
     if (!viewTransitionAllowed()) return;
     return new Promise((resolve) => {
       document.startViewTransition(async () => {

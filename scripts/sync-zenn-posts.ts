@@ -17,10 +17,11 @@ import { XMLParser } from "fast-xml-parser";
 import matter from "gray-matter";
 import { z } from "zod";
 
-import { author } from "../src/lib/config/site.ts";
-// Type-only import: erased at runtime, so the $lib alias inside
-// external-articles never needs resolving under node's type stripping.
-import type { ExternalPost } from "../src/lib/server/external-articles.ts";
+import { author } from "#lib/config/site.ts";
+// Type-only import: erased at runtime — external-articles' own #lib/*.js
+// specifiers don't exist on disk, so it can't be a runtime import under
+// node's type stripping.
+import type { ExternalPost } from "#lib/server/external-articles.ts";
 
 const OUT_FILE = "content/generated/zenn.json";
 

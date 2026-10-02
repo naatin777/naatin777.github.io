@@ -1,8 +1,9 @@
 <script lang="ts">
-  import LangText from "$lib/components/LangText.svelte";
-  import Seo from "$lib/components/Seo.svelte";
-  import { site } from "$lib/config/site";
-  import { formatDate } from "$lib/date";
+  import { resolve } from "$app/paths";
+  import LangText from "#lib/components/LangText.svelte";
+  import Seo from "#lib/components/Seo.svelte";
+  import { site } from "#lib/config/site.js";
+  import { formatDate } from "#lib/date.js";
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
@@ -12,7 +13,7 @@
 
 <section class="flex flex-col gap-6">
   <p class="text-muted text-sm">
-    <a href="/series/" class="hover:text-foreground hover:underline"
+    <a href={resolve("series/")} class="hover:text-foreground hover:underline"
       ><LangText texts={{ ja: "シリーズ", en: "Series" }} /></a
     >
   </p>
@@ -23,7 +24,7 @@
         <span class="text-muted shrink-0 text-sm">{i + 1}</span>
         <div class="min-w-0">
           <a
-            href="/posts/{post.slug}/"
+            href={resolve(`posts/${post.slug}/`)}
             class="font-medium after:absolute after:inset-0 after:content-[''] hover:underline">{post.title}</a
           >
           <p class="text-muted mt-0.5 text-xs">

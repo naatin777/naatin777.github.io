@@ -1,9 +1,9 @@
 <script lang="ts">
   import { Moon, Sun, SunMoon } from "@lucide/svelte";
   import { tick } from "svelte";
-  import { hydrationState } from "$lib/hydration.svelte";
-  import { themeState } from "$lib/theme.svelte";
-  import { withViewTransition } from "$lib/view-transition";
+  import { hydrationState } from "#lib/hydration.svelte.js";
+  import { themeState } from "#lib/theme.svelte.js";
+  import { withViewTransition } from "#lib/view-transition.js";
   import LangText from "./LangText.svelte";
 
   const theme = themeState();

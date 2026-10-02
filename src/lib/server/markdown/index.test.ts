@@ -30,6 +30,13 @@ describe("renderMarkdown", () => {
   it("wraps tables in a scroll container", async () => {
     const { html } = await renderMarkdown("| a | b |\n|---|---|\n| 1 | 2 |");
     expect(html).toContain('class="table-wrap"');
-    expect(html).toMatch(/<div class="table-wrap">\s*<table>/);
+    expect(html).toMatch(/<div class="table-wrap" tabindex="0">\s*<table>/);
+  });
+
+  it("names nested task checkboxes with only their own item text", async () => {
+    const { html } = await renderMarkdown("- [ ] Parent `task`\n  - [x] Child **done**\n");
+    expect(html).toContain('aria-label="Parent task"');
+    expect(html).toContain('aria-label="Child done"');
+    expect(html).not.toContain('aria-label="Parent task\\nChild done"');
   });
 });

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import LangText from "$lib/components/LangText.svelte";
-  import Seo from "$lib/components/Seo.svelte";
-  import type { LocalizedText } from "$lib/config/i18n";
-  import { site } from "$lib/config/site";
+  import LangText from "#lib/components/LangText.svelte";
+  import Seo from "#lib/components/Seo.svelte";
+  import type { LocalizedText } from "#lib/config/i18n.js";
+  import { site } from "#lib/config/site.js";
 
   // add entries here — newest first
   const projects: { name: string; url: string; texts: LocalizedText }[] = [];

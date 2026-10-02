@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import { site } from "$lib/config/site";
+  import { site } from "#lib/config/site.js";
 
   interface Props {
     title: string;

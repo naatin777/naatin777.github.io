@@ -1,4 +1,4 @@
-import { getAllArticles } from "$lib/server/articles";
+import { getAllArticles } from "#lib/server/articles.js";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async () => {

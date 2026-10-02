@@ -1,4 +1,5 @@
-import type { TocItem } from "$lib/types";
+import type { TocItem } from "#lib/types.js";
+import type { ResolveImage } from "./images";
 import { renderMarkdown } from "./index";
 
 // Dev-mode render cache. Editing a post invalidates the posts module (the
@@ -11,7 +12,7 @@ const cache = new Map<string, Promise<{ html: string; toc: TocItem[] }>>();
 
 export function renderMarkdownCached(
   content: string,
-  options: { cacheKey: string; resolveImage: (src: string) => string },
+  options: { cacheKey: string; resolveImage: ResolveImage },
 ): Promise<{ html: string; toc: TocItem[] }> {
   let task = cache.get(options.cacheKey);
   if (!task) {

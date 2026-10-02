@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { defaultLang, langs } from "$lib/config/i18n";
-import { themeColors } from "$lib/config/theme";
+import { defaultLang, langs } from "#lib/config/i18n.js";
+import { themeColors } from "#lib/config/theme.js";
 
 // The pre-paint init script in app.html duplicates these constants by
 // hand — this test fails loudly when the two sides drift apart.

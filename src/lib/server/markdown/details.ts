@@ -2,11 +2,9 @@ import type { Root } from "mdast";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 
-// :::details タイトル / ::: — a terser spelling of raw <details> blocks.
-// remark-directive yields containerDirective; the label (inline text after
-// the name) arrives as a first-child paragraph flagged directiveLabel,
-// so hName-mapped to <summary>, and the directive itself to <details>.
-// Both tags are in the sanitize schema's allowlist already.
+// :::details[タイトル] / ::: uses remark-directive's bracketed label.
+// Mapping it to <summary> keeps its inline markup; <details>/<summary>
+// then cross the author-markup sanitize boundary with the rest of the tree.
 export const remarkDetails: Plugin<[], Root> = () => (tree) => {
   visit(tree, "containerDirective", (node) => {
     if (node.name !== "details") return;

@@ -1,6 +1,7 @@
-import { navItems } from "$lib/config/nav";
-import { site } from "$lib/config/site";
-import { getPosts } from "$lib/server/posts";
+import { resolve } from "$app/paths";
+import { navItems } from "#lib/config/nav.js";
+import { site } from "#lib/config/site.js";
+import { getPosts } from "#lib/server/posts.js";
 import type { RequestHandler } from "./$types";
 
 export const prerender = true;
@@ -16,10 +17,13 @@ export const GET: RequestHandler = async () => {
   const urls = [
     ...staticPages.map((path) => `  <url><loc>${site.url}${path}</loc></url>`),
     // /series/ always exists (it renders an empty state without series).
-    `  <url><loc>${site.url}/series/</loc></url>`,
-    ...[...seriesSlugs].map((slug) => `  <url><loc>${site.url}/series/${encodeURIComponent(slug)}/</loc></url>`),
+    `  <url><loc>${site.url}${resolve("series/")}</loc></url>`,
+    ...[...seriesSlugs].map(
+      (slug) => `  <url><loc>${site.url}${resolve(`series/${encodeURIComponent(slug)}/`)}</loc></url>`,
+    ),
     ...posts.map(
-      (post) => `  <url><loc>${site.url}/posts/${post.slug}/</loc><lastmod>${toDate(post.updatedAt)}</lastmod></url>`,
+      (post) =>
+        `  <url><loc>${site.url}${resolve(`posts/${post.slug}/`)}</loc><lastmod>${toDate(post.updatedAt)}</lastmod></url>`,
     ),
   ];
   const body = `<?xml version="1.0" encoding="UTF-8"?>

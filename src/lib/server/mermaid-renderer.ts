@@ -34,7 +34,12 @@ async function renderBothThemes(source: string): Promise<MermaidDiagrams | null>
     prefix: `light-${id}`,
   });
   const [dark] = await renderer([source], {
-    mermaidConfig: { theme: "dark", securityLevel: "antiscript" },
+    mermaidConfig: {
+      theme: "dark",
+      securityLevel: "antiscript",
+      // Mermaid's default #585858 makes #ccc edge labels miss 4.5:1.
+      themeVariables: { edgeLabelBackground: "#333333" },
+    },
     prefix: `dark-${id}`,
   });
   if (light?.status !== "fulfilled" || dark?.status !== "fulfilled") {

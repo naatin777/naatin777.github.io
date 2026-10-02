@@ -1,8 +1,9 @@
 <script lang="ts">
+  import { resolve } from "$app/paths";
   import { page } from "$app/state";
-  import LangText from "$lib/components/LangText.svelte";
-  import Seo from "$lib/components/Seo.svelte";
-  import { site } from "$lib/config/site";
+  import LangText from "#lib/components/LangText.svelte";
+  import Seo from "#lib/components/Seo.svelte";
+  import { site } from "#lib/config/site.js";
 </script>
 
 <Seo title={`${page.status} · ${site.title}`} noindex />
@@ -18,10 +19,10 @@
     />
   </p>
   <div class="flex items-center gap-4">
-    <a href="/" class="text-foreground underline underline-offset-2">
+    <a href={resolve("/")} class="text-foreground underline underline-offset-2">
       <LangText texts={{ ja: "ホームに戻る", en: "Back to home" }} />
     </a>
-    <a href="/articles/" class="text-muted hover:text-foreground underline underline-offset-2">
+    <a href={resolve("articles/")} class="text-muted hover:text-foreground underline underline-offset-2">
       <LangText texts={{ ja: "記事一覧へ", en: "Browse articles" }} />
     </a>
   </div>

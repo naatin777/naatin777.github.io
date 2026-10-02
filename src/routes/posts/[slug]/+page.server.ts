@@ -1,5 +1,5 @@
 import { error } from "@sveltejs/kit";
-import { getPosts } from "$lib/server/posts";
+import { getPosts } from "#lib/server/posts.js";
 import type { EntryGenerator, PageServerLoad } from "./$types";
 
 export const entries: EntryGenerator = async () => {

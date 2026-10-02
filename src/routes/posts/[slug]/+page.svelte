@@ -1,15 +1,15 @@
 <script lang="ts">
+  import { resolve } from "$app/paths";
   import { ArrowUp, Check, Link } from "@lucide/svelte";
-  import LangText from "$lib/components/LangText.svelte";
-  import Seo from "$lib/components/Seo.svelte";
-  import SeriesNav from "$lib/components/SeriesNav.svelte";
-  import Toc from "$lib/components/Toc.svelte";
-  import { defaultLang } from "$lib/config/i18n";
-  import { selectionGroupKeydown } from "$lib/selection-group";
-  import { author, site } from "$lib/config/site";
-  import { formatDate } from "$lib/date";
+  import { handleArticleClick, handleArticleKeydown } from "#lib/article-interactions.js";
+  import LangText from "#lib/components/LangText.svelte";
+  import Seo from "#lib/components/Seo.svelte";
+  import SeriesNav from "#lib/components/SeriesNav.svelte";
+  import Toc from "#lib/components/Toc.svelte";
+  import { defaultLang } from "#lib/config/i18n.js";
+  import { author, site } from "#lib/config/site.js";
+  import { formatDate } from "#lib/date.js";
   import type { PageProps } from "./$types";
-  import "katex/dist/katex.min.css";
 
   let { data }: PageProps = $props();
   const post = $derived(data.post);
@@ -39,76 +39,13 @@
       author: { "@type": "Person", name: author.displayName, url: site.url },
       image: `${site.url}/og/${post.slug}.png`,
       keywords: post.tags.join(", "),
-      mainEntityOfPage: `${site.url}/posts/${post.slug}/`,
+      mainEntityOfPage: `${site.url}${resolve(`posts/${post.slug}/`)}`,
     }),
   );
 
-  const onArticleClick = async (event: MouseEvent) => {
-    if (!(event.target instanceof Element)) return;
-    const target = event.target;
-
-    // × on an anchored code block — history.replaceState can't undo a
-    // .line:target (browsers only re-evaluate it on fragment navigation),
-    // so navigate the hash to the block's own id instead.
-    const unfocus = target.closest<HTMLButtonElement>(".code-unfocus");
-    if (unfocus) {
-      const id = unfocus.closest(".code-block")?.id;
-      if (id) location.hash = id;
-      return;
-    }
-
-    // mermaid preview/source tabs (APG tabs: roving tabindex + aria-selected)
-    const tab = target.closest<HTMLButtonElement>(".mermaid-tab");
-    if (tab) {
-      const block = tab.closest(".mermaid-block");
-      if (!block) return;
-      const pane = tab.dataset.tab;
-      block.querySelectorAll<HTMLButtonElement>(".mermaid-tab").forEach((t) => {
-        const active = t === tab;
-        t.setAttribute("aria-selected", String(active));
-        t.tabIndex = active ? 0 : -1;
-      });
-      block.querySelectorAll<HTMLElement>(".mermaid-pane").forEach((p) => {
-        p.hidden = p.dataset.pane !== pane;
-      });
-      return;
-    }
-
-    // wrap/scroll toggle on the code-block title bar
-    const wrapButton = target.closest<HTMLButtonElement>(".code-wrap");
-    if (wrapButton) {
-      const block = wrapButton.closest(".code-block");
-      const wrapped = block?.classList.toggle("wrap") ?? false;
-      wrapButton.setAttribute("aria-pressed", String(wrapped));
-      return;
-    }
-
-    const button = target.closest<HTMLButtonElement>(".code-copy");
-    if (!button) return;
-    // Code blocks copy their code; the mermaid bar button copies the
-    // diagram source — target the source pane explicitly since the
-    // preview pane (SVG/foreignObject) could contain stray <code> too.
-    const block = button.closest(".code-block, .mermaid-block");
-    const code = block?.classList.contains("mermaid-block")
-      ? block.querySelector('[data-pane="source"] code')?.textContent
-      : block?.querySelector("code")?.textContent;
-    if (!code) return;
-    try {
-      await navigator.clipboard.writeText(code.replace(/\n+$/, ""));
-      button.classList.add("copied");
-      button.setAttribute("aria-label", "コピーしました");
-      setTimeout(() => {
-        button.classList.remove("copied");
-        button.setAttribute("aria-label", "コードをコピー");
-      }, 1500);
-    } catch {
-      // clipboard unavailable (permissions, insecure context) — no-op
-    }
-  };
-
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(`${site.url}/posts/${post.slug}/`);
+      await navigator.clipboard.writeText(`${site.url}${resolve(`posts/${post.slug}/`)}`);
       linkCopied = true;
       setTimeout(() => (linkCopied = false), 1500);
     } catch {
@@ -123,6 +60,15 @@
     window.scrollTo({ top: 0 });
   };
 </script>
+
+<svelte:head>
+  {#if post.hasMath}
+    <!-- Vendored from node_modules by the katex-vendor vite plugin — a
+         bundled CSS import can't be conditional, and ?url would break the
+         stylesheet's relative font urls. -->
+    <link rel="stylesheet" href="/vendor/katex/katex.min.css" />
+  {/if}
+</svelte:head>
 
 <Seo
   title={`${post.title} · ${site.title}`}
@@ -141,9 +87,9 @@
 <div class={hasToc ? "xl:grid xl:grid-cols-[minmax(0,48rem)_14rem] xl:justify-center xl:gap-12" : ""}>
   <!-- Delegated clicks only reach real <button>s (copy / mermaid tabs), which
        handle their own activation; the delegated keydown adds arrow-key
-       navigation for the tablists. The article itself is not interactive. -->
+       navigation for the tablists and scrollable tables. The article itself is not interactive. -->
   <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions, a11y_no_noninteractive_element_interactions -->
-  <article onclick={onArticleClick} onkeydown={selectionGroupKeydown}>
+  <article onclick={handleArticleClick} onkeydown={handleArticleKeydown}>
     <header class="border-border mb-8 flex flex-col gap-2 border-b pb-6">
       <h1 class="text-4xl font-bold tracking-tight">{post.title}</h1>
       {#if post.description}
@@ -208,7 +154,7 @@
         <span class="flex min-w-0 flex-col gap-1">
           {#if data.older}
             <span class="text-muted text-xs"><LangText texts={{ ja: "前の記事", en: "Older" }} /></span>
-            <a href="/posts/{data.older.slug}/" class="truncate font-medium hover:underline">
+            <a href={resolve(`posts/${data.older.slug}/`)} class="truncate font-medium hover:underline">
               <span aria-hidden="true">← </span>{data.older.title}
             </a>
           {/if}
@@ -216,7 +162,7 @@
         <span class="flex min-w-0 flex-col items-end gap-1 text-right">
           {#if data.newer}
             <span class="text-muted text-xs"><LangText texts={{ ja: "次の記事", en: "Newer" }} /></span>
-            <a href="/posts/{data.newer.slug}/" class="truncate font-medium hover:underline">
+            <a href={resolve(`posts/${data.newer.slug}/`)} class="truncate font-medium hover:underline">
               {data.newer.title}<span aria-hidden="true"> →</span>
             </a>
           {/if}

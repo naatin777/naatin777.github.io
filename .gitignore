@@ -8,6 +8,8 @@ node_modules/
 
 # generated
 /.svelte-kit/
+# vendored by the katex-vendor vite plugin on dev/build start
+/static/vendor/
 
 # environment variables
 .env

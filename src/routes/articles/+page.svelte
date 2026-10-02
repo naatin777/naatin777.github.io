@@ -1,13 +1,13 @@
 <script lang="ts">
-  import ArticleCard from "$lib/components/ArticleCard.svelte";
-  import LangText from "$lib/components/LangText.svelte";
-  import Seo from "$lib/components/Seo.svelte";
-  import SourceFilter from "$lib/components/SourceFilter.svelte";
-  import SortControl from "$lib/components/SortControl.svelte";
-  import TagFilter from "$lib/components/TagFilter.svelte";
-  import { ArticleListState } from "$lib/article-list-state.svelte";
-  import { sourceOrder, type ArticleSource } from "$lib/config/article-source";
-  import { site } from "$lib/config/site";
+  import ArticleCard from "#lib/components/ArticleCard.svelte";
+  import LangText from "#lib/components/LangText.svelte";
+  import Seo from "#lib/components/Seo.svelte";
+  import SourceFilter from "#lib/components/SourceFilter.svelte";
+  import SortControl from "#lib/components/SortControl.svelte";
+  import TagFilter from "#lib/components/TagFilter.svelte";
+  import { ArticleListState } from "#lib/article-list-state.svelte.js";
+  import { sourceOrder, type ArticleSource } from "#lib/config/article-source.js";
+  import { site } from "#lib/config/site.js";
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
