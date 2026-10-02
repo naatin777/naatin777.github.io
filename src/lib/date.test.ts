@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { formatDate, parseDate } from "./date";
 
 describe("parseDate", () => {
-  it("treats bare YYYY-MM-DD as JST", () => {
-    expect(parseDate("2026-01-01")).toBe(Date.parse("2026-01-01T00:00:00+09:00"));
+  it("rejects bare YYYY-MM-DD without an offset", () => {
+    expect(parseDate("2026-01-01")).toBeNaN();
   });
 
   it("parses timestamps with an explicit offset", () => {

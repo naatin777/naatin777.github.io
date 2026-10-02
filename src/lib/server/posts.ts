@@ -14,7 +14,7 @@ import { renderMarkdownCached } from "./markdown/render-cache";
 
 // gray-matter's bundled js-yaml resolves YAML timestamps into Date objects
 // (UTC for date-only, machine-local otherwise) — parsing with CORE_SCHEMA
-// keeps them as strings so parseDate can pin bare dates to JST instead.
+// keeps them as strings so parseDate validates the explicit offset itself.
 const matterOptions = {
   engines: {
     yaml: {
