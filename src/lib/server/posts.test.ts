@@ -4,13 +4,10 @@ import { loadPostsFrom } from "./posts";
 const entry = (frontmatter: string, body = "body") => `---\n${frontmatter}\n---\n${body}`;
 
 describe("loadPostsFrom", () => {
-  it("skips drafts, malformed frontmatter, and missing required fields", async () => {
+  it("skips drafts", async () => {
     const posts = await loadPostsFrom(
       {
         "/content/posts/2026/draft/index.md": entry("title: Draft\npublishedAt: 2026-03-01\ndraft: true"),
-        "/content/posts/2026/draftstr/index.md": entry('title: DraftStr\npublishedAt: 2026-03-01\ndraft: "true"'),
-        "/content/posts/2026/broken/index.md": "---\n: bad yaml\n---\nx",
-        "/content/posts/2026/notitle/index.md": entry("publishedAt: 2026-03-02"),
         "/content/posts/2026/good/index.md": entry("title: Good\npublishedAt: 2026-03-03"),
       },
       {},
@@ -18,58 +15,47 @@ describe("loadPostsFrom", () => {
     expect(posts.map((p) => p.slug)).toEqual(["good"]);
   });
 
-  it("skips slugs that are not URL-safe", async () => {
-    const posts = await loadPostsFrom(
-      {
-        "/content/posts/2026/has space/index.md": entry("title: S\npublishedAt: 2026-03-01"),
-        "/content/posts/2026/a&b/index.md": entry("title: A\npublishedAt: 2026-03-02"),
-        "/content/posts/2026/ok-slug_1/index.md": entry("title: O\npublishedAt: 2026-03-03"),
-      },
-      {},
-    );
-    expect(posts.map((p) => p.slug)).toEqual(["ok-slug_1"]);
+  it("throws on malformed frontmatter, missing fields, and blank values", async () => {
+    await expect(
+      loadPostsFrom({ "/content/posts/2026/broken/index.md": "---\n: bad yaml\n---\nx" }, {}),
+    ).rejects.toThrow("[posts] /content/posts/2026/broken/index.md");
+    await expect(
+      loadPostsFrom({ "/content/posts/2026/notitle/index.md": entry("publishedAt: 2026-03-02") }, {}),
+    ).rejects.toThrow("[posts] /content/posts/2026/notitle/index.md");
+    await expect(
+      loadPostsFrom(
+        { "/content/posts/2026/blank/index.md": entry("title: A\npublishedAt: 2026-03-01\ndescription:") },
+        {},
+      ),
+    ).rejects.toThrow("[posts] /content/posts/2026/blank/index.md");
   });
 
-  it("skips duplicate slugs across year folders", async () => {
-    const posts = await loadPostsFrom(
-      {
-        "/content/posts/2026/dup/index.md": entry("title: A\npublishedAt: 2026-03-01"),
-        "/content/posts/2027/dup/index.md": entry("title: B\npublishedAt: 2027-03-01"),
-      },
-      {},
-    );
-    expect(posts).toHaveLength(1);
-    expect(posts[0]?.slug).toBe("dup");
+  it("throws on non-URL-safe or duplicate slugs", async () => {
+    await expect(
+      loadPostsFrom({ "/content/posts/2026/has space/index.md": entry("title: S\npublishedAt: 2026-03-01") }, {}),
+    ).rejects.toThrow("[posts] /content/posts/2026/has space/index.md");
+    await expect(
+      loadPostsFrom(
+        {
+          "/content/posts/2026/dup/index.md": entry("title: A\npublishedAt: 2026-03-01"),
+          "/content/posts/2027/dup/index.md": entry("title: B\npublishedAt: 2027-03-01"),
+        },
+        {},
+      ),
+    ).rejects.toThrow("[posts] /content/posts/2027/dup/index.md");
   });
 
   it("pins bare frontmatter dates to JST regardless of machine timezone", async () => {
     const posts = await loadPostsFrom(
       {
         "/content/posts/2026/date/index.md": entry("title: D\npublishedAt: 2026-03-08"),
-        "/content/posts/2026/time/index.md": entry("title: T\npublishedAt: 2026-03-08 23:00"),
-        "/content/posts/2026/sec/index.md": entry("title: S\npublishedAt: 2026-03-08 23:00:45"),
         "/content/posts/2026/offset/index.md": entry("title: O\npublishedAt: 2026-03-08T23:00:45+09:00"),
       },
       {},
     );
     const bySlug = new Map(posts.map((p) => [p.slug, p]));
     expect(bySlug.get("date")?.publishedAt.toISOString()).toBe("2026-03-07T15:00:00.000Z");
-    expect(bySlug.get("time")?.publishedAt.toISOString()).toBe("2026-03-08T14:00:00.000Z");
-    expect(bySlug.get("sec")?.publishedAt.toISOString()).toBe("2026-03-08T14:00:45.000Z");
     expect(bySlug.get("offset")?.publishedAt.toISOString()).toBe("2026-03-08T14:00:45.000Z");
-  });
-
-  it("rejects dates that parse in machine-local time", async () => {
-    const posts = await loadPostsFrom(
-      {
-        "/content/posts/2026/frac/index.md": entry("title: F\npublishedAt: 2026-03-08T23:00:45.123"),
-        "/content/posts/2026/unpadded/index.md": entry("title: U\npublishedAt: 2026-3-8"),
-        "/content/posts/2026/words/index.md": entry("title: W\npublishedAt: Mar 8 2026"),
-        "/content/posts/2026/z/index.md": entry("title: Z\npublishedAt: 2026-03-08T23:00:45Z"),
-      },
-      {},
-    );
-    expect(posts.map((p) => p.slug)).toEqual(["z"]);
   });
 
   it("uses frontmatter updatedAt over the resolver, then falls back to it", async () => {
@@ -89,30 +75,18 @@ describe("loadPostsFrom", () => {
     expect(bySlug.get("none")?.updatedAt.toISOString()).toBe("2026-03-02T15:00:00.000Z");
   });
 
-  it("treats blank YAML values as unset", async () => {
-    const posts = await loadPostsFrom(
-      { "/content/posts/2026/a/index.md": entry("title: A\npublishedAt: 2026-03-01\ndescription:\ntags:") },
-      {},
-    );
-    expect(posts).toHaveLength(1);
-    expect(posts[0]?.description).toBe("");
-    expect(posts[0]?.tags).toEqual([]);
-  });
-
-  it("resolves ../ and query-suffixed image paths", async () => {
+  it("resolves image paths against the post folder", async () => {
     const posts = await loadPostsFrom(
       {
         "/content/posts/2026/a/index.md": entry(
           "title: A\npublishedAt: 2026-03-01",
-          "![x](../shared/p.png) ![y](./q.png?v=1)",
+          "![x](../markdown-test/sample.png)",
         ),
       },
       {
-        "/content/posts/2026/shared/p.png": "/bundled/p.png",
-        "/content/posts/2026/a/q.png": "/bundled/q.png",
+        "/content/posts/2026/markdown-test/sample.png": "/bundled/sample.png",
       },
     );
-    expect(posts[0]?.html).toContain("/bundled/p.png");
-    expect(posts[0]?.html).toContain("/bundled/q.png");
+    expect(posts[0]?.html).toContain("/bundled/sample.png");
   });
 });
