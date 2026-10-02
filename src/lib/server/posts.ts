@@ -71,8 +71,7 @@ const postFiles = import.meta.glob<string>("/content/posts/*/*/index.md", {
 // Assets co-located with a post (images etc.) are bundled by vite; markdown
 // references them relatively (./image.png) and rehypeResolveImages swaps in
 // the emitted URL. Every glob match is emitted to build/ whether a post
-// references it or not — that's why drafts live outside content/posts/,
-// outside this glob, so their assets never reach the output.
+// references it or not — so a draft's assets still ship.
 const postAssets = import.meta.glob<string>("/content/posts/*/**/*.{png,jpg,jpeg,gif,svg,webp,avif}", {
   query: "?url",
   import: "default",
@@ -82,7 +81,7 @@ const postAssets = import.meta.glob<string>("/content/posts/*/**/*.{png,jpg,jpeg
 let cache: Promise<Post[]> | null = null;
 
 export function getPosts(): Promise<Post[]> {
-  return (cache ??= loadPostsFrom(postFiles, postAssets, gitUpdatedAt).catch((error) => {
+  return (cache ??= loadPostsFrom(postFiles, postAssets, gitUpdatedAt, import.meta.env.DEV).catch((error) => {
     // A rejected cache would poison every subsequent call — reset on failure.
     cache = null;
     throw error;
@@ -118,11 +117,15 @@ const imageDimensions = (globKey: string): { width?: number; height?: number } =
   return width === undefined || height === undefined ? {} : { width, height };
 };
 
-function parsePostFrontmatter(raw: string): { frontmatter: z.infer<typeof frontmatterSchema>; content: string } | null {
+function parsePostFrontmatter(
+  raw: string,
+  includeDrafts: boolean,
+): { frontmatter: z.infer<typeof frontmatterSchema>; content: string } | null {
   const { data, content } = matter(raw, matterOptions);
   const frontmatter = frontmatterSchema.parse(data);
-  // A draft's page is skipped, but its folder's assets still ship.
-  if (frontmatter.draft) return null;
+  // Drafts render in `pnpm dev` only; in production their pages are skipped
+  // (the folder's assets still ship).
+  if (frontmatter.draft && !includeDrafts) return null;
   return { frontmatter, content };
 }
 
@@ -169,6 +172,7 @@ export async function loadPostsFrom(
   files: Record<string, string>,
   assets: Record<string, string>,
   resolveUpdatedAt: (path: string) => Date | null = () => null,
+  includeDrafts = false,
 ): Promise<Post[]> {
   const slugs = new Set<string>();
   // Render-cache salt covering every image this glob could resolve to —
@@ -178,7 +182,7 @@ export async function loadPostsFrom(
   const posts = await Promise.all(
     Object.entries(files).map(async ([path, raw]): Promise<Post | null> => {
       try {
-        const parsed = parsePostFrontmatter(raw);
+        const parsed = parsePostFrontmatter(raw, includeDrafts);
         if (!parsed) return null;
         const { frontmatter, content } = parsed;
         // /content/posts/<year>/<slug>/index.md — slug is the folder name and

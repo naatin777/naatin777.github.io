@@ -17,6 +17,20 @@ describe("loadPostsFrom", () => {
     expect(posts.map((p) => p.slug)).toEqual(["good"]);
   });
 
+  it("includes drafts when includeDrafts is true", async () => {
+    const posts = await loadPostsFrom(
+      {
+        "/content/posts/2026/draft/index.md": entry(
+          "title: Draft\npublishedAt: 2026-03-01T00:00:00+09:00\ndraft: true",
+        ),
+      },
+      {},
+      () => null,
+      true,
+    );
+    expect(posts.map((p) => p.slug)).toEqual(["draft"]);
+  });
+
   it("throws on malformed frontmatter, missing fields, and blank values", async () => {
     await expect(
       loadPostsFrom({ "/content/posts/2026/broken/index.md": "---\n: bad yaml\n---\nx" }, {}),
