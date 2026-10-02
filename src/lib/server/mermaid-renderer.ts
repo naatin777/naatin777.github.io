@@ -43,8 +43,7 @@ async function renderBothThemes(source: string): Promise<MermaidDiagrams | null>
     prefix: `dark-${id}`,
   });
   if (light?.status !== "fulfilled" || dark?.status !== "fulfilled") {
-    const failure = light?.status === "rejected" ? light : dark?.status === "rejected" ? dark : undefined;
-    console.warn("[posts] mermaid render failed:", failure?.reason ?? "no result returned");
+    console.warn("[posts] mermaid render failed");
     return null;
   }
   return { light: light.value.svg, dark: dark.value.svg };

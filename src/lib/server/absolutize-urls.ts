@@ -12,11 +12,7 @@ export const absolutizeUrls = (html: string, postUrl: string): string => {
     for (const attr of ["src", "href"] as const) {
       const value = node.properties?.[attr];
       if (typeof value !== "string") continue;
-      try {
-        node.properties[attr] = new URL(value, postUrl).href;
-      } catch {
-        // leave malformed values untouched
-      }
+      node.properties[attr] = new URL(value, postUrl).href;
     }
   });
   return toHtml(tree);
