@@ -1,7 +1,7 @@
 ---
 title: "Markdownレンダリングテスト"
 description: "見出し・コード・数式・図・脚注など、Markdownパイプラインの全機能を確認するためのテスト記事"
-publishedAt: 2026-09-23
+publishedAt: 2026-09-23T00:00:00+09:00
 tags:
   - test
   - markdown
@@ -100,7 +100,7 @@ YAML(frontmatter風):
 
 ```yaml
 title: "サンプル記事"
-publishedAt: 2026-09-23
+publishedAt: 2026-09-23T00:00:00+09:00
 tags: [sveltekit, markdown]
 draft: false
 ```

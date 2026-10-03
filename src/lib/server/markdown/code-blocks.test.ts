@@ -34,12 +34,12 @@ describe("code blocks", () => {
     expect(html).toContain('class="line"');
   });
 
-  it("reserves the page landmark and deduplicates block and line anchors", async () => {
-    const { html } = await renderMarkdown("```text#main\na\n```\n\n```text#main\nb\n```");
-    expect(html).not.toContain('id="main"');
-    expect(html).toContain('id="main-1"');
-    expect(html).toContain('id="main-1-L1"');
-    expect(html).toContain('id="main-2"');
-    expect(html).toContain('id="main-2-L1"');
+  it("throws when a code anchor id collides with an existing id", async () => {
+    await expect(renderMarkdown("```text#main\na\n```")).rejects.toThrow(
+      'code anchor "#main" collides with an existing id',
+    );
+    await expect(renderMarkdown("```text#dup\na\n```\n\n```text#dup\nb\n```")).rejects.toThrow(
+      'code anchor "#dup" collides with an existing id',
+    );
   });
 });

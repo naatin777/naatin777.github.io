@@ -6,7 +6,7 @@
 // fences can't yield false positives), collects those URLs, fetches each
 // page once, and writes og:/<title>/description metadata. The file is
 // committed — builds never touch the network.
-import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { fromHtml } from "hast-util-from-html";
 import { toText } from "hast-util-to-text";
 import { join } from "node:path";
@@ -85,9 +85,7 @@ const fetchCard = async (url: string): Promise<Linkcard> => {
 };
 
 const sorted = [...collectUrls(markdownFiles(POSTS_DIR))].toSorted();
-const existing = existsSync(OUT_FILE)
-  ? z.record(z.string(), cardSchema).parse(JSON.parse(readFileSync(OUT_FILE, "utf8")))
-  : {};
+const existing = z.record(z.string(), cardSchema).parse(JSON.parse(readFileSync(OUT_FILE, "utf8")));
 const cards: Record<string, Linkcard> = {};
 const results = await Promise.allSettled(sorted.map(fetchCard));
 results.forEach((result, i) => {
@@ -105,9 +103,5 @@ results.forEach((result, i) => {
   }
 });
 
-mkdirSync(join(OUT_FILE, ".."), { recursive: true });
-// Rename-over keeps readers from ever seeing a truncated file.
-const tmp = `${OUT_FILE}.tmp`;
-writeFileSync(tmp, `${JSON.stringify(cards, null, 2)}\n`);
-renameSync(tmp, OUT_FILE);
+writeFileSync(OUT_FILE, `${JSON.stringify(cards, null, 2)}\n`);
 console.log(`[linkcards] wrote ${Object.keys(cards).length} card(s) → ${OUT_FILE}`);

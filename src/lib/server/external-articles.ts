@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { z } from "zod";
 import { externalSources } from "#lib/config/article-source.js";
 import type { ArticleItem } from "#lib/types.js";
@@ -10,16 +10,7 @@ import type { ArticleItem } from "#lib/types.js";
 
 // Only web URLs are linkable from article cards — anything else (javascript:,
 // data:, hand-edited junk) fails the build here rather than shipping.
-const externalUrl = z.string().refine(
-  (value) => {
-    try {
-      return ["http:", "https:"].includes(new URL(value).protocol);
-    } catch {
-      return false;
-    }
-  },
-  { message: "url must be an absolute http(s) URL" },
-);
+const externalUrl = z.url({ protocol: /^https?$/ });
 
 const externalPostSchema = z.object({
   title: z.string(),
@@ -35,20 +26,14 @@ const externalPostSchema = z.object({
 export type ExternalPost = z.infer<typeof externalPostSchema>;
 
 // Validate at build time — a hand-edited or truncated JSON fails loudly here
-// rather than silently rendering broken cards. A missing file just means that
-// source has never been synced.
+// rather than silently rendering broken cards.
 const articles: ArticleItem[] = externalSources
-  .flatMap((source) => {
-    const file = `content/generated/${source}.json`;
-    if (!existsSync(file)) {
-      console.warn(`[articles] ${file} not found — run \`pnpm sync:${source}\` to populate it`);
-      return [];
-    }
+  .flatMap((source) =>
     // A hand-edited file could smuggle a foreign `source` label — pin it.
-    return z
+    z
       .array(externalPostSchema.extend({ source: z.literal(source) }))
-      .parse(JSON.parse(readFileSync(file, "utf8")));
-  })
+      .parse(JSON.parse(readFileSync(`content/generated/${source}.json`, "utf8"))),
+  )
   .map((post) => Object.assign(post, { series: null, updatedAt: post.updatedAt ?? post.publishedAt }));
 
 export function getExternalArticles(): ArticleItem[] {

@@ -3,7 +3,9 @@
 @plugin "@tailwindcss/typography";
 
 @theme inline {
-  --font-sans: "Inter Variable", "Noto Sans JP Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans:
+    "Inter Variable", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Noto Sans CJK JP", "Yu Gothic UI",
+    Meiryo, ui-sans-serif, system-ui, sans-serif;
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-foreground: var(--foreground);

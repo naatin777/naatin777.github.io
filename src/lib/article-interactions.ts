@@ -26,7 +26,7 @@ async function copyCode(button: HTMLButtonElement): Promise<void> {
     : block?.querySelector("code")?.textContent;
   if (!code) return;
   try {
-    await navigator.clipboard.writeText(code.replace(/\n+$/, ""));
+    await navigator.clipboard.writeText(code.trimEnd());
     button.classList.add("copied");
     button.setAttribute("aria-label", "コピーしました");
     setTimeout(() => {

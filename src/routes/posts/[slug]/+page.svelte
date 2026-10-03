@@ -1,6 +1,6 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
-  import { ArrowUp, Check, Link } from "@lucide/svelte";
+  import { ArrowUp } from "@lucide/svelte";
   import { handleArticleClick, handleArticleKeydown } from "#lib/article-interactions.js";
   import LangText from "#lib/components/LangText.svelte";
   import Seo from "#lib/components/Seo.svelte";
@@ -14,12 +14,9 @@
   let { data }: PageProps = $props();
   const post = $derived(data.post);
   const uid = $props.id();
-  const copyLabelId = `${uid}-copy`;
-
   const pagerLabelId = `${uid}-pager`;
   const topLabelId = `${uid}-top`;
 
-  let linkCopied = $state(false);
   let showTop = $state(false);
 
   const showUpdated = $derived(post.updatedAt.getTime() !== post.publishedAt.getTime());
@@ -42,16 +39,6 @@
       mainEntityOfPage: `${site.url}${resolve(`posts/${post.slug}/`)}`,
     }),
   );
-
-  const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(`${site.url}${resolve(`posts/${post.slug}/`)}`);
-      linkCopied = true;
-      setTimeout(() => (linkCopied = false), 1500);
-    } catch {
-      // clipboard unavailable (permissions, insecure context) — no-op
-    }
-  };
 
   // Move focus too, not just the viewport — otherwise keyboard users keep
   // their focus at the bottom while the page jumps away.
@@ -106,31 +93,9 @@
             <time datetime={post.updatedAt.toISOString()}>{formatDate(post.updatedAt)}</time>
           </span>
         {/if}
-        <span>
-          <LangText texts={{ ja: `約${post.readingTime}分`, en: `${post.readingTime} min read` }} />
-        </span>
         {#each post.tags as tag (tag)}
           <span class="chip bg-surface">{tag}</span>
         {/each}
-        <button
-          type="button"
-          onclick={copyLink}
-          aria-labelledby={copyLabelId}
-          class="hover:text-foreground -m-1 ml-auto inline-flex items-center p-1 transition-colors"
-        >
-          <span id={copyLabelId} class="sr-only">
-            <LangText
-              texts={linkCopied
-                ? { ja: "リンクをコピーしました", en: "Link copied" }
-                : { ja: "記事のリンクをコピー", en: "Copy link to this post" }}
-            />
-          </span>
-          {#if linkCopied}
-            <Check class="size-4" aria-hidden="true" />
-          {:else}
-            <Link class="size-4" aria-hidden="true" />
-          {/if}
-        </button>
       </div>
     </header>
     <Toc headings={post.toc} />

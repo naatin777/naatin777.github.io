@@ -11,18 +11,13 @@ export interface MermaidDiagrams {
   dark: string;
 }
 
-export function renderMermaid(source: string): Promise<MermaidDiagrams | null> {
+export function renderMermaid(source: string): Promise<MermaidDiagrams> {
   const task = queue.then(() => renderBothThemes(source));
   queue = task.catch(() => {});
-  // Renderer-level failures (browser crash etc.) must not fail the whole
-  // build — callers fall back to a plain code block on null.
-  return task.catch((error) => {
-    console.warn("[posts] mermaid render threw:", error);
-    return null;
-  });
+  return task;
 }
 
-async function renderBothThemes(source: string): Promise<MermaidDiagrams | null> {
+async function renderBothThemes(source: string): Promise<MermaidDiagrams> {
   // Both variants land in one document: give each render a unique id prefix or
   // the <style> blocks (scoped by #mermaid-0) collide across diagrams and the
   // dark theme leaks into the light one.
@@ -43,9 +38,7 @@ async function renderBothThemes(source: string): Promise<MermaidDiagrams | null>
     prefix: `dark-${id}`,
   });
   if (light?.status !== "fulfilled" || dark?.status !== "fulfilled") {
-    const failure = light?.status === "rejected" ? light : dark?.status === "rejected" ? dark : undefined;
-    console.warn("[posts] mermaid render failed:", failure?.reason ?? "no result returned");
-    return null;
+    throw new Error("mermaid render failed");
   }
   return { light: light.value.svg, dark: dark.value.svg };
 }

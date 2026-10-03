@@ -191,11 +191,10 @@ export const rehypeCodeBlocks: Plugin<[], Root> = () => (tree) => {
             id,
             ...Array.from({ length: lineCount }, (_, i) => `${id}-L${i + 1}`),
           ];
+          if (idsFor(requested).some((id) => usedIds.has(id)))
+            throw new Error(`code anchor "#${requested}" collides with an existing id`);
           blockId = requested;
-          for (let n = 1; idsFor(blockId).some((id) => usedIds.has(id)); n += 1) blockId = `${requested}-${n}`;
           idsFor(blockId).forEach((id) => usedIds.add(id));
-          if (blockId !== requested)
-            console.warn(`[posts] code anchor "${requested}" renamed to "${blockId}" (id collision)`);
         }
         const meta = [highlight?.[0], blockId ? `#${blockId}` : undefined].filter(Boolean).join("");
         if (meta) code.properties.metastring = meta;

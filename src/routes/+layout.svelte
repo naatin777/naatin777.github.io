@@ -2,7 +2,6 @@
   import { onNavigate } from "$app/navigation";
   import { page } from "$app/state";
   import "@fontsource-variable/inter";
-  import "@fontsource-variable/noto-sans-jp";
   import "../app.css";
   import Footer from "#lib/components/Footer.svelte";
   import Header from "#lib/components/Header.svelte";
