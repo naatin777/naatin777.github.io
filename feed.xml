@@ -13,7 +13,7 @@
     </image>
     <!-- sync runs weekly — 12h is a reasonable polling hint for readers -->
     <ttl>720</ttl>
-    <lastBuildDate>Fri, 02 Oct 2026 11:40:15 GMT</lastBuildDate>
+    <lastBuildDate>Sat, 03 Oct 2026 14:53:46 GMT</lastBuildDate>
 
   </channel>
 </rss>

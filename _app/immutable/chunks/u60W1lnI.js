@@ -1,0 +1,1 @@
+var e=new Intl.DateTimeFormat(`ja-JP`,{year:`numeric`,month:`2-digit`,day:`2-digit`,timeZone:`Asia/Tokyo`}),t=e=>/(?:Z|[+-]\d{2}:\d{2})$/.test(e)?Date.parse(e):NaN,n=n=>{let r=typeof n==`string`?t(n):n.getTime();if(Number.isNaN(r))throw Error(`invalid date "${String(n)}"`);return e.format(r)};export{n as t};
