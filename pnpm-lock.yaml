@@ -179,8 +179,8 @@ importers:
         specifier: ^5.3.0
         version: 5.3.0
       '@lucide/svelte':
-        specifier: ^1.50.0
-        version: 1.50.0(svelte@5.57.1)
+        specifier: ^1.54.0
+        version: 1.54.0(svelte@5.57.1)
       '@shikijs/rehype':
         specifier: ^4.5.0
         version: 4.5.0
@@ -248,8 +248,8 @@ importers:
         specifier: ^4.5.0
         version: 4.5.0
       simple-icons:
-        specifier: ^16.33.0
-        version: 16.33.0
+        specifier: ^16.34.0
+        version: 16.34.0
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -610,8 +610,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@lucide/svelte@1.50.0':
-    resolution: {integrity: sha512-0VGYwm1YgZd7UMv/DLZIUV0QXj9QbVds3b/ElkoTj9TwpI5GIHAV1Yk74TQ3dAzY0ShT4X/2xq7pihzBNVnvxQ==}
+  '@lucide/svelte@1.54.0':
+    resolution: {integrity: sha512-PbUrcmVPU71zmcs1Kc5RlgF83SsBsSNC+MeuttAHMmvPMuoIJfyDPjit5kpAJxJwsmN2Pk1Bx75AwZxP8vkDvw==}
     peerDependencies:
       svelte: ^5
 
@@ -2727,8 +2727,8 @@ packages:
     resolution: {integrity: sha512-OcRW72ngQvc+MSVWBRIovC/BTW589iUE/Vxav7VeM4RcY9MUjqB+IR6ILG1k9nuW6LiG/nct9uma4/MBtnZbmQ==}
     engines: {node: '>=20'}
 
-  simple-icons@16.33.0:
-    resolution: {integrity: sha512-z14u6A8ngAg9mgERRsNO8YkjIMefehIpBk7A8Dz3Gd91945qFP19MLPSHgV4z8P5u/MRYd5e07OTzaDoB4d6qA==}
+  simple-icons@16.34.0:
+    resolution: {integrity: sha512-UTxKn0PVspk84B2hHF3Dqiqht1yDjJmDc/t4cO7PyCQxCMk6OjEu95pnpGjhLaGeQ4qBrGASbefTIe/+czrX7g==}
     engines: {node: '>=0.12.18'}
 
   sirv@3.0.2:
@@ -3376,7 +3376,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  '@lucide/svelte@1.50.0(svelte@5.57.1)':
+  '@lucide/svelte@1.54.0(svelte@5.57.1)':
     dependencies:
       svelte: 5.57.1
 
@@ -5685,7 +5685,7 @@ snapshots:
       '@shikijs/vscode-textmate': 10.0.2
       '@types/hast': 3.0.5
 
-  simple-icons@16.33.0: {}
+  simple-icons@16.34.0: {}
 
   sirv@3.0.2:
     dependencies:
